@@ -1,0 +1,2 @@
+{"id":"q1","input":{"query":"What is the refund policy?","topK":5},"expected":{"requiredDocId":"doc_refund_policy"}}
+{"id":"q2","input":{"query":"Who approved contract v0.1.0?","topK":5},"expected":{"requiredDocId":"doc_contract_adr"}}
