@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "9"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck (all)
+        run: pnpm -r run typecheck
+
+      - name: Build (all)
+        run: pnpm -r run build
+
+      # Contracts: breaking change gate (requires compat_snapshot.current.json to exist)
+      - name: Contracts breaking-check
+        run: pnpm -C packages/contracts check:breaking
+
+      # Evals: smoke gate
+      - name: Evals smoke
+        run: pnpm -C packages/evals eval:smoke
+
+      - name: Upload eval report artifact (best-effort)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-smoke-report
+          path: packages/evals/dist/**/*
