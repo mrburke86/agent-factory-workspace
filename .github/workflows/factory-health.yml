@@ -4,22 +4,24 @@ on:
   pull_request:
     branches: ["main"]
     paths:
-      - '.github/workflows/factory-health.yml'
-      - 'packages/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'package.json'
-      - 'tsconfig*.json'
-      - '.nvmrc'  push:
+      - ".github/workflows/factory-health.yml"
+      - "packages/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "tsconfig*.json"
+      - ".nvmrc"
+  push:
     branches: ["main"]
     paths:
-      - '.github/workflows/factory-health.yml'
-      - 'packages/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'package.json'
-      - 'tsconfig*.json'
-      - '.nvmrc'  workflow_dispatch: {}
+      - ".github/workflows/factory-health.yml"
+      - "packages/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "tsconfig*.json"
+      - ".nvmrc"
+  workflow_dispatch: {}
 
 concurrency:
   group: factory-health-${{ github.ref }}
@@ -51,10 +53,12 @@ jobs:
       - name: Verify toolchain
         shell: bash
         run: |
+          set -euo pipefail
           node -v
           corepack --version || true
           pnpm -v
           pnpm config get store-dir || true
+
       - name: Get pnpm store path
         id: pnpm-store
         shell: bash
@@ -64,7 +68,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml', '**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
@@ -76,5 +80,3 @@ jobs:
           LOG_LEVEL: info
           LOG_FORMAT: pretty
         run: pnpm factory:health
-
-
