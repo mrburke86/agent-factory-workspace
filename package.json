@@ -13,5 +13,8 @@
     "typecheck": "pnpm -r typecheck",
     "build": "pnpm -r build",
     "contracts:build": "pnpm -C packages/contracts build"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3"
   }
 }
