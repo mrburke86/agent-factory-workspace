@@ -45,12 +45,12 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install deps
-        run: pnpm install --frozen-lockfile
-
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Factory health
         env:
           LOG_LEVEL: info
           LOG_FORMAT: pretty
         run: pnpm factory:health
+
 
 
