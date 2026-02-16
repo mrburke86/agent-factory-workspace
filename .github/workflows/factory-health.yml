@@ -19,38 +19,24 @@ jobs:
   health:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node (from .nvmrc)
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          cache: 'pnpm'
 
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+      - name: Enable Corepack (pnpm from packageManager)
+        run: corepack enable
 
       - name: Install deps
         run: pnpm install --frozen-lockfile --prefer-offline
+
       - name: Factory health
         env:
           LOG_LEVEL: info
           LOG_FORMAT: pretty
         run: pnpm factory:health
-
-
-
