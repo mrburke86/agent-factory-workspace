@@ -1,5 +1,9 @@
 name: factory-health
 
+
+permissions:
+  contents: read
+
 on:
   pull_request:
     branches: ["main"]
@@ -48,4 +52,5 @@ jobs:
           LOG_LEVEL: info
           LOG_FORMAT: pretty
         run: pnpm factory:health
+
 
