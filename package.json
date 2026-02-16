@@ -1,0 +1,17 @@
+{
+  "name": "agent-factory-workspace",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "evals:smoke": "pnpm -C packages/evals eval:smoke",
+    "evals:build": "pnpm -C packages/evals build",
+    "lint": "pnpm -r lint",
+    "contracts:check:breaking": "pnpm -C packages/contracts check:breaking",
+    "evals:full": "pnpm -C packages/evals eval:full",
+    "test": "pnpm -r test",
+    "factory:health": "pnpm -r build && pnpm -C packages/contracts check:breaking && pnpm -C packages/evals eval:smoke && pnpm -r typecheck",
+    "typecheck": "pnpm -r typecheck",
+    "build": "pnpm -r build",
+    "contracts:build": "pnpm -C packages/contracts build"
+  }
+}
