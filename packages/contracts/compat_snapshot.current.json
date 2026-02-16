@@ -1,0 +1,17 @@
+{
+  "version": "0.1.0",
+  "exports": {
+    "errors.ErrorEnvelopeSchema": {
+      "type": "schema",
+      "signature": "z.object({code,message,correlationId?,details?})"
+    },
+    "events.EventEnvelopeSchema": {
+      "type": "schema",
+      "signature": "z.object({eventName,eventVersion,occurredAt,correlationId,tenantId?,payload})"
+    },
+    "events.IngestionFileReceivedV1": {
+      "type": "schema",
+      "signature": "z.object({fileId,source,originalFilename?,mimeType?,sha256,sizeBytes})"
+    }
+  }
+}
