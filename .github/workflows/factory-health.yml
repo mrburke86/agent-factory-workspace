@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node (from packageManager)
         uses: actions/setup-node@v4
         with:
-          node-version-file: package.json
+          node-version-file: .nvmrc
           cache: 'pnpm'
 
       - name: Setup pnpm
@@ -39,3 +39,4 @@ jobs:
           LOG_LEVEL: info
           LOG_FORMAT: pretty
         run: pnpm factory:health
+
