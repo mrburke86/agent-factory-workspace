@@ -48,6 +48,13 @@ jobs:
       - name: Prepare pnpm (pin from packageManager)
         run: corepack prepare pnpm@9.0.0 --activate
 
+      - name: Verify toolchain
+        shell: bash
+        run: |
+          node -v
+          corepack --version || true
+          pnpm -v
+          pnpm config get store-dir || true
       - name: Get pnpm store path
         id: pnpm-store
         shell: bash
@@ -69,4 +76,5 @@ jobs:
           LOG_LEVEL: info
           LOG_FORMAT: pretty
         run: pnpm factory:health
+
 
