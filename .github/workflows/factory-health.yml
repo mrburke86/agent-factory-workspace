@@ -3,9 +3,23 @@ name: factory-health
 on:
   pull_request:
     branches: ["main"]
-  push:
+    paths:
+      - '.github/workflows/factory-health.yml'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - 'tsconfig*.json'
+      - '.nvmrc'  push:
     branches: ["main"]
-  workflow_dispatch: {}
+    paths:
+      - '.github/workflows/factory-health.yml'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - 'tsconfig*.json'
+      - '.nvmrc'  workflow_dispatch: {}
 
 concurrency:
   group: factory-health-${{ github.ref }}
@@ -16,7 +30,7 @@ permissions:
 
 jobs:
   health:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:
@@ -55,3 +69,4 @@ jobs:
           LOG_LEVEL: info
           LOG_FORMAT: pretty
         run: pnpm factory:health
+
