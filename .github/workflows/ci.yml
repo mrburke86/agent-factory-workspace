@@ -47,7 +47,7 @@ jobs:
 
       - name: Upload eval report artifact (best-effort)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: eval-smoke-report
           path: packages/evals/dist/**/*
