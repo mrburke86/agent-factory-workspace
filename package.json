@@ -12,9 +12,9 @@
     "factory:health": "pnpm -r build && pnpm -C packages/contracts check:breaking && pnpm -C packages/evals eval:smoke && pnpm -r typecheck",
     "typecheck": "pnpm -r typecheck",
     "build": "pnpm -r build",
-    "contracts:build": "pnpm -C packages/contracts build"
+    "contracts:build": "pnpm -C packages/contracts build",
+    "af": "pnpm -C packages/factory build && node packages/factory/dist/cli.js"
   },
-  "af": "pnpm -C packages/factory build && node packages/factory/dist/cli.js",
   "devDependencies": {
     "@types/node": "^25.2.3",
     "typescript": "^5.5.4"
