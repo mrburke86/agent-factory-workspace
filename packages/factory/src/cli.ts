@@ -54,6 +54,11 @@ function agentNew(nameRaw: string) {
 
   const root = repoRoot();
   const baseDir = join(root, "services", "agents", name);
+
+  // if (!name) {
+  //   throw new Error("Missing agent name. Usage: factory <agent-name> [options]");
+  // }
+
   const srcDir = join(baseDir, "src");
 
   if (existsSync(baseDir)) die(`agent already exists: services/agents/${name}`);
@@ -64,12 +69,18 @@ function agentNew(nameRaw: string) {
     id: name,
     name,
     version: "0.1.0",
-    entry: "./dist/index.js"
+    entry: "./dist/index.js",
   };
 
-  writeFileSync(join(baseDir, "agent.json"), JSON.stringify(agentJson, null, 2) + "\n", "utf8");
+  writeFileSync(
+    join(baseDir, "agent.json"),
+    JSON.stringify(agentJson, null, 2) + "\n",
+    "utf8",
+  );
 
-  writeFileSync(join(baseDir, "README.md"), `# ${name}
+  writeFileSync(
+    join(baseDir, "README.md"),
+    `# ${name}
 
 ## Purpose
 Describe what this agent does.
@@ -82,17 +93,25 @@ Describe what this agent does.
 \`\`\`bash
 pnpm -C services/agents/${name} build
 \`\`\`
-`, "utf8");
+`,
+    "utf8",
+  );
 
-  writeFileSync(join(srcDir, "index.ts"), `export type AgentInput = Record<string, unknown>;
+  writeFileSync(
+    join(srcDir, "index.ts"),
+    `export type AgentInput = Record<string, unknown>;
 export type AgentOutput = Record<string, unknown>;
 
 export async function run(input: AgentInput): Promise<AgentOutput> {
   return { ok: true, agent: "${name}", input };
 }
-`, "utf8");
+`,
+    "utf8",
+  );
 
-  writeFileSync(join(baseDir, "tsconfig.json"), `{
+  writeFileSync(
+    join(baseDir, "tsconfig.json"),
+    `{
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
@@ -103,9 +122,13 @@ export async function run(input: AgentInput): Promise<AgentOutput> {
   },
   "include": ["src/**/*.ts"]
 }
-`, "utf8");
+`,
+    "utf8",
+  );
 
-  writeFileSync(join(baseDir, "package.json"), `{
+  writeFileSync(
+    join(baseDir, "package.json"),
+    `{
   "name": "@acme/agent-${name}",
   "private": true,
   "version": "0.1.0",
@@ -115,7 +138,9 @@ export async function run(input: AgentInput): Promise<AgentOutput> {
     "typecheck": "tsc -p tsconfig.json --noEmit"
   }
 }
-`, "utf8");
+`,
+    "utf8",
+  );
 
   console.log(`✅ created services/agents/${name}`);
 }
@@ -123,7 +148,8 @@ export async function run(input: AgentInput): Promise<AgentOutput> {
 async function main() {
   const args = process.argv.slice(2);
 
-  if (args.length === 0 || args[0] === "--help" || args[0] === "-h") return help();
+  if (args.length === 0 || args[0] === "--help" || args[0] === "-h")
+    return help();
   if (args[0] === "--version" || args[0] === "-v") return version();
 
   const [cmd, sub, name] = args;
