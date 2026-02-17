@@ -11,6 +11,9 @@ importers:
       '@types/node':
         specifier: ^25.2.3
         version: 25.2.3
+      typescript:
+        specifier: ^5.5.4
+        version: 5.9.3
 
   packages/contracts:
     dependencies:
@@ -33,6 +36,8 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.9.3
+
+  packages/factory: {}
 
 packages:
 
