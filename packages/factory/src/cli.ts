@@ -2,7 +2,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-function die(msg: string, code = 1) {
+function die(msg: string, code = 1): never {
   console.error(`af: ${msg}`);
   process.exit(code);
 }
@@ -15,13 +15,12 @@ function kebabCase(s: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-function repoRoot() {
-  // assumes running from workspace root or within it
-  // detect by presence of pnpm-workspace.yaml
+function repoRoot(): string {
   let cur = process.cwd();
   for (let i = 0; i < 10; i++) {
     const candidate = join(cur, "pnpm-workspace.yaml");
     if (existsSync(candidate)) return cur;
+
     const parent = resolve(cur, "..");
     if (parent === cur) break;
     cur = parent;
@@ -47,17 +46,13 @@ function version() {
   console.log("0.1.0");
 }
 
-function agentNew(nameRaw: string) {
+function agentNew(nameRaw?: string) {
   if (!nameRaw) die("missing <name>. Example: af agent:new retrieval-smoke");
   const name = kebabCase(nameRaw);
   if (!name) die("invalid name");
 
   const root = repoRoot();
   const baseDir = join(root, "services", "agents", name);
-
-  // if (!name) {
-  //   throw new Error("Missing agent name. Usage: factory <agent-name> [options]");
-  // }
 
   const srcDir = join(baseDir, "src");
 
@@ -114,11 +109,17 @@ export async function run(input: AgentInput): Promise<AgentOutput> {
     `{
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
+    "noEmit": false,
+
     "outDir": "dist",
     "rootDir": "src",
-    "module": "CommonJS",
+
     "target": "ES2022",
-    "types": ["node"]
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "types": ["node"],
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts"]
 }
@@ -132,7 +133,7 @@ export async function run(input: AgentInput): Promise<AgentOutput> {
   "name": "@acme/agent-${name}",
   "private": true,
   "version": "0.1.0",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"
