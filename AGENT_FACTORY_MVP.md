@@ -217,7 +217,7 @@
 
 ## D3) Repo Patch agent (services/agents/repo-patch)
 
-- [ ] `af agent:new repo-patch`
+- [x] `af agent:new repo-patch`
 - [ ] `run(task)` produces:
   - [ ] deterministic `plan.json`
   - [ ] minimal unified diff patch

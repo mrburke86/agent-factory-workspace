@@ -1,0 +1,53 @@
+{
+  "id": "repo-patch",
+  "name": "repo-patch",
+  "version": "0.1.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": true
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "ok": {
+        "type": "boolean"
+      },
+      "agent": {
+        "type": "string"
+      },
+      "ms": {
+        "type": "number"
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "ok",
+      "agent",
+      "ms",
+      "errors"
+    ],
+    "additionalProperties": true
+  },
+  "capabilities": []
+}
