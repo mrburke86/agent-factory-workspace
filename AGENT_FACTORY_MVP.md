@@ -191,27 +191,27 @@
 
 ## D2) Repo Patch MVP contracts (packages/contracts)
 
-- [ ] Define Task schema:
-  - [ ] `taskId`
-  - [ ] `goal`
-  - [ ] `constraints[]`
-  - [ ] `fileScope[]` (paths)
-  - [ ] `mode` (dry-run/apply/validate/pr-ready)
-- [ ] Define Plan schema:
-  - [ ] ordered `steps[]`
-  - [ ] `touchedFiles[]`
-  - [ ] `commands[]`
-  - [ ] `risks[]`
-- [ ] Define Patch schema:
-  - [ ] `{ path, unifiedDiff, rationale }[]`
-- [ ] Define Result schema:
-  - [ ] `{ ok, correlationId, timings, outputs, errors[] }`
+- [x] Define Task schema:
+  - [x] `taskId`
+  - [x] `goal`
+  - [x] `constraints[]`
+  - [x] `fileScope[]` (paths)
+  - [x] `mode` (dry-run/apply/validate/pr-ready)
+- [x] Define Plan schema:
+  - [x] ordered `steps[]`
+  - [x] `touchedFiles[]`
+  - [x] `commands[]`
+  - [x] `risks[]`
+- [x] Define Patch schema:
+  - [x] `{ path, unifiedDiff, rationale }[]`
+- [x] Define Result schema:
+  - [x] `{ ok, correlationId, timings, outputs, errors[] }`
 
-### D2 Acceptance tests (target)
+### D2 Acceptance tests (verified)
 
-- [ ] `pnpm -C packages/contracts build`
-- [ ] `pnpm -C packages/contracts check:breaking`
-- [ ] `pnpm factory:health`
+- [x] `pnpm -C packages/contracts build`
+- [x] `pnpm -C packages/contracts check:breaking`
+- [x] `pnpm factory:health`
 
 ---
 
