@@ -4,3 +4,6 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      gh-actions:
+        patterns: ["*"] # batches all action bumps into one PR
