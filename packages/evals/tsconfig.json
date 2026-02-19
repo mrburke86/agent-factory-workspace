@@ -9,5 +9,5 @@
     "noEmit": false,
     "emitDeclarationOnly": false
   },
-  "include": ["src/**/*", "scripts/**/*"]
+  "include": ["src/**/*.ts", "scripts/**/*.ts"]
 }

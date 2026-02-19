@@ -1,6 +1,14 @@
-export type AgentInput = Record<string, unknown>;
-export type AgentOutput = Record<string, unknown>;
+import { wrap, type AgentResult } from "@acme/agent-runtime";
 
-export async function run(input: AgentInput): Promise<AgentOutput> {
-  return { ok: true, agent: "esm-smoke", input };
+export type AgentInput = Record<string, unknown>;
+export type AgentData = Record<string, unknown>;
+
+const AGENT_NAME = "esm-smoke";
+
+async function runImpl(input: AgentInput): Promise<AgentData> {
+  return { input };
+}
+
+export async function run(input: AgentInput): Promise<AgentResult<AgentData>> {
+  return wrap<AgentInput, AgentData>(AGENT_NAME, runImpl, input);
 }

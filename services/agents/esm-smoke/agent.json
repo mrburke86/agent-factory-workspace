@@ -2,5 +2,44 @@
   "id": "esm-smoke",
   "name": "esm-smoke",
   "version": "0.1.0",
-  "entry": "./dist/index.js"
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "value": { "type": "string" }
+    },
+    "required": [],
+    "additionalProperties": true
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "ok": { "type": "boolean" },
+      "agent": { "type": "string" },
+      "ms": { "type": "number" },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": { "type": "string" },
+            "message": { "type": "string" }
+          },
+          "required": ["code", "message"],
+          "additionalProperties": false
+        }
+      },
+      "data": {
+        "type": "object",
+        "properties": {
+          "echo": { "type": "string" }
+        },
+        "required": [],
+        "additionalProperties": true
+      }
+    },
+    "required": ["ok", "agent", "ms", "errors"],
+    "additionalProperties": true
+  },
+  "capabilities": ["esm", "smoke-test", "echo"]
 }

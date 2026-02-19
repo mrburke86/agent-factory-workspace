@@ -37,7 +37,37 @@ importers:
         specifier: ^5.5.4
         version: 5.9.3
 
-  packages/factory: {}
+  packages/factory:
+    dependencies:
+      '@acme/agent-runner':
+        specifier: workspace:*
+        version: link:../../services/agent-runner
+
+  services/agent-runner:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../agent-runtime
+
+  services/agent-runtime: {}
+
+  services/agents/esm-smoke:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../../agent-runtime
+
+  services/agents/repo-patch:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../../agent-runtime
+
+  services/agents/retrieval-smoke:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../../agent-runtime
 
 packages:
 

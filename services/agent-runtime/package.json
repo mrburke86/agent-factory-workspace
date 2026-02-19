@@ -1,10 +1,10 @@
 {
-  "name": "@acme/agent-esm-smoke",
+  "name": "@acme/agent-runtime",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "dependencies": {
-    "@acme/agent-runtime": "workspace:*"
+  "exports": {
+    ".": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

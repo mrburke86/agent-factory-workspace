@@ -1,8 +1,11 @@
 {
-  "name": "@acme/agent-esm-smoke",
+  "name": "@acme/agent-runner",
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "dependencies": {
     "@acme/agent-runtime": "workspace:*"
   },
