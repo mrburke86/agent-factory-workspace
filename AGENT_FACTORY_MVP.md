@@ -678,3 +678,4 @@ contain full sub-agent outputs.
 | 5      | D5        | GitHub Actions CI runs pnpm install--frozen-lockfile + pnpm factory:health under 60s target                | PASS   | 2026-02-20 |
 | 6      | D5a       | Lockfile sync — regenerate pnpm-lock.yaml to include @acme/contracts in repo-patch                         | PASS   | 2026-02-20 |
 | 7      | D6        | repo-read agent: file-list, file-content, symbol-search, references query types                            | PASS   | 2026-02-20 |
+| 8      | D5a       | Lockfile sync verified — frozen-lockfile passes, D5a marked complete                                       | PASS   | 2026-02-20 |
