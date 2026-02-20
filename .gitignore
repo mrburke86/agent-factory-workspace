@@ -14,3 +14,5 @@ _contracts_showConfig.json
 _contracts_tsc_showConfig.json
 _evals_tsc_showConfig.json
 compat_snapshot.current.json
+
+.factory/
