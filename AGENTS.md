@@ -1,3 +1,5 @@
+<!-- VERSION: 2026-02-19 -->
+
 # Agent Factory Workspace — Core Invariants
 
 ## Purpose
@@ -73,3 +75,108 @@ Exit code invariant:
 ## Command Style
 
 Use `pnpm -C <path> <script>` formatting for workspace path execution.
+
+---
+
+## Repo Patch Agent Invariants
+
+> These invariants apply to the `repo-patch` agent and any agent that modifies
+> repository files. Enforced starting at milestone D3a.
+
+### File Scope Enforcement
+
+- Every `repo-patch` run receives a `task.fileScope[]` array.
+- The agent MUST reject (return `ok: false`) any patch targeting a path NOT
+  listed in `fileScope[]`.
+- Glob patterns in `fileScope` are NOT supported in MVP — paths are exact matches
+  or directory prefixes (e.g., `src/` matches `src/foo.ts`).
+- The agent MUST NOT modify files outside the repo working tree.
+
+### Max Changed Files
+
+- Default limit: **10 files** per task.
+- Overridable via `task.constraints[]` with `"max-files:<n>"` format.
+- If the generated patch set exceeds the limit, the agent returns `ok: false`
+  with a descriptive error.
+
+### Lockfile Protection
+
+- The agent MUST refuse to modify lockfiles (`pnpm-lock.yaml`,
+  `package-lock.json`, `yarn.lock`) unless `task.constraints[]` includes
+  `"allow-lockfile-changes"`.
+
+### Command Allowlisting
+
+- The agent may only execute commands matching these patterns:
+  - `pnpm -r build`
+  - `pnpm -C <workspace-path> <script-name>`
+  - `pnpm factory:health`
+  - `pnpm af <subcommand> [args]`
+- All other commands (shell commands, `rm`, `curl`, `wget`, `npm`, `npx`, etc.)
+  are forbidden.
+- The allowlist is checked before execution, not after.
+
+### Artifact Directory Structure
+
+Every `repo-patch` run produces artifacts at `.factory/runs/<correlationId>/`:
+
+```
+.factory/runs/<uuid>/
+├── task.json          # Input task (verbatim)
+├── plan.json          # Generated plan
+├── patches/           # One .diff file per changed file
+│   ├── 001-<filename>.diff
+│   └── 002-<filename>.diff
+├── result.json        # Final AgentResult
+└── commands.log       # Commands executed + exit codes
+```
+
+- `correlationId` is a UUID v4 generated at run start.
+- All timestamps in artifacts are ISO 8601 strings (never `Date` objects).
+- Artifact directory is created even for dry-run mode.
+
+### Patch Format
+
+- Patches are unified diff format.
+- Each patch entry includes: `{ path, unifiedDiff, rationale }`.
+- Patches are applied in array order.
+- Patch application is atomic: if any patch fails to apply, none are applied
+  and the agent returns `ok: false`.
+
+---
+
+## Sprint Protocol
+
+> Defines the Codex ↔ PowerShell ↔ Claude feedback loop used to build this
+> repo incrementally. This is an invariant of the development process.
+
+### Loop Actors
+
+| Actor              | Role                                                       |
+| ------------------ | ---------------------------------------------------------- |
+| **Claude Project** | Prompt compiler — analyzes state, emits next Codex prompt  |
+| **Codex**          | Executor — implements one milestone, updates docs, commits |
+| **PowerShell**     | Verifier — runs acceptance commands, captures exit codes   |
+| **User**           | Loop operator — pastes outputs between systems             |
+
+### Loop Sequence
+
+1. User pastes prior Codex Output + PowerShell Verification into Claude.
+2. Claude classifies gate (PASS/FAIL), resolves conflicts, selects next milestone.
+3. Claude emits a populated Codex prompt (single milestone, ≤4,000 tokens).
+4. User pastes prompt into Codex. Codex executes the sprint.
+5. User runs PowerShell verification commands from Codex output.
+6. User pastes both outputs back into Claude. Loop repeats.
+
+### Ground Truth Rule
+
+PowerShell verification output is the sole source of truth for gate status.
+If Codex claims PASS but PowerShell shows a non-zero exit code, the gate is FAIL.
+
+### Sprint Constraints
+
+- One milestone per sprint (never combine).
+- Milestones are sequential — no skipping.
+- Each sprint produces exactly one commit (or zero if no code changed).
+- `AGENT_FACTORY_MVP.md` and `AGENTS.md` are updated by Codex, never manually.
+- Sprint results are logged in `AGENT_FACTORY_MVP.md` section `F) Sprint Log`.
