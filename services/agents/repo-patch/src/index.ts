@@ -14,8 +14,51 @@ import { nowIso, wrap, type AgentResult } from "@acme/agent-runtime";
 
 const AGENT_NAME = "repo-patch";
 const HELLO_FILE_PATH = "hello.txt";
-const SUPPORTED_GOAL = "add hello.txt with content hello world";
 const HELLO_FILE_CONTENT = "hello world\n";
+const DEFAULT_MAX_FILES = 10;
+const LOCKFILES = new Set(["pnpm-lock.yaml", "package-lock.json", "yarn.lock"]);
+const ALLOW_LOCKFILE_CHANGES = "allow-lockfile-changes";
+const MAX_FILES_CONSTRAINT_PREFIX = "max-files:";
+
+function normalizePath(value: string): string {
+  return value.replaceAll("\\", "/").replace(/^\.\/+/, "").replace(/\/{2,}/g, "/").trim();
+}
+
+export function isPathInScope(targetPath: string, fileScope: string[]): boolean {
+  const normalizedTarget = normalizePath(targetPath);
+  for (const scopeEntry of fileScope) {
+    const normalizedScope = normalizePath(scopeEntry);
+    if (normalizedScope.length === 0) continue;
+    if (normalizedTarget === normalizedScope) return true;
+    if (normalizedScope.endsWith("/")) {
+      if (normalizedTarget.startsWith(normalizedScope)) return true;
+      continue;
+    }
+    if (normalizedTarget.startsWith(`${normalizedScope}/`)) return true;
+  }
+  return false;
+}
+
+function readMaxFiles(constraints: string[]): number {
+  for (const constraint of constraints) {
+    if (!constraint.startsWith(MAX_FILES_CONSTRAINT_PREFIX)) continue;
+    const raw = constraint.slice(MAX_FILES_CONSTRAINT_PREFIX.length);
+    const parsed = Number.parseInt(raw, 10);
+    if (Number.isInteger(parsed) && parsed >= 1) {
+      return parsed;
+    }
+  }
+  return DEFAULT_MAX_FILES;
+}
+
+function isAllowlistedCommand(command: string): boolean {
+  const cmd = command.trim();
+  if (cmd === "pnpm -r build") return true;
+  if (cmd === "pnpm factory:health") return true;
+  if (/^pnpm -C \S+ \S+$/.test(cmd)) return true;
+  if (/^pnpm af \S+(?: .+)?$/.test(cmd)) return true;
+  return false;
+}
 
 function buildPlan(task: RepoPatchTask, touchedFiles: string[]): RepoPatchPlan {
   const steps = [
@@ -62,24 +105,61 @@ async function applyPatches(task: RepoPatchTask, patches: RepoPatchPatchItem[]):
   }
 }
 
-async function runImpl(input: RepoPatchTask): Promise<RepoPatchResult> {
-  const task = RepoPatchTaskSchema.parse(input);
-  const normalizedGoal = task.goal.trim().toLowerCase();
-  if (normalizedGoal !== SUPPORTED_GOAL) {
-    throw new Error(`unsupported goal for D3a: ${task.goal}`);
+function collectSafetyErrors(task: RepoPatchTask, plan: RepoPatchPlan, patches: RepoPatchPatchItem[]) {
+  const errors: Array<{ code: string; message: string }> = [];
+  const uniquePaths = new Set<string>();
+  const allowLockfileChanges = task.constraints.includes(ALLOW_LOCKFILE_CHANGES);
+
+  for (const patch of patches) {
+    const normalizedPath = normalizePath(patch.path);
+    uniquePaths.add(normalizedPath);
+
+    if (!isPathInScope(normalizedPath, task.fileScope)) {
+      errors.push({
+        code: "SCOPE_VIOLATION",
+        message: `scope_violation: patch path '${patch.path}' not in fileScope`,
+      });
+    }
+
+    const fileName = normalizedPath.split("/").pop() ?? normalizedPath;
+    if (LOCKFILES.has(fileName) && !allowLockfileChanges) {
+      errors.push({
+        code: "LOCKFILE_PROTECTED",
+        message: `lockfile_protected: refusing to modify ${fileName} without allow-lockfile-changes`,
+      });
+    }
   }
 
-  const patch = buildHelloPatch();
-  const patches = [patch];
-  const touchedFiles = patches.map((item) => item.path);
-  const plan = buildPlan(task, touchedFiles);
+  const maxFiles = readMaxFiles(task.constraints);
+  if (uniquePaths.size > maxFiles) {
+    errors.push({
+      code: "MAX_FILES_EXCEEDED",
+      message: `max_files_exceeded: ${uniquePaths.size} > ${maxFiles}`,
+    });
+  }
 
-  await applyPatches(task, patches);
+  for (const command of plan.commands) {
+    if (!isAllowlistedCommand(command)) {
+      errors.push({
+        code: "COMMAND_NOT_ALLOWLISTED",
+        message: `command_not_allowlisted: ${command}`,
+      });
+    }
+  }
 
+  return errors;
+}
+
+function buildResult(
+  task: RepoPatchTask,
+  plan: RepoPatchPlan,
+  patches: RepoPatchPatchItem[],
+  errors: Array<{ code: string; message: string }>,
+): RepoPatchResult {
   const startedAt = nowIso();
   const finishedAt = nowIso();
   return RepoPatchResultSchema.parse({
-    ok: true,
+    ok: errors.length === 0,
     correlationId: task.taskId,
     timings: {
       startedAt,
@@ -96,8 +176,24 @@ async function runImpl(input: RepoPatchTask): Promise<RepoPatchResult> {
         value: patches,
       },
     ],
-    errors: [],
+    errors,
   });
+}
+
+async function runImpl(input: RepoPatchTask): Promise<RepoPatchResult> {
+  const task = RepoPatchTaskSchema.parse(input);
+  const patch = buildHelloPatch();
+  const patches = [patch];
+  const touchedFiles = patches.map((item) => item.path);
+  const plan = buildPlan(task, touchedFiles);
+  const errors = collectSafetyErrors(task, plan, patches);
+
+  if (errors.length > 0) {
+    return buildResult(task, plan, patches, errors);
+  }
+
+  await applyPatches(task, patches);
+  return buildResult(task, plan, patches, []);
 }
 
 export async function run(input: RepoPatchTask): Promise<AgentResult<RepoPatchResult>> {

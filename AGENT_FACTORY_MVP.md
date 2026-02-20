@@ -253,18 +253,18 @@ containing a plan object and at least one patch entry in outputs.
 > command allowlisting.
 
 - [ ] Hard file scope enforcement:
-  - [ ] reject any patch targeting a path NOT in `task.fileScope[]`
-  - [ ] return `ok: false` with error if scope violated
+  - [x] reject any patch targeting a path NOT in `task.fileScope[]`
+  - [x] return `ok: false` with error if scope violated
 - [ ] Max changed files:
-  - [ ] default limit: **10** files per task
-  - [ ] configurable via `task.constraints[]`
-  - [ ] return `ok: false` with error if exceeded
+  - [x] default limit: **10** files per task
+  - [x] configurable via `task.constraints[]`
+  - [x] return `ok: false` with error if exceeded
 - [ ] Lockfile protection:
-  - [ ] refuse changes to `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`
-  - [ ] unless `task.constraints` includes `"allow-lockfile-changes"`
+  - [x] refuse changes to `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`
+  - [x] unless `task.constraints` includes `"allow-lockfile-changes"`
 - [ ] Command allowlisting:
-  - [ ] only `pnpm -r build`, `pnpm -C <path> <script>` patterns allowed
-  - [ ] reject shell commands, `rm`, `curl`, `wget`, etc.
+  - [x] only `pnpm -r build`, `pnpm -C <path> <script>` patterns allowed
+  - [x] reject shell commands, `rm`, `curl`, `wget`, etc.
 
 ### D3b Acceptance tests
 
@@ -377,3 +377,4 @@ pnpm factory:health
 | ------ | --------- | ------------------------------- | ------ | ---------- |
 | —      | D0–D2     | Platform foundation + contracts | PASS   | pre-sprint |
 | 1      | D3a       | repo-patch run(task) returns deterministic plan + unified diff patches; dry-run supported | PASS   | 2026-02-20 |
+| 2      | D3b       | repo-patch enforces fileScope, max-files, lockfile protection, and command allowlisting | PASS   | 2026-02-20 |
