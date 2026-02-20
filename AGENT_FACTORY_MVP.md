@@ -1,4 +1,4 @@
-<!-- LAST_UPDATED: 2026-02-19 -->
+<!-- LAST_UPDATED: 2026-02-20 -->
 
 # Agent Factory MVP — Wayfinder (Single Source of Truth)
 
@@ -26,10 +26,10 @@
 ## North Star (MVP outcome)
 
 - [ ] You can run **one command** that:
-  - [ ] accepts/loads a **Task** (goal + constraints + file scope + mode)
-  - [ ] generates a **Plan**
-  - [ ] generates a minimal **Patch** (unified diff)
-  - [ ] applies patch (unless dry-run)
+  - [x] accepts/loads a **Task** (goal + constraints + file scope + mode)
+  - [x] generates a **Plan**
+  - [x] generates a minimal **Patch** (unified diff)
+  - [x] applies patch (unless dry-run)
   - [ ] runs **validations**
   - [ ] prepares a **PR-ready** branch/commit (prints `gh pr create` only if allowed)
 
@@ -127,23 +127,20 @@
   - [ ] locate symbols, files, call paths, references
   - [ ] deterministic ordering in outputs
   - [ ] never runs network calls
-
 - [ ] `plan` (support agent)
   - [ ] task → structured plan JSON
   - [ ] touched files + risk flags + commands
-
 - [ ] `validate` (support agent)
   - [ ] runs allowlisted pnpm command sets
   - [ ] captures outputs to artifacts
-
 - [ ] `git-pr` (support agent)
   - [ ] create branch + commit
   - [ ] print push + optional PR creation commands
-
-- [ ] `repo-patch` (MVP "money" agent)
-  - [ ] task → plan → patch → apply → validate → git-ready output
-  - [ ] strict safety rails (scope, max files, lockfile rules)
-  - [ ] deterministic structure
+- [~] `repo-patch` (MVP "money" agent)
+  - [x] task → plan → patch → apply (deterministic stub)
+  - [x] strict safety rails (scope, max files, lockfile rules)
+  - [x] deterministic structure
+  - [ ] task → plan → patch → apply → validate → git-ready output (full orchestration)
 
 ---
 
@@ -252,17 +249,17 @@ containing a plan object and at least one patch entry in outputs.
 > Add enforcement layers: file scope, max changed files, lockfile protection,
 > command allowlisting.
 
-- [ ] Hard file scope enforcement:
+- [x] Hard file scope enforcement:
   - [x] reject any patch targeting a path NOT in `task.fileScope[]`
   - [x] return `ok: false` with error if scope violated
-- [ ] Max changed files:
+- [x] Max changed files:
   - [x] default limit: **10** files per task
   - [x] configurable via `task.constraints[]`
   - [x] return `ok: false` with error if exceeded
-- [ ] Lockfile protection:
+- [x] Lockfile protection:
   - [x] refuse changes to `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`
   - [x] unless `task.constraints` includes `"allow-lockfile-changes"`
-- [ ] Command allowlisting:
+- [x] Command allowlisting:
   - [x] only `pnpm -r build`, `pnpm -C <path> <script>` patterns allowed
   - [x] reject shell commands, `rm`, `curl`, `wget`, etc.
 
@@ -287,7 +284,7 @@ Expected: scope violation returns `ok: false` with descriptive error, exit code 
 
 - [x] Generate `correlationId` (UUID v4) per run
 - [x] Create artifact directory: `.factory/runs/<correlationId>/`
-- [ ] Write artifacts:
+- [x] Write artifacts:
   - [x] `.factory/runs/<id>/task.json` — input task
   - [x] `.factory/runs/<id>/plan.json` — generated plan
   - [x] `.factory/runs/<id>/patches/*.diff` — one file per patch
@@ -349,6 +346,304 @@ pnpm factory:health
 
 ---
 
+## D5a) Lockfile sync fix (prerequisite for D6+)
+
+> `pnpm install --frozen-lockfile` currently fails because
+> `services/agents/repo-patch/package.json` added `@acme/contracts`
+> without regenerating the lockfile. This must be fixed before any new
+> agent scaffolding work, since CI enforces `--frozen-lockfile`.
+
+- [x] Run `pnpm install` to regenerate `pnpm-lock.yaml`
+- [x] Verify: `pnpm install --frozen-lockfile` exits 0
+- [x] Commit updated `pnpm-lock.yaml`
+- [x] CI passes with frozen lockfile
+
+### D5a Acceptance tests
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm -r build
+pnpm factory:health
+```
+
+Expected: all three commands exit 0. `--frozen-lockfile` no longer fails.
+
+---
+
+## D6) repo-read agent — file & symbol lookup
+
+> Deterministic, offline agent that reads the repo working tree and returns
+> structured information about files, symbols, and references. This is the
+> foundation for intelligent plan generation — the planner needs to know
+> what exists before deciding what to change.
+
+- [ ] Scaffold: `af agent:new repo-read`
+- [ ] `services/agents/repo-read/agent.json` with valid inputSchema and outputSchema
+- [ ] inputSchema accepts:
+  - [ ] `repoRoot` (string, path to repo root)
+  - [ ] `queries[]` — array of lookup queries, each with:
+    - [ ] `type` ∈ `{"file-list", "file-content", "symbol-search", "references"}`
+    - [ ] `pattern` (string — glob for files, name for symbols)
+    - [ ] optional `scope` (directory prefix to narrow search)
+- [ ] outputSchema returns:
+  - [ ] `results[]` — one entry per query, each with:
+    - [ ] `queryIndex` (number)
+    - [ ] `type` (matches input query type)
+    - [ ] `matches[]` — sorted deterministically (alphabetical by path, then line number)
+- [ ] `run(input)` implementation:
+  - [ ] `file-list`: recursive directory listing, respects `.gitignore`, returns sorted paths
+  - [ ] `file-content`: reads file(s) matching pattern, returns content + line count
+  - [ ] `symbol-search`: naive grep for export/function/class/interface declarations
+  - [ ] `references`: grep for import/require statements referencing the pattern
+- [ ] No network calls (enforced by eval)
+- [ ] Deterministic output ordering (sorted matches)
+- [ ] Agent imports from `@acme/agent-runtime` only (no runtime copies)
+
+### D6 Acceptance tests
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm -r build
+pnpm af agent:validate repo-read
+pnpm af agent:run repo-read --input '{"repoRoot":".","queries":[{"type":"file-list","pattern":"*.json","scope":"services/agents/retrieval-smoke"}]}' --validate-input
+pnpm af agent:validate:all
+pnpm factory:health
+```
+
+Expected: `agent:run` exits 0 and prints a single JSON line with deterministic
+sorted file matches. `agent:validate:all` still passes (now includes repo-read).
+
+---
+
+## D7) plan agent — task → structured plan
+
+> Deterministic agent that takes a Task (from `@acme/contracts`) and produces
+> a Plan (from `@acme/contracts`). In the MVP, planning is rule-based
+> (no LLM calls). The planner parses the goal string, determines which files
+> to touch, generates step descriptions, and flags risks.
+
+- [ ] Scaffold: `af agent:new plan`
+- [ ] `services/agents/plan/agent.json` with valid inputSchema (Task) and outputSchema (Plan)
+- [ ] `run(task)` implementation:
+  - [ ] parses `task.goal` to determine action type (create file, modify file, delete file)
+  - [ ] generates ordered `steps[]` describing the work
+  - [ ] populates `touchedFiles[]` from parsed goal + `task.fileScope[]`
+  - [ ] generates `commands[]` (empty in dry-run, allowlisted pnpm commands otherwise)
+  - [ ] populates `risks[]` (e.g., "writes new file", "modifies existing file")
+  - [ ] validates `touchedFiles` against `task.fileScope[]` (returns error if out of scope)
+- [ ] No network calls
+- [ ] Deterministic output for identical inputs
+- [ ] Agent imports from `@acme/contracts` and `@acme/agent-runtime`
+
+### D7 Acceptance tests
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm -r build
+pnpm af agent:validate plan
+pnpm af agent:run plan --input '{"taskId":"plan-001","goal":"add hello.txt with content hello world","constraints":[],"fileScope":["hello.txt"],"mode":"dry-run"}' --validate-input
+pnpm af agent:validate:all
+pnpm factory:health
+```
+
+Expected: `agent:run` exits 0, prints JSON with a valid Plan containing
+`steps[]`, `touchedFiles: ["hello.txt"]`, `commands: []`, and `risks[]`.
+
+---
+
+## D8) validate agent — command execution + output capture
+
+> Agent that runs allowlisted pnpm commands and captures their output.
+> Used after patching to verify the repo still builds and passes health checks.
+> In MVP, execution is real (not mocked) but constrained to the command allowlist.
+
+- [ ] Scaffold: `af agent:new validate`
+- [ ] `services/agents/validate/agent.json` with valid inputSchema and outputSchema
+- [ ] inputSchema accepts:
+  - [ ] `commands[]` — array of command strings to execute
+  - [ ] `repoRoot` (string, working directory for execution)
+  - [ ] `artifactDir` (string, path to write output logs)
+- [ ] outputSchema returns:
+  - [ ] `results[]` — one per command:
+    - [ ] `command` (string)
+    - [ ] `exitCode` (number)
+    - [ ] `stdout` (string, truncated to 10KB)
+    - [ ] `stderr` (string, truncated to 10KB)
+    - [ ] `durationMs` (number)
+  - [ ] `allPassed` (boolean — true if all exitCode === 0)
+- [ ] `run(input)` implementation:
+  - [ ] validates each command against the allowlist before execution
+  - [ ] rejects forbidden commands with `ok: false` and descriptive error
+  - [ ] executes commands sequentially via `child_process.execSync` or `spawn`
+  - [ ] captures stdout/stderr per command
+  - [ ] writes combined output to `artifactDir/commands.log`
+  - [ ] returns structured results
+- [ ] Command allowlist (same as AGENTS.md):
+  - [ ] `pnpm -r build`
+  - [ ] `pnpm -C <workspace-path> <script-name>`
+  - [ ] `pnpm factory:health`
+  - [ ] `pnpm af <subcommand> [args]`
+- [ ] No network calls from the agent itself (commands may access filesystem)
+- [ ] Agent imports from `@acme/agent-runtime` only
+
+### D8 Acceptance tests
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm -r build
+pnpm af agent:validate validate
+# Run with a simple allowlisted command
+pnpm af agent:run validate --input '{"commands":["pnpm -r build"],"repoRoot":".","artifactDir":".factory/test-validate"}' --validate-input
+# Verify forbidden command is rejected
+pnpm af agent:run validate --input '{"commands":["rm -rf /"],"repoRoot":".","artifactDir":".factory/test-validate-bad"}' --validate-input
+pnpm af agent:validate:all
+pnpm factory:health
+```
+
+Expected: first `agent:run` exits 0 with `allPassed: true`. Second `agent:run`
+exits 0 with `ok: false` and a command-rejection error. Forbidden commands are
+never executed.
+
+---
+
+## D9) git-pr agent — branch + commit + PR command output
+
+> Agent that prepares a git-ready state: creates a branch, stages changes,
+> commits, and prints the `gh pr create` command. In MVP, actual git operations
+> are **dry-run only** — the agent returns the commands it _would_ execute
+> without running them, unless mode is `"pr-ready"`.
+
+- [ ] Scaffold: `af agent:new git-pr`
+- [ ] `services/agents/git-pr/agent.json` with valid inputSchema and outputSchema
+- [ ] inputSchema accepts:
+  - [ ] `branchName` (string)
+  - [ ] `commitMessage` (string)
+  - [ ] `patchedFiles[]` (string array — paths that were modified)
+  - [ ] `mode` ∈ `{"dry-run", "pr-ready"}`
+  - [ ] `repoRoot` (string)
+- [ ] outputSchema returns:
+  - [ ] `commands[]` — ordered list of git/gh commands generated:
+    - [ ] `git checkout -b <branch>`
+    - [ ] `git add <file>` (one per patched file)
+    - [ ] `git commit -m "<message>"`
+    - [ ] `git push origin <branch>`
+    - [ ] `gh pr create --title "<title>" --body "<body>"`
+  - [ ] `executed` (boolean — true only if mode was `"pr-ready"`)
+  - [ ] `branchName` (string)
+- [ ] `run(input)` implementation:
+  - [ ] generates deterministic command list from input
+  - [ ] in `"dry-run"` mode: returns commands without executing any
+  - [ ] in `"pr-ready"` mode: executes git commands (NOT `gh pr create` — only prints it)
+  - [ ] validates branchName format (no spaces, no special chars beyond `_/`)
+- [ ] No network calls (git push/gh pr are printed, not executed in dry-run)
+- [ ] Agent imports from `@acme/agent-runtime` only
+
+### D9 Acceptance tests
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm -r build
+pnpm af agent:validate git-pr
+pnpm af agent:run git-pr --input '{"branchName":"factory/test-001","commitMessage":"test: add hello.txt","patchedFiles":["hello.txt"],"mode":"dry-run","repoRoot":"."}' --validate-input
+pnpm af agent:validate:all
+pnpm factory:health
+```
+
+Expected: `agent:run` exits 0, prints JSON with `commands[]` containing
+the git/gh command sequence and `executed: false` (dry-run mode).
+
+---
+
+## D10) repo-patch orchestration — wire support agents end-to-end
+
+> Upgrade `repo-patch` from a standalone stub to an orchestrator that calls
+> the support agents in sequence: repo-read → plan → patch → validate → git-pr.
+> This is the "real" repo-patch that chains agent outputs together.
+
+- [ ] `repo-patch` `run(task)` calls support agents in order:
+  - [ ] Step 1: Call `repo-read` to gather context about `task.fileScope[]`
+  - [ ] Step 2: Call `plan` with task + repo-read context → produces Plan
+  - [ ] Step 3: Generate patches from Plan (existing patch logic)
+  - [ ] Step 4: Apply patches (unless dry-run)
+  - [ ] Step 5: Call `validate` with `plan.commands` (unless dry-run/validate skipped)
+  - [ ] Step 6: Call `git-pr` if mode is `"pr-ready"` (dry-run otherwise)
+- [ ] Orchestration uses agent-runner to invoke sub-agents (manifest-driven)
+- [ ] Each sub-agent call is logged in artifacts (`commands.log`)
+- [ ] If any sub-agent returns `ok: false`, repo-patch stops and returns `ok: false`
+- [ ] All existing safety rails (scope, max-files, lockfile) still enforced
+- [ ] Artifact directory includes sub-agent outputs:
+  - [ ] `.factory/runs/<id>/repo-read.json`
+  - [ ] `.factory/runs/<id>/plan.json` (now from plan agent, not inline)
+  - [ ] `.factory/runs/<id>/validate.json`
+  - [ ] `.factory/runs/<id>/git-pr.json`
+- [ ] Backward compatible: existing acceptance tests still pass
+
+### D10 Acceptance tests
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm -r build
+pnpm af agent:validate repo-patch
+# Full orchestration in dry-run
+pnpm af agent:run repo-patch --input '{"taskId":"orch-001","goal":"add hello.txt with content hello world","constraints":[],"fileScope":["hello.txt"],"mode":"dry-run"}' --validate-input
+# Verify artifact directory contains sub-agent outputs
+if (Test-Path ".factory/runs") { Get-ChildItem ".factory/runs" -Recurse | Select-Object FullName } else { Write-Error "No .factory/runs directory" }
+# Existing D3a test still passes
+pnpm af agent:run repo-patch --input '{"taskId":"test-001","goal":"add hello.txt with content hello world","constraints":[],"fileScope":["hello.txt"],"mode":"dry-run"}' --validate-input
+pnpm factory:health
+```
+
+Expected: `agent:run` exits 0, prints JSON with `ok: true`. Artifact directory
+contains `repo-read.json`, `plan.json`, `validate.json` (or skip marker),
+and `git-pr.json`. All prior D3a/D3b/D3c tests still pass.
+
+---
+
+## D11) North Star — single command, full pipeline, PR-ready
+
+> Wire the orchestrated `repo-patch` into `factory run` so that one command
+> does everything: task → read → plan → patch → apply → validate → git-ready.
+> This completes the MVP North Star outcome.
+
+- [ ] `pnpm factory run --task "<text>" --scope <path>` runs full orchestrated pipeline
+- [ ] `pnpm factory run --task "<text>" --scope <path> --dry-run` produces plan + patches only
+- [ ] `pnpm factory run --task "<text>" --scope <path> --mode pr-ready` produces branch + commit + PR command
+- [ ] `factory run` output includes:
+  - [ ] `event: "factory.result"`
+  - [ ] `correlationId`
+  - [ ] `ok` (boolean)
+  - [ ] `plan` summary
+  - [ ] `patchCount`
+  - [ ] `validationPassed` (boolean or null if skipped)
+  - [ ] `gitCommands[]` (if pr-ready)
+- [ ] Exit codes:
+  - [ ] `0` — pipeline succeeded
+  - [ ] `2` — validation failed (build broken, scope violation, etc.)
+  - [ ] `1` — usage/wiring error
+- [ ] All North Star checkboxes can be marked `[x]`
+
+### D11 Acceptance tests
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm -r build
+# Dry-run: full pipeline, no side effects
+pnpm factory run --task "add hello.txt with content hello world" --dry-run --scope hello.txt
+# Validate mode
+pnpm factory run --task "add hello.txt with content hello world" --scope hello.txt --mode validate
+# PR-ready mode (dry-run of git commands)
+pnpm factory run --task "add hello.txt with content hello world" --scope hello.txt --mode pr-ready
+# Verify artifact directory
+if (Test-Path ".factory/runs") { Get-ChildItem ".factory/runs" -Recurse -Depth 2 | Select-Object FullName } else { Write-Error "No .factory/runs directory" }
+pnpm factory:health
+```
+
+Expected: all three `factory run` invocations exit 0 with `event: "factory.result"`
+and `ok: true`. PR-ready output includes `gitCommands[]`. Artifact directories
+contain full sub-agent outputs.
+
+---
+
 # E) Canonical commands (copy/paste)
 
 ## Fast loop
@@ -373,11 +668,12 @@ pnpm factory:health
 
 > Codex appends one row per sprint. Do not manually edit.
 
-| Sprint | Milestone | Description                     | Status | Date       |
-| ------ | --------- | ------------------------------- | ------ | ---------- |
-| —      | D0–D2     | Platform foundation + contracts | PASS   | pre-sprint |
-| 1      | D3a       | repo-patch run(task) returns deterministic plan + unified diff patches; dry-run supported | PASS   | 2026-02-20 |
-| 2      | D3b       | repo-patch enforces fileScope, max-files, lockfile protection, and command allowlisting | PASS   | 2026-02-20 |
+| Sprint | Milestone | Description                                                                                                | Status | Date       |
+| ------ | --------- | ---------------------------------------------------------------------------------------------------------- | ------ | ---------- |
+| —      | D0–D2     | Platform foundation + contracts                                                                            | PASS   | pre-sprint |
+| 1      | D3a       | repo-patch run(task) returns deterministic plan + unified diff patches; dry-run supported                  | PASS   | 2026-02-20 |
+| 2      | D3b       | repo-patch enforces fileScope, max-files, lockfile protection, and command allowlisting                    | PASS   | 2026-02-20 |
 | 3      | D3c       | repo-patch writes .factory/runs/<id> artifacts (task/plan/patches/result/commands) with UUID + ISO timings | PASS   | 2026-02-20 |
-| 4      | D4        | factory run CLI accepts --task/--dry-run/--scope and prints factory.result JSON event | PASS   | 2026-02-20 |
-| 5      | D5        | GitHub Actions CI runs pnpm install--frozen-lockfile + pnpm factory:health under 60s target | PASS   | 2026-02-20 |
+| 4      | D4        | factory run CLI accepts --task/--dry-run/--scope and prints factory.result JSON event                      | PASS   | 2026-02-20 |
+| 5      | D5        | GitHub Actions CI runs pnpm install--frozen-lockfile + pnpm factory:health under 60s target                | PASS   | 2026-02-20 |
+| 6      | D5a       | Lockfile sync — regenerate pnpm-lock.yaml to include @acme/contracts in repo-patch                         | PASS   | 2026-02-20 |
