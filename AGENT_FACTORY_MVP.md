@@ -334,10 +334,10 @@ Expected: exits 0, prints single JSON line with `event: "factory.result"`.
 
 ## D5) CI (keep velocity, prevent regressions)
 
-- [ ] Add GitHub Actions workflow:
-  - [ ] `pnpm install --frozen-lockfile`
-  - [ ] `pnpm factory:health`
-- [ ] Target runtime < 60s
+- [x] Add GitHub Actions workflow:
+  - [x] `pnpm install --frozen-lockfile`
+  - [x] `pnpm factory:health`
+- [x] Target runtime < 60s
 
 ### D5 Acceptance tests
 
@@ -380,3 +380,4 @@ pnpm factory:health
 | 2      | D3b       | repo-patch enforces fileScope, max-files, lockfile protection, and command allowlisting | PASS   | 2026-02-20 |
 | 3      | D3c       | repo-patch writes .factory/runs/<id> artifacts (task/plan/patches/result/commands) with UUID + ISO timings | PASS   | 2026-02-20 |
 | 4      | D4        | factory run CLI accepts --task/--dry-run/--scope and prints factory.result JSON event | PASS   | 2026-02-20 |
+| 5      | D5        | GitHub Actions CI runs pnpm install--frozen-lockfile + pnpm factory:health under 60s target | PASS   | 2026-02-20 |
