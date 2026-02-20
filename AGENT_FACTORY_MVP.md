@@ -123,10 +123,10 @@
 
 > These are the "real" agents that implement the Repo Patch workflow.
 
-- [ ] `repo-read` (support agent)
-  - [ ] locate symbols, files, call paths, references
-  - [ ] deterministic ordering in outputs
-  - [ ] never runs network calls
+- [x] `repo-read` (support agent)
+  - [x] locate symbols, files, call paths, references
+  - [x] deterministic ordering in outputs
+  - [x] never runs network calls
 - [ ] `plan` (support agent)
   - [ ] task → structured plan JSON
   - [ ] touched files + risk flags + commands
@@ -377,27 +377,27 @@ Expected: all three commands exit 0. `--frozen-lockfile` no longer fails.
 > foundation for intelligent plan generation — the planner needs to know
 > what exists before deciding what to change.
 
-- [ ] Scaffold: `af agent:new repo-read`
-- [ ] `services/agents/repo-read/agent.json` with valid inputSchema and outputSchema
-- [ ] inputSchema accepts:
-  - [ ] `repoRoot` (string, path to repo root)
-  - [ ] `queries[]` — array of lookup queries, each with:
-    - [ ] `type` ∈ `{"file-list", "file-content", "symbol-search", "references"}`
-    - [ ] `pattern` (string — glob for files, name for symbols)
-    - [ ] optional `scope` (directory prefix to narrow search)
-- [ ] outputSchema returns:
-  - [ ] `results[]` — one entry per query, each with:
-    - [ ] `queryIndex` (number)
-    - [ ] `type` (matches input query type)
-    - [ ] `matches[]` — sorted deterministically (alphabetical by path, then line number)
-- [ ] `run(input)` implementation:
-  - [ ] `file-list`: recursive directory listing, respects `.gitignore`, returns sorted paths
-  - [ ] `file-content`: reads file(s) matching pattern, returns content + line count
-  - [ ] `symbol-search`: naive grep for export/function/class/interface declarations
-  - [ ] `references`: grep for import/require statements referencing the pattern
-- [ ] No network calls (enforced by eval)
-- [ ] Deterministic output ordering (sorted matches)
-- [ ] Agent imports from `@acme/agent-runtime` only (no runtime copies)
+- [x] Scaffold: `af agent:new repo-read`
+- [x] `services/agents/repo-read/agent.json` with valid inputSchema and outputSchema
+- [x] inputSchema accepts:
+  - [x] `repoRoot` (string, path to repo root)
+  - [x] `queries[]` — array of lookup queries, each with:
+    - [x] `type` ∈ `{"file-list", "file-content", "symbol-search", "references"}`
+    - [x] `pattern` (string — glob for files, name for symbols)
+    - [x] optional `scope` (directory prefix to narrow search)
+- [x] outputSchema returns:
+  - [x] `results[]` — one entry per query, each with:
+    - [x] `queryIndex` (number)
+    - [x] `type` (matches input query type)
+    - [x] `matches[]` — sorted deterministically (alphabetical by path, then line number)
+- [x] `run(input)` implementation:
+  - [x] `file-list`: recursive directory listing, respects `.gitignore`, returns sorted paths
+  - [x] `file-content`: reads file(s) matching pattern, returns content + line count
+  - [x] `symbol-search`: naive grep for export/function/class/interface declarations
+  - [x] `references`: grep for import/require statements referencing the pattern
+- [x] No network calls (enforced by eval)
+- [x] Deterministic output ordering (sorted matches)
+- [x] Agent imports from `@acme/agent-runtime` only (no runtime copies)
 
 ### D6 Acceptance tests
 
@@ -677,3 +677,4 @@ contain full sub-agent outputs.
 | 4      | D4        | factory run CLI accepts --task/--dry-run/--scope and prints factory.result JSON event                      | PASS   | 2026-02-20 |
 | 5      | D5        | GitHub Actions CI runs pnpm install--frozen-lockfile + pnpm factory:health under 60s target                | PASS   | 2026-02-20 |
 | 6      | D5a       | Lockfile sync — regenerate pnpm-lock.yaml to include @acme/contracts in repo-patch                         | PASS   | 2026-02-20 |
+| 7      | D6        | repo-read agent: file-list, file-content, symbol-search, references query types                            | PASS   | 2026-02-20 |

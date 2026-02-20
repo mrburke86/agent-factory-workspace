@@ -1,0 +1,65 @@
+{
+  "id": "repo-read",
+  "name": "Repo Read",
+  "version": "0.1.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["repoRoot", "queries"],
+    "properties": {
+      "repoRoot": {
+        "type": "string"
+      },
+      "queries": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["type", "pattern"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["file-list", "file-content", "symbol-search", "references"]
+            },
+            "pattern": {
+              "type": "string"
+            },
+            "scope": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["results"],
+    "properties": {
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["queryIndex", "type", "matches"],
+          "properties": {
+            "queryIndex": { "type": "number" },
+            "type": { "type": "string" },
+            "matches": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": true
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": ["file-lookup", "symbol-search"]
+}

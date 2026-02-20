@@ -66,6 +66,12 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/contracts
 
+  services/agents/repo-read:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../../agent-runtime
+
   services/agents/retrieval-smoke:
     dependencies:
       '@acme/agent-runtime':
