@@ -57,6 +57,15 @@ importers:
         specifier: workspace:*
         version: link:../../agent-runtime
 
+  services/agents/plan:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../../agent-runtime
+      '@acme/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
+
   services/agents/repo-patch:
     dependencies:
       '@acme/agent-runtime':

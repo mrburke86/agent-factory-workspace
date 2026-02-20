@@ -1,0 +1,66 @@
+{
+  "id": "plan",
+  "name": "Plan",
+  "version": "0.1.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["taskId", "goal", "constraints", "fileScope", "mode"],
+    "properties": {
+      "taskId": {
+        "type": "string"
+      },
+      "goal": {
+        "type": "string"
+      },
+      "constraints": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "fileScope": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "mode": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["steps", "touchedFiles", "commands", "risks"],
+    "properties": {
+      "steps": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "touchedFiles": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "commands": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "risks": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": ["planning"]
+}

@@ -127,9 +127,9 @@
   - [x] locate symbols, files, call paths, references
   - [x] deterministic ordering in outputs
   - [x] never runs network calls
-- [ ] `plan` (support agent)
-  - [ ] task → structured plan JSON
-  - [ ] touched files + risk flags + commands
+- [x] `plan` (support agent)
+  - [x] task → structured plan JSON
+  - [x] touched files + risk flags + commands
 - [ ] `validate` (support agent)
   - [ ] runs allowlisted pnpm command sets
   - [ ] captures outputs to artifacts
@@ -422,18 +422,18 @@ sorted file matches. `agent:validate:all` still passes (now includes repo-read).
 > (no LLM calls). The planner parses the goal string, determines which files
 > to touch, generates step descriptions, and flags risks.
 
-- [ ] Scaffold: `af agent:new plan`
-- [ ] `services/agents/plan/agent.json` with valid inputSchema (Task) and outputSchema (Plan)
-- [ ] `run(task)` implementation:
-  - [ ] parses `task.goal` to determine action type (create file, modify file, delete file)
-  - [ ] generates ordered `steps[]` describing the work
-  - [ ] populates `touchedFiles[]` from parsed goal + `task.fileScope[]`
-  - [ ] generates `commands[]` (empty in dry-run, allowlisted pnpm commands otherwise)
-  - [ ] populates `risks[]` (e.g., "writes new file", "modifies existing file")
-  - [ ] validates `touchedFiles` against `task.fileScope[]` (returns error if out of scope)
-- [ ] No network calls
-- [ ] Deterministic output for identical inputs
-- [ ] Agent imports from `@acme/contracts` and `@acme/agent-runtime`
+- [x] Scaffold: `af agent:new plan`
+- [x] `services/agents/plan/agent.json` with valid inputSchema (Task) and outputSchema (Plan)
+- [x] `run(task)` implementation:
+  - [x] parses `task.goal` to determine action type (create file, modify file, delete file)
+  - [x] generates ordered `steps[]` describing the work
+  - [x] populates `touchedFiles[]` from parsed goal + `task.fileScope[]`
+  - [x] generates `commands[]` (empty in dry-run, allowlisted pnpm commands otherwise)
+  - [x] populates `risks[]` (e.g., "writes new file", "modifies existing file")
+  - [x] validates `touchedFiles` against `task.fileScope[]` (returns error if out of scope)
+- [x] No network calls
+- [x] Deterministic output for identical inputs
+- [x] Agent imports from `@acme/contracts` and `@acme/agent-runtime`
 
 ### D7 Acceptance tests
 
@@ -679,3 +679,4 @@ contain full sub-agent outputs.
 | 6      | D5a       | Lockfile sync — regenerate pnpm-lock.yaml to include @acme/contracts in repo-patch                         | PASS   | 2026-02-20 |
 | 7      | D6        | repo-read agent: file-list, file-content, symbol-search, references query types                            | PASS   | 2026-02-20 |
 | 8      | D5a       | Lockfile sync verified — frozen-lockfile passes, D5a marked complete                                       | PASS   | 2026-02-20 |
+| 9      | D7        | plan agent: task → structured plan with steps, touchedFiles, commands, risks                              | PASS   | 2026-02-20 |
