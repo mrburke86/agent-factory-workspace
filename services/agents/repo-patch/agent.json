@@ -5,9 +5,21 @@
   "entry": "./dist/index.js",
   "inputSchema": {
     "type": "object",
-    "properties": {},
-    "required": [],
-    "additionalProperties": true
+    "properties": {
+      "taskId": { "type": "string" },
+      "goal": { "type": "string" },
+      "constraints": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "fileScope": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "mode": { "type": "string" }
+    },
+    "required": ["taskId", "goal", "constraints", "fileScope", "mode"],
+    "additionalProperties": false
   },
   "outputSchema": {
     "type": "object",
@@ -15,11 +27,35 @@
       "ok": {
         "type": "boolean"
       },
-      "agent": {
+      "correlationId": {
         "type": "string"
       },
-      "ms": {
-        "type": "number"
+      "timings": {
+        "type": "object",
+        "properties": {
+          "startedAt": { "type": "string" },
+          "finishedAt": { "type": "string" },
+          "durationMs": { "type": "number" }
+        },
+        "required": ["startedAt", "finishedAt", "durationMs"],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "key": { "type": "string" },
+            "value": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": true
+            }
+          },
+          "required": ["key", "value"],
+          "additionalProperties": false
+        }
       },
       "errors": {
         "type": "array",
@@ -43,11 +79,12 @@
     },
     "required": [
       "ok",
-      "agent",
-      "ms",
+      "correlationId",
+      "timings",
+      "outputs",
       "errors"
     ],
-    "additionalProperties": true
+    "additionalProperties": false
   },
   "capabilities": []
 }

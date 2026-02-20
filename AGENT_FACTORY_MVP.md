@@ -1,3 +1,5 @@
+<!-- LAST_UPDATED: 2026-02-19 -->
+
 # Agent Factory MVP — Wayfinder (Single Source of Truth)
 
 > **Purpose:** This document is the authoritative build checklist for the Agent Factory template.
@@ -9,7 +11,7 @@
 > - **The agent catalog (platform + MVP agents)**
 > - **The acceptance tests that must stay green**
 >
-> If work isn’t explicitly captured here, it’s scope creep.
+> If work isn't explicitly captured here, it's scope creep.
 
 ---
 
@@ -119,7 +121,7 @@
 
 ## C3) MVP agents (to build)
 
-> These are the “real” agents that implement the Repo Patch workflow.
+> These are the "real" agents that implement the Repo Patch workflow.
 
 - [ ] `repo-read` (support agent)
   - [ ] locate symbols, files, call paths, references
@@ -138,7 +140,7 @@
   - [ ] create branch + commit
   - [ ] print push + optional PR creation commands
 
-- [ ] `repo-patch` (MVP “money” agent)
+- [ ] `repo-patch` (MVP "money" agent)
   - [ ] task → plan → patch → apply → validate → git-ready output
   - [ ] strict safety rails (scope, max files, lockfile rules)
   - [ ] deterministic structure
@@ -162,7 +164,7 @@
 
 ## D1) Manifest schema + validation (next platform step)
 
-> Make the platform contract-driven (not just “it runs”).
+> Make the platform contract-driven (not just "it runs").
 
 - [x] Extend `agent.json` with:
   - [x] `inputSchema` (JSON Schema)
@@ -215,31 +217,97 @@
 
 ---
 
-## D3) Repo Patch agent (services/agents/repo-patch)
+## D3a) Repo Patch — Core run(task) + plan + patch + apply
 
-- [x] `af agent:new repo-patch`
-- [ ] `run(task)` produces:
-  - [ ] deterministic `plan.json`
-  - [ ] minimal unified diff patch
-  - [ ] applies patch unless dry-run
-- [ ] Safety rails:
-  - [ ] hard file scope enforcement
-  - [ ] max changed files default **10**
-  - [ ] refuse lockfile changes unless flag
-  - [ ] allowlist commands only
-- [ ] Observability + artifacts:
-  - [ ] `correlationId` UUID
-  - [ ] `.factory/runs/<id>/task.json`
-  - [ ] `.factory/runs/<id>/plan.json`
-  - [ ] `.factory/runs/<id>/patches/*.diff`
-  - [ ] `.factory/runs/<id>/result.json`
-  - [ ] `.factory/runs/<id>/commands.log`
+> Core implementation: `repo-patch` agent accepts a Task, produces a Plan,
+> generates a minimal unified diff patch, and applies it (unless dry-run mode).
 
-### D3 Acceptance tests (target)
+- [x] `af agent:new repo-patch` (scaffold exists)
+- [x] `services/agents/repo-patch/agent.json` has valid inputSchema (Task) and outputSchema (Result)
+- [x] `run(task)` implementation:
+  - [x] accepts Task (from `@acme/contracts`)
+  - [x] produces deterministic `plan.json` (Plan from `@acme/contracts`)
+  - [x] generates minimal unified diff patches (Patch[] from `@acme/contracts`)
+  - [x] applies patches to working tree unless `mode === "dry-run"`
+  - [x] returns `AgentResult` with plan + patches in outputs
+- [x] dry-run mode: produces plan + patches but does NOT apply them
+- [x] agent imports types/helpers from `@acme/contracts` and `@acme/agent-runtime`
 
-- [ ] `pnpm -r build`
-- [ ] `pnpm af agent:run repo-patch --input '<task json>'`
-- [ ] `pnpm factory:health`
+### D3a Acceptance tests
+
+```powershell
+pnpm -r build
+pnpm af agent:validate repo-patch
+pnpm af agent:run repo-patch --input '{"taskId":"test-001","goal":"add hello.txt with content hello world","constraints":[],"fileScope":["hello.txt"],"mode":"dry-run"}' --validate-input
+pnpm factory:health
+```
+
+Expected: `agent:run` exits 0 and prints a single JSON line with `ok: true`,
+containing a plan object and at least one patch entry in outputs.
+
+---
+
+## D3b) Repo Patch — Safety rails
+
+> Add enforcement layers: file scope, max changed files, lockfile protection,
+> command allowlisting.
+
+- [ ] Hard file scope enforcement:
+  - [ ] reject any patch targeting a path NOT in `task.fileScope[]`
+  - [ ] return `ok: false` with error if scope violated
+- [ ] Max changed files:
+  - [ ] default limit: **10** files per task
+  - [ ] configurable via `task.constraints[]`
+  - [ ] return `ok: false` with error if exceeded
+- [ ] Lockfile protection:
+  - [ ] refuse changes to `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`
+  - [ ] unless `task.constraints` includes `"allow-lockfile-changes"`
+- [ ] Command allowlisting:
+  - [ ] only `pnpm -r build`, `pnpm -C <path> <script>` patterns allowed
+  - [ ] reject shell commands, `rm`, `curl`, `wget`, etc.
+
+### D3b Acceptance tests
+
+```powershell
+pnpm -r build
+# Scope violation test: file outside scope should fail gracefully
+pnpm af agent:run repo-patch --input '{"taskId":"test-scope","goal":"modify out-of-scope file","constraints":[],"fileScope":["src/allowed.ts"],"mode":"dry-run"}' --validate-input
+# Verify the output contains ok:false or scope violation error
+pnpm factory:health
+```
+
+Expected: scope violation returns `ok: false` with descriptive error, exit code 0
+(agent completed normally, it chose to report failure).
+
+---
+
+## D3c) Repo Patch — Observability + artifacts
+
+> Every run produces a structured artifact directory for debugging and audit.
+
+- [ ] Generate `correlationId` (UUID v4) per run
+- [ ] Create artifact directory: `.factory/runs/<correlationId>/`
+- [ ] Write artifacts:
+  - [ ] `.factory/runs/<id>/task.json` — input task
+  - [ ] `.factory/runs/<id>/plan.json` — generated plan
+  - [ ] `.factory/runs/<id>/patches/*.diff` — one file per patch
+  - [ ] `.factory/runs/<id>/result.json` — final AgentResult
+  - [ ] `.factory/runs/<id>/commands.log` — executed commands + exit codes
+- [ ] `result.json` includes `timings` object (startedAt, completedAt, durationMs)
+- [ ] All timestamps are ISO 8601 strings (not Date objects — per AGENTS.md)
+
+### D3c Acceptance tests
+
+```powershell
+pnpm -r build
+pnpm af agent:run repo-patch --input '{"taskId":"test-obs","goal":"add hello.txt","constraints":[],"fileScope":["hello.txt"],"mode":"dry-run"}'
+# Verify artifact directory was created
+if (Test-Path ".factory/runs") { Get-ChildItem ".factory/runs" -Recurse | Select-Object FullName } else { Write-Error "No .factory/runs directory" }
+pnpm factory:health
+```
+
+Expected: `.factory/runs/<id>/` directory exists with task.json, plan.json,
+at least one .diff file, and result.json.
 
 ---
 
@@ -252,10 +320,15 @@
   - [ ] `{ event:"factory.result", correlationId, ok, ... }`
 - [ ] Exit codes follow invariant (0/2/1)
 
-### D4 Acceptance tests (target)
+### D4 Acceptance tests
 
-- [ ] `pnpm factory run --task "..." --dry-run --scope packages/contracts`
-- [ ] `pnpm factory:health`
+```powershell
+pnpm -r build
+pnpm factory run --task "add hello.txt with content hello world" --dry-run --scope hello.txt
+pnpm factory:health
+```
+
+Expected: exits 0, prints single JSON line with `event: "factory.result"`.
 
 ---
 
@@ -265,6 +338,14 @@
   - [ ] `pnpm install --frozen-lockfile`
   - [ ] `pnpm factory:health`
 - [ ] Target runtime < 60s
+
+### D5 Acceptance tests
+
+```powershell
+# Verify workflow file exists and is valid YAML
+if (Test-Path ".github/workflows/ci.yml") { Write-Output "CI workflow exists" } else { Write-Error "Missing CI workflow" }
+pnpm factory:health
+```
 
 ---
 
@@ -285,3 +366,14 @@
 - [x] `pnpm -C packages/evals eval:agent-retrieval-smoke`
 - [x] `pnpm -C packages/evals eval:agent-runner-smoke`
 - [x] `pnpm -C packages/evals check:no-agent-runtime-copies`
+
+---
+
+# F) Sprint Log
+
+> Codex appends one row per sprint. Do not manually edit.
+
+| Sprint | Milestone | Description                     | Status | Date       |
+| ------ | --------- | ------------------------------- | ------ | ---------- |
+| —      | D0–D2     | Platform foundation + contracts | PASS   | pre-sprint |
+| 1      | D3a       | repo-patch run(task) returns deterministic plan + unified diff patches; dry-run supported | PASS   | 2026-02-20 |

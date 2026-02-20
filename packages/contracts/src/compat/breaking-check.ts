@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { logInfo, logWarn, logError } from "./logger.js";
 
 type Snapshot = {
@@ -72,4 +73,7 @@ export function runBreakingCheck() {
   console.log("✅ contracts breaking-check passed");
 }
 
-runBreakingCheck();
+const entryArg = process.argv[1];
+if (entryArg && import.meta.url === pathToFileURL(entryArg).href) {
+  runBreakingCheck();
+}
