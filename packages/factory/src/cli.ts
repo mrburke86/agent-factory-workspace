@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
@@ -40,6 +41,7 @@ Usage:
   af agent:run <name> [--input '<json>'] [--validate-input]
   af agent:validate <name>
   af agent:validate:all
+  af factory run --task "<text>" [--dry-run] [--scope <path>]
 
 Examples:
   pnpm af agent:new retrieval-smoke
@@ -47,6 +49,7 @@ Examples:
   pnpm af agent:run retrieval-smoke --input '{"query":"refund policy","topK":5}'
   pnpm af agent:validate retrieval-smoke
   pnpm af agent:validate:all
+  pnpm factory run --task "add hello.txt with content hello world" --dry-run --scope hello.txt
 `);
 }
 
@@ -214,6 +217,143 @@ function hasFlag(args: string[], name: string): boolean {
   return args.includes(name);
 }
 
+function optionValues(args: string[], name: string): string[] {
+  const values: string[] = [];
+  for (let i = 0; i < args.length; i += 1) {
+    if (args[i] === name) {
+      const value = args[i + 1];
+      if (value !== undefined) values.push(value);
+    }
+  }
+  return values;
+}
+
+function optionValue(args: string[], name: string): string | undefined {
+  return optionValues(args, name)[0];
+}
+
+function printFactoryResultAndExit(payload: Record<string, unknown>, code: 0 | 1 | 2): never {
+  console.log(JSON.stringify(payload));
+  process.exit(code);
+}
+
+async function factoryRun(args: string[] = []) {
+  const taskText = optionValue(args, "--task") ?? optionValue(args, "-task");
+  if (!taskText || taskText.trim().length === 0) {
+    return printFactoryResultAndExit(
+      {
+        event: "factory.result",
+        correlationId: null,
+        ok: false,
+        errors: [{ code: "USAGE", message: "missing --task <text>" }],
+      },
+      1,
+    );
+  }
+
+  const rawScopes = [
+    ...optionValues(args, "--scope"),
+    ...optionValues(args, "-scope"),
+  ];
+  const fileScope = rawScopes
+    .flatMap((value) => value.split(","))
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0);
+
+  if (fileScope.length === 0) {
+    return printFactoryResultAndExit(
+      {
+        event: "factory.result",
+        correlationId: null,
+        ok: false,
+        errors: [{ code: "USAGE", message: "missing --scope <path>" }],
+      },
+      1,
+    );
+  }
+
+  const mode = hasFlag(args, "--dry-run") || hasFlag(args, "-dry-run") ? "dry-run" : "apply";
+  const taskId = randomUUID();
+  const task = {
+    taskId,
+    goal: taskText,
+    constraints: [],
+    fileScope,
+    mode,
+  };
+
+  const { loadManifest, runAgent, validateInputAgainstSchema, validateManifest } = await import("@acme/agent-runner");
+
+  let manifest: any;
+  try {
+    manifest = loadManifest("repo-patch");
+  } catch (e) {
+    return printFactoryResultAndExit(
+      {
+        event: "factory.result",
+        correlationId: taskId,
+        ok: false,
+        errors: [{ code: "WIRING", message: (e as Error)?.message ?? String(e) }],
+      },
+      1,
+    );
+  }
+
+  const manifestValidation = validateManifest(manifest);
+  if (!manifestValidation.ok) {
+    return printFactoryResultAndExit(
+      {
+        event: "factory.result",
+        correlationId: taskId,
+        ok: false,
+        errors: [{ code: "WIRING", message: manifestValidation.errors.join("; ") }],
+      },
+      1,
+    );
+  }
+
+  const inputValidation = validateInputAgainstSchema(task, manifest.inputSchema);
+  if (!inputValidation.ok) {
+    return printFactoryResultAndExit(
+      {
+        event: "factory.result",
+        correlationId: taskId,
+        ok: false,
+        errors: [{ code: "INPUT_INVALID", message: inputValidation.errors.join("; ") }],
+      },
+      2,
+    );
+  }
+
+  let result: any;
+  try {
+    result = await runAgent("repo-patch", task);
+  } catch (e) {
+    return printFactoryResultAndExit(
+      {
+        event: "factory.result",
+        correlationId: taskId,
+        ok: false,
+        errors: [{ code: "WIRING", message: (e as Error)?.message ?? String(e) }],
+      },
+      1,
+    );
+  }
+
+  const correlationId =
+    typeof result?.data?.correlationId === "string" ? result.data.correlationId : taskId;
+  const ok = result?.ok === true && result?.data?.ok === true;
+  printFactoryResultAndExit(
+    {
+      event: "factory.result",
+      correlationId,
+      ok,
+      result,
+    },
+    ok ? 0 : 2,
+  );
+}
+
 function listAgents(root: string): string[] {
   const agentsDir = join(root, "services", "agents");
   if (!existsSync(agentsDir)) return [];
@@ -375,6 +515,7 @@ async function main() {
   if (cmd === "agent" && sub === "validate") return agentValidate(name);
   if (cmd === "agent:validate:all") return agentValidateAll();
   if (cmd === "agent" && sub === "validate:all") return agentValidateAll();
+  if (cmd === "factory" && sub === "run") return factoryRun(args.slice(2));
 
   die(`unknown command: ${args.join(" ")}`);
 }

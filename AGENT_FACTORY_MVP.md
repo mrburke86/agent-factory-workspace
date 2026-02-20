@@ -315,10 +315,10 @@ at least one .diff file, and result.json.
 
 > Today you have `af agent:*`. MVP requires a task runner.
 
-- [ ] Add: `pnpm factory run --task "<text>" [--dry-run] [--scope <path>]`
-- [ ] Output exactly one final JSON line:
-  - [ ] `{ event:"factory.result", correlationId, ok, ... }`
-- [ ] Exit codes follow invariant (0/2/1)
+- [x] Add: `pnpm factory run --task "<text>" [--dry-run] [--scope <path>]`
+- [x] Output exactly one final JSON line:
+  - [x] `{ event:"factory.result", correlationId, ok, ... }`
+- [x] Exit codes follow invariant (0/2/1)
 
 ### D4 Acceptance tests
 
@@ -379,3 +379,4 @@ pnpm factory:health
 | 1      | D3a       | repo-patch run(task) returns deterministic plan + unified diff patches; dry-run supported | PASS   | 2026-02-20 |
 | 2      | D3b       | repo-patch enforces fileScope, max-files, lockfile protection, and command allowlisting | PASS   | 2026-02-20 |
 | 3      | D3c       | repo-patch writes .factory/runs/<id> artifacts (task/plan/patches/result/commands) with UUID + ISO timings | PASS   | 2026-02-20 |
+| 4      | D4        | factory run CLI accepts --task/--dry-run/--scope and prints factory.result JSON event | PASS   | 2026-02-20 |
