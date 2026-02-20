@@ -1,4 +1,4 @@
-<!-- VERSION: 2026-02-19 -->
+<!-- VERSION: 2026-02-20 -->
 
 # Agent Factory Workspace — Core Invariants
 
@@ -35,7 +35,7 @@ Runtime import invariant:
 
 ## Manifest Invariants
 
-Each agent lives at `services/agents/<name>/` and must include `agent.json` with:
+Each agent lives at `services/agents/<n>/` and must include `agent.json` with:
 
 - `id`, `name`, `version`, `entry`
 - `inputSchema`
@@ -54,8 +54,8 @@ Each agent lives at `services/agents/<name>/` and must include `agent.json` with
 Supported deterministic commands include:
 
 - `pnpm af agent:list`
-- `pnpm af agent:run <name> --input '<json>' [--validate-input]`
-- `pnpm af agent:validate <name>`
+- `pnpm af agent:run <n> --input '<json>' [--validate-input]`
+- `pnpm af agent:validate <n>`
 - `pnpm af agent:validate:all`
 
 Validation commands and run output must stay deterministic (single JSON event line per command result).
@@ -71,6 +71,32 @@ Exit code invariant:
 - `packages/evals` provides `check:agent-manifests`.
 - `check:agent-manifests` writes `packages/evals/.reports/check_agent_manifests.latest.json`.
 - `pnpm factory:health` must run `pnpm -C packages/evals check:agent-manifests` before agent eval suites.
+
+### Lockfile Invariant (CI-critical)
+
+The `pnpm-lock.yaml` at repo root MUST stay in sync with ALL `package.json`
+files across the workspace. This is enforced by `--frozen-lockfile` in CI.
+
+Rules:
+
+- If a sprint modifies ANY `package.json` (dependencies, devDependencies,
+  scripts, or metadata), the sprint MUST run `pnpm install` to regenerate
+  `pnpm-lock.yaml` and include the updated lockfile in the commit.
+- Local verification MUST run `pnpm install --frozen-lockfile` as the FIRST
+  command before `pnpm -r build`. If it fails, the lockfile is stale.
+- This invariant exists because CI uses `-frozen-lockfile` by default, which
+  correctly rejects stale lockfiles. A sprint that passes locally but fails
+  CI due to lockfile drift is a sprint that didn't follow this invariant.
+
+Common violation pattern:
+
+```
+Codex adds "@acme/contracts": "workspace:*" to repo-patch/package.json
+→ does NOT run pnpm install
+→ commits stale pnpm-lock.yaml
+→ CI fails with ERR_PNPM_OUTDATED_LOCKFILE
+→ every subsequent commit to main also fails until lockfile is fixed
+```
 
 ## Command Style
 
@@ -147,31 +173,57 @@ Every `repo-patch` run produces artifacts at `.factory/runs/<correlationId>/`:
 
 ## Sprint Protocol
 
-> Defines the Codex ↔ PowerShell ↔ Claude feedback loop used to build this
-> repo incrementally. This is an invariant of the development process.
+> Defines the Codex ↔ PowerShell ↔ CI ↔ Claude feedback loop used to build
+> this repo incrementally. This is an invariant of the development process.
 
 ### Loop Actors
 
-| Actor              | Role                                                       |
-| ------------------ | ---------------------------------------------------------- |
-| **Claude Project** | Prompt compiler — analyzes state, emits next Codex prompt  |
-| **Codex**          | Executor — implements one milestone, updates docs, commits |
-| **PowerShell**     | Verifier — runs acceptance commands, captures exit codes   |
-| **User**           | Loop operator — pastes outputs between systems             |
+| Actor                 | Role                                                                                          |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| **Claude Project**    | Prompt compiler — analyzes state from 3 inputs, emits next Codex prompt                       |
+| **Codex**             | Executor — implements one milestone, updates docs, commits + pushes                           |
+| **PowerShell**        | Local verifier — runs acceptance commands, captures exit codes                                |
+| **GitHub Actions CI** | Remote verifier — runs `--frozen-lockfile` install + `factory:health` in clean env            |
+| **`gh` CLI**          | Bridge — `gh run watch` blocks until CI completes; `gh run view --log-failed` captures errors |
+| **User**              | Loop operator — pastes outputs between systems                                                |
 
 ### Loop Sequence
 
-1. User pastes prior Codex Output + PowerShell Verification into Claude.
-2. Claude classifies gate (PASS/FAIL), resolves conflicts, selects next milestone.
-3. Claude emits a populated Codex prompt (single milestone, ≤4,000 tokens).
-4. User pastes prompt into Codex. Codex executes the sprint.
-5. User runs PowerShell verification commands from Codex output.
-6. User pastes both outputs back into Claude. Loop repeats.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. User pastes prior Codex Output + Local PS + CI Output        │
+│    into Claude                                                  │
+│                           ↓                                     │
+│ 2. Claude classifies gate (3-signal: CI > Local > Codex),       │
+│    resolves conflicts, selects next milestone                   │
+│                           ↓                                     │
+│ 3. Claude emits populated Codex prompt (≤4,000 tokens)          │
+│                           ↓                                     │
+│ 4. User pastes prompt into Codex → Codex executes sprint        │
+│                           ↓                                     │
+│ 5. User runs local PowerShell verification (verify-sprint.ps1)  │
+│                           ↓                                     │
+│ 6. If local PASS: Codex has already pushed.                     │
+│    User runs CI gate: gh run watch --exit-status                │
+│                           ↓                                     │
+│ 7a. CI PASS → User pastes all 3 outputs into Claude → loop      │
+│ 7b. CI FAIL → User runs gh run view --log-failed                │
+│     → pastes all 3 outputs into Claude → Claude emits FIX       │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-### Ground Truth Rule
+### Ground Truth Priority
 
-PowerShell verification output is the sole source of truth for gate status.
-If Codex claims PASS but PowerShell shows a non-zero exit code, the gate is FAIL.
+```
+CI (GitHub Actions)  >  Local PowerShell  >  Codex claim
+        ↑                      ↑                   ↑
+  most constrained       developer env         self-reported
+  (clean, frozen)        (may have cache)      (may be wrong)
+```
+
+CI is the most constrained environment: frozen lockfile, clean `node_modules`,
+no local state artifacts. If CI fails but local passes, the CI failure reveals
+environment assumptions that must be fixed before advancing.
 
 ### Sprint Constraints
 
@@ -180,3 +232,15 @@ If Codex claims PASS but PowerShell shows a non-zero exit code, the gate is FAIL
 - Each sprint produces exactly one commit (or zero if no code changed).
 - `AGENT_FACTORY_MVP.md` and `AGENTS.md` are updated by Codex, never manually.
 - Sprint results are logged in `AGENT_FACTORY_MVP.md` section `F) Sprint Log`.
+- A milestone is only marked complete when BOTH local verification AND CI pass.
+- Lockfile drift is treated as a sprint failure, not a CI infrastructure issue.
+
+### `gh` CLI Commands Reference
+
+| Command                      | When to use      | What it does                                                             |
+| ---------------------------- | ---------------- | ------------------------------------------------------------------------ |
+| `gh run watch --exit-status` | After every push | Blocks until CI completes; exits 0 on success, non-zero on failure       |
+| `gh run view --log-failed`   | After CI failure | Dumps only the failing step logs (paste into Claude)                     |
+| `gh run view <id>`           | For details      | Shows full run metadata                                                  |
+| `gh run list --limit 5`      | For context      | Lists recent workflow runs with status                                   |
+| `gh run rerun <id>`          | Infra flake only | Re-runs a workflow (use only for GitHub infra issues, not code failures) |
