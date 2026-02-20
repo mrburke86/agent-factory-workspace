@@ -1,5 +1,6 @@
+import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import {
   RepoPatchPatchItemSchema,
   RepoPatchPlanSchema,
@@ -10,7 +11,7 @@ import {
   type RepoPatchResult,
   type RepoPatchTask,
 } from "@acme/contracts";
-import { nowIso, wrap, type AgentResult } from "@acme/agent-runtime";
+import { wrap, type AgentResult } from "@acme/agent-runtime";
 
 const AGENT_NAME = "repo-patch";
 const HELLO_FILE_PATH = "hello.txt";
@@ -19,6 +20,17 @@ const DEFAULT_MAX_FILES = 10;
 const LOCKFILES = new Set(["pnpm-lock.yaml", "package-lock.json", "yarn.lock"]);
 const ALLOW_LOCKFILE_CHANGES = "allow-lockfile-changes";
 const MAX_FILES_CONSTRAINT_PREFIX = "max-files:";
+
+type CommandLogEntry = {
+  command: string;
+  exitCode: number;
+};
+
+type ResultTimings = {
+  startedAt: string;
+  finishedAt: string;
+  durationMs: number;
+};
 
 function normalizePath(value: string): string {
   return value.replaceAll("\\", "/").replace(/^\.\/+/, "").replace(/\/{2,}/g, "/").trim();
@@ -92,12 +104,14 @@ function buildHelloPatch(): RepoPatchPatchItem {
 async function applyPatches(task: RepoPatchTask, patches: RepoPatchPatchItem[]): Promise<void> {
   if (task.mode === "dry-run") return;
 
-  const repoRoot = resolve(process.cwd());
   for (const patch of patches) {
     if (patch.path !== HELLO_FILE_PATH) {
       throw new Error(`unsupported patch path: ${patch.path}`);
     }
+  }
 
+  const repoRoot = resolve(process.cwd());
+  for (const patch of patches) {
     const targetFile = resolve(repoRoot, patch.path);
     const targetDir = dirname(targetFile);
     await mkdir(targetDir, { recursive: true });
@@ -151,21 +165,16 @@ function collectSafetyErrors(task: RepoPatchTask, plan: RepoPatchPlan, patches: 
 }
 
 function buildResult(
-  task: RepoPatchTask,
+  correlationId: string,
   plan: RepoPatchPlan,
   patches: RepoPatchPatchItem[],
   errors: Array<{ code: string; message: string }>,
+  timings: ResultTimings,
 ): RepoPatchResult {
-  const startedAt = nowIso();
-  const finishedAt = nowIso();
   return RepoPatchResultSchema.parse({
     ok: errors.length === 0,
-    correlationId: task.taskId,
-    timings: {
-      startedAt,
-      finishedAt,
-      durationMs: 0,
-    },
+    correlationId,
+    timings,
     outputs: [
       {
         key: "plan",
@@ -180,20 +189,75 @@ function buildResult(
   });
 }
 
+function sanitizePatchArtifactName(pathValue: string): string {
+  const normalized = normalizePath(pathValue);
+  const baseName = normalized.split("/").pop() ?? "patch";
+  const sanitized = baseName.replace(/[^A-Za-z0-9._-]/g, "_");
+  return sanitized.length > 0 ? sanitized : "patch";
+}
+
+async function writeArtifacts(
+  correlationId: string,
+  task: RepoPatchTask,
+  plan: RepoPatchPlan,
+  patches: RepoPatchPatchItem[],
+  result: RepoPatchResult,
+  commandLog: CommandLogEntry[],
+): Promise<void> {
+  const runDir = join(process.cwd(), ".factory", "runs", correlationId);
+  const patchDir = join(runDir, "patches");
+
+  await mkdir(patchDir, { recursive: true });
+
+  await writeFile(join(runDir, "task.json"), `${JSON.stringify(task, null, 2)}\n`, "utf8");
+  await writeFile(join(runDir, "plan.json"), `${JSON.stringify(plan, null, 2)}\n`, "utf8");
+
+  for (let i = 0; i < patches.length; i += 1) {
+    const patch = patches[i];
+    const prefix = String(i + 1).padStart(3, "0");
+    const name = sanitizePatchArtifactName(patch.path);
+    const fileName = `${prefix}-${name}.diff`;
+    const content = patch.unifiedDiff.endsWith("\n") ? patch.unifiedDiff : `${patch.unifiedDiff}\n`;
+    await writeFile(join(patchDir, fileName), content, "utf8");
+  }
+
+  await writeFile(join(runDir, "commands.log"), `${JSON.stringify(commandLog, null, 2)}\n`, "utf8");
+  await writeFile(join(runDir, "result.json"), `${JSON.stringify(result, null, 2)}\n`, "utf8");
+}
+
 async function runImpl(input: RepoPatchTask): Promise<RepoPatchResult> {
   const task = RepoPatchTaskSchema.parse(input);
+  const correlationId = randomUUID();
+  const startedMs = Date.now();
+  const startedAt = new Date(startedMs).toISOString();
+  const commandLog: CommandLogEntry[] = [];
   const patch = buildHelloPatch();
   const patches = [patch];
   const touchedFiles = patches.map((item) => item.path);
   const plan = buildPlan(task, touchedFiles);
   const errors = collectSafetyErrors(task, plan, patches);
 
-  if (errors.length > 0) {
-    return buildResult(task, plan, patches, errors);
+  if (errors.length === 0) {
+    try {
+      await applyPatches(task, patches);
+    } catch (e) {
+      errors.push({
+        code: "PATCH_APPLY_FAILED",
+        message: `patch_apply_failed: ${(e as Error)?.message ?? String(e)}`,
+      });
+    }
   }
 
-  await applyPatches(task, patches);
-  return buildResult(task, plan, patches, []);
+  const finishedMs = Date.now();
+  const timings: ResultTimings = {
+    startedAt,
+    finishedAt: new Date(finishedMs).toISOString(),
+    durationMs: Math.max(0, finishedMs - startedMs),
+  };
+
+  const result = buildResult(correlationId, plan, patches, errors, timings);
+  await writeArtifacts(correlationId, task, plan, patches, result, commandLog);
+  return result;
 }
 
 export async function run(input: RepoPatchTask): Promise<AgentResult<RepoPatchResult>> {

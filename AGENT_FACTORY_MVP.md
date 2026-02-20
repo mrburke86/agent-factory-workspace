@@ -285,16 +285,16 @@ Expected: scope violation returns `ok: false` with descriptive error, exit code 
 
 > Every run produces a structured artifact directory for debugging and audit.
 
-- [ ] Generate `correlationId` (UUID v4) per run
-- [ ] Create artifact directory: `.factory/runs/<correlationId>/`
+- [x] Generate `correlationId` (UUID v4) per run
+- [x] Create artifact directory: `.factory/runs/<correlationId>/`
 - [ ] Write artifacts:
-  - [ ] `.factory/runs/<id>/task.json` — input task
-  - [ ] `.factory/runs/<id>/plan.json` — generated plan
-  - [ ] `.factory/runs/<id>/patches/*.diff` — one file per patch
-  - [ ] `.factory/runs/<id>/result.json` — final AgentResult
-  - [ ] `.factory/runs/<id>/commands.log` — executed commands + exit codes
-- [ ] `result.json` includes `timings` object (startedAt, completedAt, durationMs)
-- [ ] All timestamps are ISO 8601 strings (not Date objects — per AGENTS.md)
+  - [x] `.factory/runs/<id>/task.json` — input task
+  - [x] `.factory/runs/<id>/plan.json` — generated plan
+  - [x] `.factory/runs/<id>/patches/*.diff` — one file per patch
+  - [x] `.factory/runs/<id>/result.json` — final AgentResult
+  - [x] `.factory/runs/<id>/commands.log` — executed commands + exit codes
+- [x] `result.json` includes `timings` object (startedAt, completedAt, durationMs)
+- [x] All timestamps are ISO 8601 strings (not Date objects — per AGENTS.md)
 
 ### D3c Acceptance tests
 
@@ -378,3 +378,4 @@ pnpm factory:health
 | —      | D0–D2     | Platform foundation + contracts | PASS   | pre-sprint |
 | 1      | D3a       | repo-patch run(task) returns deterministic plan + unified diff patches; dry-run supported | PASS   | 2026-02-20 |
 | 2      | D3b       | repo-patch enforces fileScope, max-files, lockfile protection, and command allowlisting | PASS   | 2026-02-20 |
+| 3      | D3c       | repo-patch writes .factory/runs/<id> artifacts (task/plan/patches/result/commands) with UUID + ISO timings | PASS   | 2026-02-20 |
