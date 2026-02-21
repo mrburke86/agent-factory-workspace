@@ -133,9 +133,9 @@
 - [x] `validate` (support agent)
   - [x] runs allowlisted pnpm command sets
   - [x] captures outputs to artifacts
-- [ ] `git-pr` (support agent)
-  - [ ] create branch + commit
-  - [ ] print push + optional PR creation commands
+- [x] `git-pr` (support agent)
+  - [x] create branch + commit
+  - [x] print push + optional PR creation commands
 - [~] `repo-patch` (MVP "money" agent)
   - [x] task → plan → patch → apply (deterministic stub)
   - [x] strict safety rails (scope, max files, lockfile rules)
@@ -513,30 +513,30 @@ never executed.
 > are **dry-run only** — the agent returns the commands it _would_ execute
 > without running them, unless mode is `"pr-ready"`.
 
-- [ ] Scaffold: `af agent:new git-pr`
-- [ ] `services/agents/git-pr/agent.json` with valid inputSchema and outputSchema
-- [ ] inputSchema accepts:
-  - [ ] `branchName` (string)
-  - [ ] `commitMessage` (string)
-  - [ ] `patchedFiles[]` (string array — paths that were modified)
-  - [ ] `mode` ∈ `{"dry-run", "pr-ready"}`
-  - [ ] `repoRoot` (string)
-- [ ] outputSchema returns:
-  - [ ] `commands[]` — ordered list of git/gh commands generated:
-    - [ ] `git checkout -b <branch>`
-    - [ ] `git add <file>` (one per patched file)
-    - [ ] `git commit -m "<message>"`
-    - [ ] `git push origin <branch>`
-    - [ ] `gh pr create --title "<title>" --body "<body>"`
-  - [ ] `executed` (boolean — true only if mode was `"pr-ready"`)
-  - [ ] `branchName` (string)
-- [ ] `run(input)` implementation:
-  - [ ] generates deterministic command list from input
-  - [ ] in `"dry-run"` mode: returns commands without executing any
-  - [ ] in `"pr-ready"` mode: executes git commands (NOT `gh pr create` — only prints it)
-  - [ ] validates branchName format (no spaces, no special chars beyond `_/`)
-- [ ] No network calls (git push/gh pr are printed, not executed in dry-run)
-- [ ] Agent imports from `@acme/agent-runtime` only
+- [x] Scaffold: `af agent:new git-pr`
+- [x] `services/agents/git-pr/agent.json` with valid inputSchema and outputSchema
+- [x] inputSchema accepts:
+  - [x] `branchName` (string)
+  - [x] `commitMessage` (string)
+  - [x] `patchedFiles[]` (string array — paths that were modified)
+  - [x] `mode` ∈ `{"dry-run", "pr-ready"}`
+  - [x] `repoRoot` (string)
+- [x] outputSchema returns:
+  - [x] `commands[]` — ordered list of git/gh commands generated:
+    - [x] `git checkout -b <branch>`
+    - [x] `git add <file>` (one per patched file)
+    - [x] `git commit -m "<message>"`
+    - [x] `git push origin <branch>`
+    - [x] `gh pr create --title "<title>" --body "<body>"`
+  - [x] `executed` (boolean — true only if mode was `"pr-ready"`)
+  - [x] `branchName` (string)
+- [x] `run(input)` implementation:
+  - [x] generates deterministic command list from input
+  - [x] in `"dry-run"` mode: returns commands without executing any
+  - [x] in `"pr-ready"` mode: executes git commands (NOT `gh pr create` — only prints it)
+  - [x] validates branchName format (no spaces, no special chars beyond `_/`)
+- [x] No network calls (git push/gh pr are printed, not executed in dry-run)
+- [x] Agent imports from `@acme/agent-runtime` only
 
 ### D9 Acceptance tests
 
@@ -681,3 +681,4 @@ contain full sub-agent outputs.
 | 8      | D5a       | Lockfile sync verified — frozen-lockfile passes, D5a marked complete                                       | PASS   | 2026-02-20 |
 | 9      | D7        | plan agent: task → structured plan with steps, touchedFiles, commands, risks                              | PASS   | 2026-02-20 |
 | 10     | D8        | validate agent: allowlisted command execution + output capture with forbidden-command rejection            | PASS   | 2026-02-20 |
+| 11     | D9        | git-pr agent: deterministic git/gh command generation with dry-run and pr-ready modes                     | PASS   | 2026-02-21 |

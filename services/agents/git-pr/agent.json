@@ -1,0 +1,52 @@
+{
+  "id": "git-pr",
+  "name": "Git PR",
+  "version": "0.1.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["branchName", "commitMessage", "patchedFiles", "mode", "repoRoot"],
+    "properties": {
+      "branchName": {
+        "type": "string"
+      },
+      "commitMessage": {
+        "type": "string"
+      },
+      "patchedFiles": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "mode": {
+        "type": "string",
+        "enum": ["dry-run", "pr-ready"]
+      },
+      "repoRoot": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["commands", "executed", "branchName"],
+    "properties": {
+      "commands": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "executed": {
+        "type": "boolean"
+      },
+      "branchName": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": ["git", "pull-request"]
+}
