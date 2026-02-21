@@ -32,23 +32,23 @@ Bootstrap artefacts (`AGENT_FACTORY_MVP.md`, debug config dumps, shared runtime 
 
 **Tasks:**
 
-- [ ] Create directory structure: `docs/archive/`, `docs/templates/`, `docs/examples/`
-- [ ] Move `AGENT_FACTORY_MVP.md` to `docs/archive/AGENT_FACTORY_MVP.md`
-- [ ] Delete `_contracts_showConfig.json`, `_contracts_tsc_showConfig.json`, `_evals_tsc_showConfig.json` from repo root
-- [ ] Delete `hello.txt` from repo root (bootstrap test artifact)
-- [ ] Delete `compat_snapshot.current.json` from repo root (duplicate of `packages/contracts/compat_snapshot.current.json`)
-- [ ] Reconcile `services/agents/_shared/runtime.ts` — delete the `_shared/` directory if its contents duplicate `@acme/agent-runtime` (verify imports first)
-- [ ] Update `.gitignore` to exclude `.factory/runs/` if not already excluded
-- [ ] Verify `pnpm install --frozen-lockfile && pnpm -r build && pnpm factory:health` all pass
+- [x] Create directory structure: `docs/archive/`, `docs/templates/`, `docs/examples/`
+- [x] Move `AGENT_FACTORY_MVP.md` to `docs/archive/AGENT_FACTORY_MVP.md`
+- [x] Delete `_contracts_showConfig.json`, `_contracts_tsc_showConfig.json`, `_evals_tsc_showConfig.json` from repo root
+- [x] Delete `hello.txt` from repo root (bootstrap test artifact)
+- [~] Delete `compat_snapshot.current.json` from repo root (retained; content differs from `packages/contracts/compat_snapshot.current.json`)
+- [~] Reconcile `services/agents/_shared/runtime.ts` — duplicate confirmed; deferred to keep sprint within rollback cap (<=6 changed files)
+- [x] Update `.gitignore` to exclude `.factory/runs/` if not already excluded (already excluded via `.factory/`)
+- [x] Verify `pnpm install --frozen-lockfile && pnpm -r build && pnpm factory:health` all pass
 
 **Acceptance Criteria:**
 
-- [ ] `docs/archive/AGENT_FACTORY_MVP.md` exists
-- [ ] `AGENT_FACTORY_MVP.md` does NOT exist at repo root
-- [ ] `_contracts_showConfig.json`, `_contracts_tsc_showConfig.json`, `_evals_tsc_showConfig.json` do NOT exist at repo root
-- [ ] `hello.txt` does NOT exist at repo root
-- [ ] `docs/templates/` and `docs/examples/` directories exist
-- [ ] `pnpm factory:health` exits 0
+- [x] `docs/archive/AGENT_FACTORY_MVP.md` exists
+- [x] `AGENT_FACTORY_MVP.md` does NOT exist at repo root
+- [x] `_contracts_showConfig.json`, `_contracts_tsc_showConfig.json`, `_evals_tsc_showConfig.json` do NOT exist at repo root
+- [x] `hello.txt` does NOT exist at repo root
+- [x] `docs/templates/` and `docs/examples/` directories exist
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -477,7 +477,7 @@ echo "=== VALIDATION COMPLETE ==="
 
 | Sprint | Milestone | Description | Gate |
 | --- | --- | --- | --- |
-| | | | |
+| 1 | S1 | Repo Cleanup — Archive Bootstrap Artefacts | PASS |
 
 ---
 
