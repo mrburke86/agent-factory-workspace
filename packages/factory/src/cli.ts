@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { randomUUID } from "node:crypto";
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 function die(msg: string, code = 1): never {
@@ -41,7 +41,7 @@ Usage:
   af agent:run <name> [--input '<json>'] [--validate-input]
   af agent:validate <name>
   af agent:validate:all
-  af factory run --task "<text>" [--dry-run] [--scope <path>]
+  af factory run --task "<text>" [--dry-run] [--scope <path>] [--mode <dry-run|validate|pr-ready>]
 
 Examples:
   pnpm af agent:new retrieval-smoke
@@ -49,7 +49,7 @@ Examples:
   pnpm af agent:run retrieval-smoke --input '{"query":"refund policy","topK":5}'
   pnpm af agent:validate retrieval-smoke
   pnpm af agent:validate:all
-  pnpm factory run --task "add hello.txt with content hello world" --dry-run --scope hello.txt
+  pnpm factory run --task "add hello.txt with content hello world" --scope hello.txt --mode validate
 `);
 }
 
@@ -237,6 +237,84 @@ function printFactoryResultAndExit(payload: Record<string, unknown>, code: 0 | 1
   process.exit(code);
 }
 
+type FactoryRunMode = "dry-run" | "validate" | "pr-ready";
+
+function extractOutputByKey(result: unknown, key: string): unknown {
+  if (!result || typeof result !== "object") return undefined;
+  const data = (result as { data?: unknown }).data;
+  if (!data || typeof data !== "object") return undefined;
+  const outputs = (data as { outputs?: unknown }).outputs;
+  if (!Array.isArray(outputs)) return undefined;
+  const match = outputs.find((entry) => {
+    if (!entry || typeof entry !== "object") return false;
+    return (entry as { key?: unknown }).key === key;
+  });
+  if (!match || typeof match !== "object") return undefined;
+  return (match as { value?: unknown }).value;
+}
+
+function readRunArtifact(correlationId: string, artifactName: string): unknown {
+  const artifactPath = join(process.cwd(), ".factory", "runs", correlationId, artifactName);
+  if (!existsSync(artifactPath)) return undefined;
+  try {
+    return JSON.parse(readFileSync(artifactPath, "utf8"));
+  } catch {
+    return undefined;
+  }
+}
+
+function deriveValidationPassed(correlationId: string): boolean | null {
+  const validateArtifact = readRunArtifact(correlationId, "validate.json");
+  if (!validateArtifact || typeof validateArtifact !== "object") return null;
+  if ((validateArtifact as { skipped?: unknown }).skipped === true) return null;
+
+  const allPassed = (validateArtifact as { data?: { allPassed?: unknown } }).data?.allPassed;
+  if (typeof allPassed === "boolean") return allPassed;
+
+  const dataOk = (validateArtifact as { data?: { ok?: unknown } }).data?.ok;
+  if (typeof dataOk === "boolean") return dataOk;
+
+  const wrapperOk = (validateArtifact as { ok?: unknown }).ok;
+  if (typeof wrapperOk === "boolean" && wrapperOk === false) return false;
+
+  return null;
+}
+
+function deriveGitCommands(correlationId: string): string[] {
+  const gitArtifact = readRunArtifact(correlationId, "git-pr.json");
+  if (!gitArtifact || typeof gitArtifact !== "object") return [];
+  if ((gitArtifact as { skipped?: unknown }).skipped === true) return [];
+
+  const wrappedCommands = (gitArtifact as { data?: { commands?: unknown } }).data?.commands;
+  if (Array.isArray(wrappedCommands)) {
+    return wrappedCommands.filter((entry): entry is string => typeof entry === "string");
+  }
+
+  const directCommands = (gitArtifact as { commands?: unknown }).commands;
+  if (Array.isArray(directCommands)) {
+    return directCommands.filter((entry): entry is string => typeof entry === "string");
+  }
+
+  return [];
+}
+
+function isUsageOrWiringAgentFailure(result: unknown): boolean {
+  if (!result || typeof result !== "object") return true;
+  if ((result as { ok?: unknown }).ok !== true) return true;
+
+  const data = (result as { data?: unknown }).data;
+  if (!data || typeof data !== "object") return true;
+
+  const errors = (data as { errors?: unknown }).errors;
+  if (!Array.isArray(errors)) return false;
+
+  return errors.some((entry) => {
+    if (!entry || typeof entry !== "object") return false;
+    const code = (entry as { code?: unknown }).code;
+    return code === "SUB_AGENT_INVOCATION_FAILED";
+  });
+}
+
 async function factoryRun(args: string[] = []) {
   const taskText = optionValue(args, "--task") ?? optionValue(args, "-task");
   if (!taskText || taskText.trim().length === 0) {
@@ -272,7 +350,47 @@ async function factoryRun(args: string[] = []) {
     );
   }
 
-  const mode = hasFlag(args, "--dry-run") || hasFlag(args, "-dry-run") ? "dry-run" : "apply";
+  const dryRunFlag = hasFlag(args, "--dry-run") || hasFlag(args, "-dry-run");
+  const modeValues = [...optionValues(args, "--mode"), ...optionValues(args, "-mode")]
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0);
+
+  if (modeValues.length > 1) {
+    return printFactoryResultAndExit(
+      {
+        event: "factory.result",
+        correlationId: null,
+        ok: false,
+        errors: [{ code: "USAGE", message: "multiple --mode values are not supported" }],
+      },
+      1,
+    );
+  }
+
+  let mode: FactoryRunMode = "validate";
+  if (dryRunFlag) {
+    mode = "dry-run";
+  } else if (modeValues.length === 1) {
+    const selectedMode = modeValues[0];
+    if (selectedMode !== "dry-run" && selectedMode !== "validate" && selectedMode !== "pr-ready") {
+      return printFactoryResultAndExit(
+        {
+          event: "factory.result",
+          correlationId: null,
+          ok: false,
+          errors: [
+            {
+              code: "USAGE",
+              message: "invalid --mode value (expected dry-run|validate|pr-ready)",
+            },
+          ],
+        },
+        1,
+      );
+    }
+    mode = selectedMode;
+  }
+
   const taskId = randomUUID();
   const task = {
     taskId,
@@ -341,17 +459,47 @@ async function factoryRun(args: string[] = []) {
   }
 
   const correlationId =
-    typeof result?.data?.correlationId === "string" ? result.data.correlationId : taskId;
+    typeof result?.data?.correlationId === "string" ? (result.data.correlationId as string) : taskId;
+
+  const planValue = extractOutputByKey(result, "plan");
+  const plan = {
+    steps: Array.isArray((planValue as { steps?: unknown } | undefined)?.steps)
+      ? ((planValue as { steps: unknown[] }).steps.length ?? 0)
+      : 0,
+    touchedFiles: Array.isArray((planValue as { touchedFiles?: unknown } | undefined)?.touchedFiles)
+      ? (planValue as { touchedFiles: unknown[] }).touchedFiles.filter(
+          (entry): entry is string => typeof entry === "string",
+        )
+      : [],
+  };
+
+  const patchesValue = extractOutputByKey(result, "patches");
+  const patchCount = Array.isArray(patchesValue) ? patchesValue.length : 0;
+  const validationPassed = deriveValidationPassed(correlationId);
+  const gitCommands = mode === "pr-ready" ? deriveGitCommands(correlationId) : null;
+
   const ok = result?.ok === true && result?.data?.ok === true;
-  printFactoryResultAndExit(
-    {
-      event: "factory.result",
-      correlationId,
-      ok,
-      result,
-    },
-    ok ? 0 : 2,
-  );
+  const payload: Record<string, unknown> = {
+    event: "factory.result",
+    correlationId,
+    ok,
+    plan,
+    patchCount,
+    validationPassed,
+    gitCommands,
+  };
+
+  const resultErrors = Array.isArray(result?.data?.errors)
+    ? result.data.errors
+    : Array.isArray(result?.errors)
+      ? result.errors
+      : [];
+  if (!ok && resultErrors.length > 0) {
+    payload.errors = resultErrors;
+  }
+
+  const exitCode: 0 | 1 | 2 = ok ? 0 : isUsageOrWiringAgentFailure(result) ? 1 : 2;
+  printFactoryResultAndExit(payload, exitCode);
 }
 
 function listAgents(root: string): string[] {

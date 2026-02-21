@@ -25,13 +25,13 @@
 
 ## North Star (MVP outcome)
 
-- [ ] You can run **one command** that:
+- [x] You can run **one command** that:
   - [x] accepts/loads a **Task** (goal + constraints + file scope + mode)
   - [x] generates a **Plan**
   - [x] generates a minimal **Patch** (unified diff)
   - [x] applies patch (unless dry-run)
-  - [ ] runs **validations**
-  - [ ] prepares a **PR-ready** branch/commit (prints `gh pr create` only if allowed)
+  - [x] runs **validations**
+  - [x] prepares a **PR-ready** branch/commit (prints `gh pr create` only if allowed)
 
 ---
 
@@ -605,22 +605,22 @@ and `git-pr.json`. All prior D3a/D3b/D3c tests still pass.
 > does everything: task → read → plan → patch → apply → validate → git-ready.
 > This completes the MVP North Star outcome.
 
-- [ ] `pnpm factory run --task "<text>" --scope <path>` runs full orchestrated pipeline
-- [ ] `pnpm factory run --task "<text>" --scope <path> --dry-run` produces plan + patches only
-- [ ] `pnpm factory run --task "<text>" --scope <path> --mode pr-ready` produces branch + commit + PR command
-- [ ] `factory run` output includes:
-  - [ ] `event: "factory.result"`
-  - [ ] `correlationId`
-  - [ ] `ok` (boolean)
-  - [ ] `plan` summary
-  - [ ] `patchCount`
-  - [ ] `validationPassed` (boolean or null if skipped)
-  - [ ] `gitCommands[]` (if pr-ready)
-- [ ] Exit codes:
-  - [ ] `0` — pipeline succeeded
-  - [ ] `2` — validation failed (build broken, scope violation, etc.)
-  - [ ] `1` — usage/wiring error
-- [ ] All North Star checkboxes can be marked `[x]`
+- [x] `pnpm factory run --task "<text>" --scope <path>` runs full orchestrated pipeline
+- [x] `pnpm factory run --task "<text>" --scope <path> --dry-run` produces plan + patches only
+- [x] `pnpm factory run --task "<text>" --scope <path> --mode pr-ready` produces branch + commit + PR command
+- [x] `factory run` output includes:
+  - [x] `event: "factory.result"`
+  - [x] `correlationId`
+  - [x] `ok` (boolean)
+  - [x] `plan` summary
+  - [x] `patchCount`
+  - [x] `validationPassed` (boolean or null if skipped)
+  - [x] `gitCommands[]` (if pr-ready)
+- [x] Exit codes:
+  - [x] `0` — pipeline succeeded
+  - [x] `2` — validation failed (build broken, scope violation, etc.)
+  - [x] `1` — usage/wiring error
+- [x] All North Star checkboxes can be marked `[x]`
 
 ### D11 Acceptance tests
 
@@ -683,3 +683,4 @@ contain full sub-agent outputs.
 | 10     | D8        | validate agent: allowlisted command execution + output capture with forbidden-command rejection            | PASS   | 2026-02-20 |
 | 11     | D9        | git-pr agent: deterministic git/gh command generation with dry-run and pr-ready modes                     | PASS   | 2026-02-21 |
 | 12     | D10       | repo-patch orchestration wires repo-read → plan → patch → validate → git-pr end-to-end                    | PASS   | 2026-02-21 |
+| 13     | D11       | North Star — factory run wires full orchestrated pipeline with --mode and enriched output                 | PASS   | 2026-02-21 |
