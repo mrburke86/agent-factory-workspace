@@ -130,9 +130,9 @@
 - [x] `plan` (support agent)
   - [x] task → structured plan JSON
   - [x] touched files + risk flags + commands
-- [ ] `validate` (support agent)
-  - [ ] runs allowlisted pnpm command sets
-  - [ ] captures outputs to artifacts
+- [x] `validate` (support agent)
+  - [x] runs allowlisted pnpm command sets
+  - [x] captures outputs to artifacts
 - [ ] `git-pr` (support agent)
   - [ ] create branch + commit
   - [ ] print push + optional PR creation commands
@@ -457,34 +457,34 @@ Expected: `agent:run` exits 0, prints JSON with a valid Plan containing
 > Used after patching to verify the repo still builds and passes health checks.
 > In MVP, execution is real (not mocked) but constrained to the command allowlist.
 
-- [ ] Scaffold: `af agent:new validate`
-- [ ] `services/agents/validate/agent.json` with valid inputSchema and outputSchema
-- [ ] inputSchema accepts:
-  - [ ] `commands[]` — array of command strings to execute
-  - [ ] `repoRoot` (string, working directory for execution)
-  - [ ] `artifactDir` (string, path to write output logs)
-- [ ] outputSchema returns:
-  - [ ] `results[]` — one per command:
-    - [ ] `command` (string)
-    - [ ] `exitCode` (number)
-    - [ ] `stdout` (string, truncated to 10KB)
-    - [ ] `stderr` (string, truncated to 10KB)
-    - [ ] `durationMs` (number)
-  - [ ] `allPassed` (boolean — true if all exitCode === 0)
-- [ ] `run(input)` implementation:
-  - [ ] validates each command against the allowlist before execution
-  - [ ] rejects forbidden commands with `ok: false` and descriptive error
-  - [ ] executes commands sequentially via `child_process.execSync` or `spawn`
-  - [ ] captures stdout/stderr per command
-  - [ ] writes combined output to `artifactDir/commands.log`
-  - [ ] returns structured results
-- [ ] Command allowlist (same as AGENTS.md):
-  - [ ] `pnpm -r build`
-  - [ ] `pnpm -C <workspace-path> <script-name>`
-  - [ ] `pnpm factory:health`
-  - [ ] `pnpm af <subcommand> [args]`
-- [ ] No network calls from the agent itself (commands may access filesystem)
-- [ ] Agent imports from `@acme/agent-runtime` only
+- [x] Scaffold: `af agent:new validate`
+- [x] `services/agents/validate/agent.json` with valid inputSchema and outputSchema
+- [x] inputSchema accepts:
+  - [x] `commands[]` — array of command strings to execute
+  - [x] `repoRoot` (string, working directory for execution)
+  - [x] `artifactDir` (string, path to write output logs)
+- [x] outputSchema returns:
+  - [x] `results[]` — one per command:
+    - [x] `command` (string)
+    - [x] `exitCode` (number)
+    - [x] `stdout` (string, truncated to 10KB)
+    - [x] `stderr` (string, truncated to 10KB)
+    - [x] `durationMs` (number)
+  - [x] `allPassed` (boolean — true if all exitCode === 0)
+- [x] `run(input)` implementation:
+  - [x] validates each command against the allowlist before execution
+  - [x] rejects forbidden commands with `ok: false` and descriptive error
+  - [x] executes commands sequentially via `child_process.execSync` or `spawn`
+  - [x] captures stdout/stderr per command
+  - [x] writes combined output to `artifactDir/commands.log`
+  - [x] returns structured results
+- [x] Command allowlist (same as AGENTS.md):
+  - [x] `pnpm -r build`
+  - [x] `pnpm -C <workspace-path> <script-name>`
+  - [x] `pnpm factory:health`
+  - [x] `pnpm af <subcommand> [args]`
+- [x] No network calls from the agent itself (commands may access filesystem)
+- [x] Agent imports from `@acme/agent-runtime` only
 
 ### D8 Acceptance tests
 
@@ -680,3 +680,4 @@ contain full sub-agent outputs.
 | 7      | D6        | repo-read agent: file-list, file-content, symbol-search, references query types                            | PASS   | 2026-02-20 |
 | 8      | D5a       | Lockfile sync verified — frozen-lockfile passes, D5a marked complete                                       | PASS   | 2026-02-20 |
 | 9      | D7        | plan agent: task → structured plan with steps, touchedFiles, commands, risks                              | PASS   | 2026-02-20 |
+| 10     | D8        | validate agent: allowlisted command execution + output capture with forbidden-command rejection            | PASS   | 2026-02-20 |

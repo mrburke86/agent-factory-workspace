@@ -1,0 +1,84 @@
+{
+  "id": "validate",
+  "name": "Validate",
+  "version": "0.1.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "commands",
+      "repoRoot",
+      "artifactDir"
+    ],
+    "properties": {
+      "commands": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "repoRoot": {
+        "type": "string"
+      },
+      "artifactDir": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "ok",
+      "results",
+      "allPassed"
+    ],
+    "properties": {
+      "ok": {
+        "type": "boolean"
+      },
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "command",
+            "exitCode",
+            "stdout",
+            "stderr",
+            "durationMs"
+          ],
+          "properties": {
+            "command": {
+              "type": "string"
+            },
+            "exitCode": {
+              "type": "number"
+            },
+            "stdout": {
+              "type": "string"
+            },
+            "stderr": {
+              "type": "string"
+            },
+            "durationMs": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "allPassed": {
+        "type": "boolean"
+      },
+      "error": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": [
+    "validation",
+    "command-execution"
+  ]
+}

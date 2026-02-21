@@ -87,6 +87,12 @@ importers:
         specifier: workspace:*
         version: link:../../agent-runtime
 
+  services/agents/validate:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../../agent-runtime
+
 packages:
 
   '@types/node@25.2.3':
