@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
+import { runAgent } from "@acme/agent-runner";
 import {
   RepoPatchPatchItemSchema,
   RepoPatchPlanSchema,
@@ -20,11 +21,8 @@ const DEFAULT_MAX_FILES = 10;
 const LOCKFILES = new Set(["pnpm-lock.yaml", "package-lock.json", "yarn.lock"]);
 const ALLOW_LOCKFILE_CHANGES = "allow-lockfile-changes";
 const MAX_FILES_CONSTRAINT_PREFIX = "max-files:";
-
-type CommandLogEntry = {
-  command: string;
-  exitCode: number;
-};
+const VALIDATE_SKIP_CONSTRAINT = "skip-validate";
+const COMMAND_INPUT_PREVIEW_MAX = 240;
 
 type ResultTimings = {
   startedAt: string;
@@ -72,20 +70,6 @@ function isAllowlistedCommand(command: string): boolean {
   return false;
 }
 
-function buildPlan(task: RepoPatchTask, touchedFiles: string[]): RepoPatchPlan {
-  const steps = [
-    "parse goal",
-    "create patch",
-    task.mode === "dry-run" ? "skip apply (dry-run)" : "apply patch",
-  ];
-  return RepoPatchPlanSchema.parse({
-    steps,
-    touchedFiles,
-    commands: [],
-    risks: ["writes new file"],
-  });
-}
-
 function buildHelloPatch(): RepoPatchPatchItem {
   const unifiedDiff = [
     "--- /dev/null",
@@ -98,6 +82,15 @@ function buildHelloPatch(): RepoPatchPatchItem {
     path: HELLO_FILE_PATH,
     unifiedDiff,
     rationale: "Create hello.txt with deterministic acceptance fixture content.",
+  });
+}
+
+function buildEmptyPlan(): RepoPatchPlan {
+  return RepoPatchPlanSchema.parse({
+    steps: [],
+    touchedFiles: [],
+    commands: [],
+    risks: [],
   });
 }
 
@@ -117,6 +110,57 @@ async function applyPatches(task: RepoPatchTask, patches: RepoPatchPatchItem[]):
     await mkdir(targetDir, { recursive: true });
     await writeFile(targetFile, HELLO_FILE_CONTENT, "utf8");
   }
+}
+
+function isSubAgentSuccess(result: unknown): boolean {
+  if (!result || typeof result !== "object") return false;
+  const typed = result as { ok?: unknown; data?: { ok?: unknown } };
+  if (typed.ok !== true) return false;
+  if (typeof typed.data?.ok === "boolean" && typed.data.ok !== true) return false;
+  return true;
+}
+
+function extractSubAgentError(agentName: string, result: unknown): string {
+  if (!result || typeof result !== "object") {
+    return `sub-agent ${agentName} returned invalid result`;
+  }
+  const typed = result as {
+    errors?: Array<{ message?: unknown }>;
+    data?: { error?: unknown };
+  };
+  const firstError = typed.errors?.find((error) => typeof error?.message === "string");
+  if (typeof firstError?.message === "string") return firstError.message;
+  if (typeof typed.data?.error === "string") return typed.data.error;
+  return `sub-agent ${agentName} reported failure`;
+}
+
+function truncateCommandInput(value: unknown): string {
+  let serialized = "";
+  try {
+    serialized = JSON.stringify(value);
+  } catch {
+    serialized = String(value);
+  }
+  if (serialized.length <= COMMAND_INPUT_PREVIEW_MAX) return serialized;
+  return `${serialized.slice(0, COMMAND_INPUT_PREVIEW_MAX)}...`;
+}
+
+function createSubAgentLogLine(agentName: string, input: unknown, exitCode: number): string {
+  const now = new Date().toISOString();
+  const inputPreview = truncateCommandInput(input);
+  return `[${now}] sub-agent:${agentName} input=${inputPreview} exitCode=${exitCode}`;
+}
+
+async function writeJsonArtifact(runDir: string, fileName: string, value: unknown): Promise<void> {
+  await writeFile(join(runDir, fileName), `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+function commitMessageFromGoal(goal: string): string {
+  const normalizedGoal = goal.replace(/\s+/g, " ").trim();
+  const prefix = "feat: ";
+  const maxGoalLength = Math.max(0, 72 - prefix.length);
+  if (normalizedGoal.length <= maxGoalLength) return `${prefix}${normalizedGoal}`;
+  return `${prefix}${normalizedGoal.slice(0, maxGoalLength)}`;
 }
 
 function collectSafetyErrors(task: RepoPatchTask, plan: RepoPatchPlan, patches: RepoPatchPatchItem[]) {
@@ -197,20 +241,14 @@ function sanitizePatchArtifactName(pathValue: string): string {
 }
 
 async function writeArtifacts(
-  correlationId: string,
-  task: RepoPatchTask,
-  plan: RepoPatchPlan,
+  runDir: string,
   patches: RepoPatchPatchItem[],
   result: RepoPatchResult,
-  commandLog: CommandLogEntry[],
+  commandLog: string[],
 ): Promise<void> {
-  const runDir = join(process.cwd(), ".factory", "runs", correlationId);
   const patchDir = join(runDir, "patches");
 
   await mkdir(patchDir, { recursive: true });
-
-  await writeFile(join(runDir, "task.json"), `${JSON.stringify(task, null, 2)}\n`, "utf8");
-  await writeFile(join(runDir, "plan.json"), `${JSON.stringify(plan, null, 2)}\n`, "utf8");
 
   for (let i = 0; i < patches.length; i += 1) {
     const patch = patches[i];
@@ -221,21 +259,86 @@ async function writeArtifacts(
     await writeFile(join(patchDir, fileName), content, "utf8");
   }
 
-  await writeFile(join(runDir, "commands.log"), `${JSON.stringify(commandLog, null, 2)}\n`, "utf8");
+  const commandLogContent = commandLog.length > 0 ? `${commandLog.join("\n")}\n` : "";
+  await writeFile(join(runDir, "commands.log"), commandLogContent, "utf8");
   await writeFile(join(runDir, "result.json"), `${JSON.stringify(result, null, 2)}\n`, "utf8");
 }
 
 async function runImpl(input: RepoPatchTask): Promise<RepoPatchResult> {
   const task = RepoPatchTaskSchema.parse(input);
   const correlationId = randomUUID();
+  const runDir = join(process.cwd(), ".factory", "runs", correlationId);
   const startedMs = Date.now();
   const startedAt = new Date(startedMs).toISOString();
-  const commandLog: CommandLogEntry[] = [];
-  const patch = buildHelloPatch();
-  const patches = [patch];
-  const touchedFiles = patches.map((item) => item.path);
-  const plan = buildPlan(task, touchedFiles);
-  const errors = collectSafetyErrors(task, plan, patches);
+  const commandLog: string[] = [];
+  const patches: RepoPatchPatchItem[] = [];
+  const errors: Array<{ code: string; message: string }> = [];
+  let plan = buildEmptyPlan();
+
+  await mkdir(runDir, { recursive: true });
+  await writeJsonArtifact(runDir, "task.json", task);
+
+  const invokeSubAgent = async (agentName: string, subAgentInput: unknown, artifactFileName: string) => {
+    try {
+      const result = await runAgent(agentName, subAgentInput, { rootDir: process.cwd() });
+      const exitCode = isSubAgentSuccess(result) ? 0 : 2;
+      commandLog.push(createSubAgentLogLine(agentName, subAgentInput, exitCode));
+      await writeJsonArtifact(runDir, artifactFileName, result);
+      if (!isSubAgentSuccess(result)) {
+        errors.push({
+          code: "SUB_AGENT_FAILED",
+          message: `sub_agent_failed: ${agentName}: ${extractSubAgentError(agentName, result)}`,
+        });
+      }
+      return result;
+    } catch (e) {
+      const errorMessage = (e as Error)?.message ?? String(e);
+      commandLog.push(createSubAgentLogLine(agentName, subAgentInput, 1));
+      await writeJsonArtifact(runDir, artifactFileName, {
+        ok: false,
+        agent: agentName,
+        errors: [{ code: "INVOCATION_ERROR", message: errorMessage }],
+      });
+      errors.push({
+        code: "SUB_AGENT_INVOCATION_FAILED",
+        message: `sub_agent_invocation_failed: ${agentName}: ${errorMessage}`,
+      });
+      return undefined;
+    }
+  };
+
+  const repoReadInput = {
+    repoRoot: ".",
+    queries: task.fileScope.flatMap((scopeEntry) => [
+      {
+        type: "file-list" as const,
+        pattern: "*",
+        scope: scopeEntry,
+      },
+      {
+        type: "file-content" as const,
+        pattern: scopeEntry,
+      },
+    ]),
+  };
+  const repoReadResult = await invokeSubAgent("repo-read", repoReadInput, "repo-read.json");
+
+  if (errors.length === 0) {
+    const planInput = {
+      ...task,
+      repoReadContext: (repoReadResult as { data?: unknown } | undefined)?.data,
+    };
+    const planResult = await invokeSubAgent("plan", planInput, "plan.json");
+    if (errors.length === 0) {
+      plan = RepoPatchPlanSchema.parse((planResult as { data?: unknown }).data);
+    }
+  }
+
+  if (errors.length === 0) {
+    patches.push(buildHelloPatch());
+    const safetyErrors = collectSafetyErrors(task, plan, patches);
+    errors.push(...safetyErrors);
+  }
 
   if (errors.length === 0) {
     try {
@@ -248,6 +351,40 @@ async function runImpl(input: RepoPatchTask): Promise<RepoPatchResult> {
     }
   }
 
+  const shouldSkipValidate = task.mode === "dry-run" || task.constraints.includes(VALIDATE_SKIP_CONSTRAINT);
+  if (errors.length === 0) {
+    if (shouldSkipValidate) {
+      const reason =
+        task.mode === "dry-run" ? "dry-run mode" : `constraint: ${VALIDATE_SKIP_CONSTRAINT}`;
+      await writeJsonArtifact(runDir, "validate.json", { skipped: true, reason });
+    } else {
+      const validateInput = {
+        commands: plan.commands.length > 0 ? plan.commands : ["pnpm -r build"],
+        repoRoot: ".",
+        artifactDir: `.factory/runs/${correlationId}`,
+      };
+      await invokeSubAgent("validate", validateInput, "validate.json");
+    }
+  }
+
+  if (errors.length === 0) {
+    if (task.mode === "pr-ready") {
+      const gitPrInput = {
+        branchName: `factory/${task.taskId}`,
+        commitMessage: commitMessageFromGoal(task.goal),
+        patchedFiles: patches.map((patch) => patch.path),
+        mode: "dry-run" as const,
+        repoRoot: ".",
+      };
+      await invokeSubAgent("git-pr", gitPrInput, "git-pr.json");
+    } else {
+      await writeJsonArtifact(runDir, "git-pr.json", {
+        skipped: true,
+        reason: `mode '${task.mode}' is not pr-ready`,
+      });
+    }
+  }
+
   const finishedMs = Date.now();
   const timings: ResultTimings = {
     startedAt,
@@ -256,7 +393,7 @@ async function runImpl(input: RepoPatchTask): Promise<RepoPatchResult> {
   };
 
   const result = buildResult(correlationId, plan, patches, errors, timings);
-  await writeArtifacts(correlationId, task, plan, patches, result, commandLog);
+  await writeArtifacts(runDir, patches, result, commandLog);
   return result;
 }
 

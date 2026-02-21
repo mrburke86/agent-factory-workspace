@@ -140,7 +140,7 @@
   - [x] task → plan → patch → apply (deterministic stub)
   - [x] strict safety rails (scope, max files, lockfile rules)
   - [x] deterministic structure
-  - [ ] task → plan → patch → apply → validate → git-ready output (full orchestration)
+  - [x] task → plan → patch → apply → validate → git-ready output (full orchestration)
 
 ---
 
@@ -560,23 +560,23 @@ the git/gh command sequence and `executed: false` (dry-run mode).
 > the support agents in sequence: repo-read → plan → patch → validate → git-pr.
 > This is the "real" repo-patch that chains agent outputs together.
 
-- [ ] `repo-patch` `run(task)` calls support agents in order:
-  - [ ] Step 1: Call `repo-read` to gather context about `task.fileScope[]`
-  - [ ] Step 2: Call `plan` with task + repo-read context → produces Plan
-  - [ ] Step 3: Generate patches from Plan (existing patch logic)
-  - [ ] Step 4: Apply patches (unless dry-run)
-  - [ ] Step 5: Call `validate` with `plan.commands` (unless dry-run/validate skipped)
-  - [ ] Step 6: Call `git-pr` if mode is `"pr-ready"` (dry-run otherwise)
-- [ ] Orchestration uses agent-runner to invoke sub-agents (manifest-driven)
-- [ ] Each sub-agent call is logged in artifacts (`commands.log`)
-- [ ] If any sub-agent returns `ok: false`, repo-patch stops and returns `ok: false`
-- [ ] All existing safety rails (scope, max-files, lockfile) still enforced
-- [ ] Artifact directory includes sub-agent outputs:
-  - [ ] `.factory/runs/<id>/repo-read.json`
-  - [ ] `.factory/runs/<id>/plan.json` (now from plan agent, not inline)
-  - [ ] `.factory/runs/<id>/validate.json`
-  - [ ] `.factory/runs/<id>/git-pr.json`
-- [ ] Backward compatible: existing acceptance tests still pass
+- [x] `repo-patch` `run(task)` calls support agents in order:
+  - [x] Step 1: Call `repo-read` to gather context about `task.fileScope[]`
+  - [x] Step 2: Call `plan` with task + repo-read context → produces Plan
+  - [x] Step 3: Generate patches from Plan (existing patch logic)
+  - [x] Step 4: Apply patches (unless dry-run)
+  - [x] Step 5: Call `validate` with `plan.commands` (unless dry-run/validate skipped)
+  - [x] Step 6: Call `git-pr` if mode is `"pr-ready"` (dry-run otherwise)
+- [x] Orchestration uses agent-runner to invoke sub-agents (manifest-driven)
+- [x] Each sub-agent call is logged in artifacts (`commands.log`)
+- [x] If any sub-agent returns `ok: false`, repo-patch stops and returns `ok: false`
+- [x] All existing safety rails (scope, max-files, lockfile) still enforced
+- [x] Artifact directory includes sub-agent outputs:
+  - [x] `.factory/runs/<id>/repo-read.json`
+  - [x] `.factory/runs/<id>/plan.json` (now from plan agent, not inline)
+  - [x] `.factory/runs/<id>/validate.json`
+  - [x] `.factory/runs/<id>/git-pr.json`
+- [x] Backward compatible: existing acceptance tests still pass
 
 ### D10 Acceptance tests
 
@@ -682,3 +682,4 @@ contain full sub-agent outputs.
 | 9      | D7        | plan agent: task → structured plan with steps, touchedFiles, commands, risks                              | PASS   | 2026-02-20 |
 | 10     | D8        | validate agent: allowlisted command execution + output capture with forbidden-command rejection            | PASS   | 2026-02-20 |
 | 11     | D9        | git-pr agent: deterministic git/gh command generation with dry-run and pr-ready modes                     | PASS   | 2026-02-21 |
+| 12     | D10       | repo-patch orchestration wires repo-read → plan → patch → validate → git-pr end-to-end                    | PASS   | 2026-02-21 |

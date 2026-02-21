@@ -5,7 +5,8 @@
   "type": "module",
   "dependencies": {
     "@acme/contracts": "workspace:*",
-    "@acme/agent-runtime": "workspace:*"
+    "@acme/agent-runtime": "workspace:*",
+    "@acme/agent-runner": "workspace:*"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
