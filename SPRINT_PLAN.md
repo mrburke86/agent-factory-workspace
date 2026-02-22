@@ -1,4 +1,4 @@
-<!-- LAST_UPDATED: 2026-02-21 -->
+<!-- LAST_UPDATED: 2026-02-22 -->
 
 # Agent Factory v2 Transformation — Sprint Plan (Single Source of Truth)
 
@@ -88,19 +88,19 @@ pnpm factory:health
 
 **Tasks:**
 
-- [ ] Move current `AGENTS.md` to `docs/archive/AGENTS_v1.md`
-- [ ] Copy `AGENTS_V2.md` content into the new `AGENTS.md` at repo root
-- [ ] Verify all internal references in `AGENTS.md` resolve (file paths, section names)
-- [ ] Update the version comment to `<!-- VERSION: v2 — <current date> -->`
-- [ ] Verify `pnpm factory:health` passes
+- [x] Move current `AGENTS.md` to `docs/archive/AGENTS_v1.md`
+- [x] Copy `AGENTS_V2.md` content into the new `AGENTS.md` at repo root
+- [x] Verify all internal references in `AGENTS.md` resolve (file paths, section names)
+- [x] Update the version comment to `<!-- VERSION: v2 — <current date> -->`
+- [x] Verify `pnpm factory:health` passes
 
 **Acceptance Criteria:**
 
-- [ ] `AGENTS.md` at repo root contains `<!-- VERSION: v2` header
-- [ ] `AGENTS.md` contains `## Two-Layer Architecture` section
-- [ ] `AGENTS.md` contains `## Layer 2 Interface Contract` section
-- [ ] `docs/archive/AGENTS_v1.md` exists (bootstrap version preserved)
-- [ ] `pnpm factory:health` exits 0
+- [x] `AGENTS.md` at repo root contains `<!-- VERSION: v2` header
+- [x] `AGENTS.md` contains `## Two-Layer Architecture` section
+- [x] `AGENTS.md` contains `## Layer 2 Interface Contract` section
+- [x] `docs/archive/AGENTS_v1.md` exists (bootstrap version preserved)
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -478,6 +478,7 @@ echo "=== VALIDATION COMPLETE ==="
 | Sprint | Milestone | Description | Gate |
 | --- | --- | --- | --- |
 | 1 | S1 | Repo Cleanup — Archive Bootstrap Artefacts | PASS |
+| 2 | S2 | Install AGENTS_V2.md — Production Architecture Definition | PASS |
 
 ---
 
