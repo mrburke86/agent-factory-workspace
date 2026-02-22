@@ -355,29 +355,29 @@ A comprehensive `README.md` exists at the repo root. It contains: title and badg
 
 **Tasks:**
 
-- [ ] Create `README.md` at repo root
-- [ ] Write title section with badges (CI status, license, Node.js version, pnpm)
-- [ ] Generate table of contents
-- [ ] Write Overview section with a mermaid diagram showing the two-layer architecture and five pipeline stages
-- [ ] Write Quick Start section (clone, install, build, run health check, run a sample agent)
-- [ ] Write Architecture section explaining Layer 1 + Layer 2 with references to `AGENTS.md`
-- [ ] Write Usage Guide section covering CLI commands (`pnpm af agent:list`, `agent:run`, `agent:validate`, `factory run`)
-- [ ] Write annotated Directory Structure section reflecting the current repo layout
-- [ ] Write Configuration Reference section (agent.json schema, Layer 2 config fields)
-- [ ] Write Sprint Loop Guide section (brief, pointing to `WORKFLOW_V2.md` for details)
-- [ ] Write Roadmap section (what's next beyond v2)
-- [ ] Write Contributing section (PR process, code style, testing expectations)
-- [ ] Write License section (MIT)
-- [ ] Verify all internal links resolve (file paths, section anchors)
+- [x] Create `README.md` at repo root
+- [x] Write title section with badges (CI status, license, Node.js version, pnpm)
+- [x] Generate table of contents
+- [x] Write Overview section with a mermaid diagram showing the two-layer architecture and five pipeline stages
+- [x] Write Quick Start section (clone, install, build, run health check, run a sample agent)
+- [x] Write Architecture section explaining Layer 1 + Layer 2 with references to `AGENTS.md`
+- [x] Write Usage Guide section covering CLI commands (`pnpm af agent:list`, `agent:run`, `agent:validate`, `factory run`)
+- [x] Write annotated Directory Structure section reflecting the current repo layout
+- [x] Write Configuration Reference section (agent.json schema, Layer 2 config fields)
+- [x] Write Sprint Loop Guide section (brief, pointing to `WORKFLOW_V2.md` for details)
+- [x] Write Roadmap section (what's next beyond v2)
+- [x] Write Contributing section (PR process, code style, testing expectations)
+- [x] Write License section (MIT)
+- [x] Verify all internal links resolve (file paths, section anchors)
 
 **Acceptance Criteria:**
 
-- [ ] `README.md` exists at repo root with more than 100 lines
-- [ ] Contains all required sections: Overview, Quick Start, Architecture, Usage Guide, Directory Structure, Configuration Reference, Sprint Loop Guide, Roadmap, Contributing, License
-- [ ] Contains a mermaid code block for the architecture diagram
-- [ ] Contains a table of contents with working anchor links
-- [ ] All file path references in Directory Structure section point to real directories/files
-- [ ] `pnpm factory:health` exits 0
+- [x] `README.md` exists at repo root with more than 100 lines
+- [x] Contains all required sections: Overview, Quick Start, Architecture, Usage Guide, Directory Structure, Configuration Reference, Sprint Loop Guide, Roadmap, Contributing, License
+- [x] Contains a mermaid code block for the architecture diagram
+- [x] Contains a table of contents with working anchor links
+- [x] All file path references in Directory Structure section point to real directories/files
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -483,6 +483,7 @@ echo "=== VALIDATION COMPLETE ==="
 | 4 | S4 | Layer 2 Example — Next.js Micro-SaaS | PASS |
 | 5 | S5 | Layer 2 Example — Python CLI Tool | PASS |
 | 6 | S6 | Agent README Refresh | PASS |
+| 7 | S7 | README.md — Comprehensive Onboarding Document | PASS |
 
 ---
 
