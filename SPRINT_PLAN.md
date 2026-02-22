@@ -188,23 +188,23 @@ pnpm factory:health
 
 **Tasks:**
 
-- [ ] Create `docs/examples/nextjs-micro-saas.md` following the Layer 2 example template
-- [ ] Write project description section (micro-SaaS context, tech stack rationale)
-- [ ] Define Layer 2 config values: `projectName`, `techStack` (Next.js App Router, Postgres, Drizzle ORM, Auth.js, Stripe)
-- [ ] Write stage-by-stage prompt templates for all five stages (plan, implement, verify, integrate, operate), each showing concrete parameterisation with Next.js-specific concerns
-- [ ] Define expected outputs per stage (e.g., plan stage produces migration files and API route stubs)
-- [ ] Write "How to Use This Example" section explaining the workflow for adapting this config
-- [ ] Verify all cross-references to `AGENTS.md` and `docs/templates/layer2-config-schema.md` resolve
+- [x] Create `docs/examples/nextjs-micro-saas.md` following the Layer 2 example template
+- [x] Write project description section (micro-SaaS context, tech stack rationale)
+- [x] Define Layer 2 config values: `projectName`, `techStack` (Next.js App Router, Postgres, Drizzle ORM, Auth.js, Stripe)
+- [x] Write stage-by-stage prompt templates for all five stages (plan, implement, verify, integrate, operate), each showing concrete parameterisation with Next.js-specific concerns
+- [x] Define expected outputs per stage (e.g., plan stage produces migration files and API route stubs)
+- [x] Write "How to Use This Example" section explaining the workflow for adapting this config
+- [x] Verify all cross-references to `AGENTS.md` and `docs/templates/layer2-config-schema.md` resolve
 
 **Acceptance Criteria:**
 
-- [ ] `docs/examples/nextjs-micro-saas.md` exists
-- [ ] File contains `## Layer 2 Configuration` section with all required fields
-- [ ] File contains prompt templates for all five pipeline stages
-- [ ] File contains `## Expected Outputs` section with per-stage outputs
-- [ ] File contains `## How to Use This Example` section
-- [ ] Tech stack includes Next.js App Router, Postgres, Drizzle ORM, Auth.js, Stripe
-- [ ] `pnpm factory:health` exits 0
+- [x] `docs/examples/nextjs-micro-saas.md` exists
+- [x] File contains `## Layer 2 Configuration` section with all required fields
+- [x] File contains prompt templates for all five pipeline stages
+- [x] File contains `## Expected Outputs` section with per-stage outputs
+- [x] File contains `## How to Use This Example` section
+- [x] Tech stack includes Next.js App Router, Postgres, Drizzle ORM, Auth.js, Stripe
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -480,6 +480,7 @@ echo "=== VALIDATION COMPLETE ==="
 | 1 | S1 | Repo Cleanup — Archive Bootstrap Artefacts | PASS |
 | 2 | S2 | Install AGENTS_V2.md — Production Architecture Definition | PASS |
 | 3 | S3 | Layer 2 Scaffolding — Directory Structure and Template Schema | PASS |
+| 4 | S4 | Layer 2 Example — Next.js Micro-SaaS | PASS |
 
 ---
 
