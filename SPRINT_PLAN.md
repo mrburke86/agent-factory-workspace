@@ -308,18 +308,18 @@ The three placeholder agent READMEs (`esm-smoke`, `repo-patch`, `retrieval-smoke
 
 **Tasks:**
 
-- [ ] Rewrite `services/agents/esm-smoke/README.md` — describe purpose (ESM/NodeNext build validation), input/output contract, usage in evals
-- [ ] Rewrite `services/agents/repo-patch/README.md` — describe orchestration pipeline, safety rails (scope enforcement, max files, lockfile protection, command allowlisting), sub-agent chaining, artifact structure
-- [ ] Rewrite `services/agents/retrieval-smoke/README.md` — describe purpose (deterministic fixture retrieval), input/output contract, usage in evals
-- [ ] Verify each README's input/output descriptions match the corresponding `agent.json` schemas
+- [x] Rewrite `services/agents/esm-smoke/README.md` — describe purpose (ESM/NodeNext build validation), input/output contract, usage in evals
+- [x] Rewrite `services/agents/repo-patch/README.md` — describe orchestration pipeline, safety rails (scope enforcement, max files, lockfile protection, command allowlisting), sub-agent chaining, artifact structure
+- [x] Rewrite `services/agents/retrieval-smoke/README.md` — describe purpose (deterministic fixture retrieval), input/output contract, usage in evals
+- [x] Verify each README's input/output descriptions match the corresponding `agent.json` schemas
 
 **Acceptance Criteria:**
 
-- [ ] `services/agents/esm-smoke/README.md` contains more than 10 lines and describes ESM validation purpose
-- [ ] `services/agents/repo-patch/README.md` contains more than 20 lines and describes safety constraints
-- [ ] `services/agents/retrieval-smoke/README.md` contains more than 10 lines and describes fixture retrieval
-- [ ] No README contains generic scaffold placeholder text ("This agent does X" without specifics)
-- [ ] `pnpm factory:health` exits 0
+- [x] `services/agents/esm-smoke/README.md` contains more than 10 lines and describes ESM validation purpose
+- [x] `services/agents/repo-patch/README.md` contains more than 20 lines and describes safety constraints
+- [x] `services/agents/retrieval-smoke/README.md` contains more than 10 lines and describes fixture retrieval
+- [x] No README contains generic scaffold placeholder text ("This agent does X" without specifics)
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -482,6 +482,7 @@ echo "=== VALIDATION COMPLETE ==="
 | 3 | S3 | Layer 2 Scaffolding — Directory Structure and Template Schema | PASS |
 | 4 | S4 | Layer 2 Example — Next.js Micro-SaaS | PASS |
 | 5 | S5 | Layer 2 Example — Python CLI Tool | PASS |
+| 6 | S6 | Agent README Refresh | PASS |
 
 ---
 
