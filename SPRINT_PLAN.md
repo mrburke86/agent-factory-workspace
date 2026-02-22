@@ -136,17 +136,17 @@ The `docs/templates/` directory contains a Layer 2 config schema document (`laye
 
 **Tasks:**
 
-- [ ] Create `docs/templates/layer2-config-schema.md` — formal schema definition for Layer 2 configs (required fields, stage override structure, validation rules)
-- [ ] Create `docs/templates/layer2-example-template.md` — blank template with section headers, placeholder markers, and inline guidance comments for each section
-- [ ] Ensure schema aligns with the Layer 2 Interface Contract in `AGENTS.md` (same required fields, same stage override structure, same validation rules)
-- [ ] Verify no broken cross-references between the schema, template, and `AGENTS.md`
+- [x] Create `docs/templates/layer2-config-schema.md` — formal schema definition for Layer 2 configs (required fields, stage override structure, validation rules)
+- [x] Create `docs/templates/layer2-example-template.md` — blank template with section headers, placeholder markers, and inline guidance comments for each section
+- [x] Ensure schema aligns with the Layer 2 Interface Contract in `AGENTS.md` (same required fields, same stage override structure, same validation rules)
+- [x] Verify no broken cross-references between the schema, template, and `AGENTS.md`
 
 **Acceptance Criteria:**
 
-- [ ] `docs/templates/layer2-config-schema.md` exists and contains all required fields from the Layer 2 Interface Contract
-- [ ] `docs/templates/layer2-example-template.md` exists and contains section headers for all required schema fields
-- [ ] All five pipeline stages (plan, implement, verify, integrate, operate) are represented in the stage overrides section
-- [ ] `pnpm factory:health` exits 0
+- [x] `docs/templates/layer2-config-schema.md` exists and contains all required fields from the Layer 2 Interface Contract
+- [x] `docs/templates/layer2-example-template.md` exists and contains section headers for all required schema fields
+- [x] All five pipeline stages (plan, implement, verify, integrate, operate) are represented in the stage overrides section
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -479,6 +479,7 @@ echo "=== VALIDATION COMPLETE ==="
 | --- | --- | --- | --- |
 | 1 | S1 | Repo Cleanup — Archive Bootstrap Artefacts | PASS |
 | 2 | S2 | Install AGENTS_V2.md — Production Architecture Definition | PASS |
+| 3 | S3 | Layer 2 Scaffolding — Directory Structure and Template Schema | PASS |
 
 ---
 
