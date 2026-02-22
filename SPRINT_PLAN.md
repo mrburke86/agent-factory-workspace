@@ -248,23 +248,23 @@ pnpm factory:health
 
 **Tasks:**
 
-- [ ] Create `docs/examples/python-cli-tool.md` following the Layer 2 example template
-- [ ] Write project description section (CLI tool context, Python ecosystem rationale)
-- [ ] Define Layer 2 config values: `projectName`, `techStack` (Python 3.11+, Click, SQLite, PyPI packaging via setuptools/pyproject.toml)
-- [ ] Write stage-by-stage prompt templates for all five stages with Python-specific concerns (e.g., plan stage considers `pyproject.toml` structure, implement stage generates `.py` files)
-- [ ] Define expected outputs per stage
-- [ ] Write "How to Use This Example" section
-- [ ] Verify structural consistency with `docs/examples/nextjs-micro-saas.md`
+- [x] Create `docs/examples/python-cli-tool.md` following the Layer 2 example template
+- [x] Write project description section (CLI tool context, Python ecosystem rationale)
+- [x] Define Layer 2 config values: `projectName`, `techStack` (Python 3.11+, Click, SQLite, PyPI packaging via setuptools/pyproject.toml)
+- [x] Write stage-by-stage prompt templates for all five stages with Python-specific concerns (e.g., plan stage considers `pyproject.toml` structure, implement stage generates `.py` files)
+- [x] Define expected outputs per stage
+- [x] Write "How to Use This Example" section
+- [x] Verify structural consistency with `docs/examples/nextjs-micro-saas.md`
 
 **Acceptance Criteria:**
 
-- [ ] `docs/examples/python-cli-tool.md` exists
-- [ ] File contains `## Layer 2 Configuration` section with all required fields
-- [ ] File contains prompt templates for all five pipeline stages
-- [ ] File contains `## Expected Outputs` section with per-stage outputs
-- [ ] File contains `## How to Use This Example` section
-- [ ] Tech stack includes Python, Click, SQLite, PyPI
-- [ ] `pnpm factory:health` exits 0
+- [x] `docs/examples/python-cli-tool.md` exists
+- [x] File contains `## Layer 2 Configuration` section with all required fields
+- [x] File contains prompt templates for all five pipeline stages
+- [x] File contains `## Expected Outputs` section with per-stage outputs
+- [x] File contains `## How to Use This Example` section
+- [x] Tech stack includes Python, Click, SQLite, PyPI
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -481,6 +481,7 @@ echo "=== VALIDATION COMPLETE ==="
 | 2 | S2 | Install AGENTS_V2.md — Production Architecture Definition | PASS |
 | 3 | S3 | Layer 2 Scaffolding — Directory Structure and Template Schema | PASS |
 | 4 | S4 | Layer 2 Example — Next.js Micro-SaaS | PASS |
+| 5 | S5 | Layer 2 Example — Python CLI Tool | PASS |
 
 ---
 
