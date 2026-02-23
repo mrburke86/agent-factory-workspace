@@ -42,7 +42,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        uses: actions/setup-node@efcb663fc60e97218a2b2d6d827f7830f164739e
         with:
           node-version-file: .nvmrc
 
@@ -67,7 +67,7 @@ jobs:
         run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
       - name: Cache pnpm store
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306
         with:
           path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
           key: ${{ runner.os }}-node-${{ hashFiles('.nvmrc') }}-pnpm-9.0.0-store-${{ hashFiles('pnpm-lock.yaml', '**/pnpm-lock.yaml') }}
