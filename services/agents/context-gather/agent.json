@@ -1,0 +1,52 @@
+{
+  "id": "context-gather",
+  "name": "Context Gather",
+  "version": "0.1.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["repoRoot", "taskDescription"],
+    "properties": {
+      "repoRoot": {
+        "type": "string"
+      },
+      "taskDescription": {
+        "type": "string"
+      },
+      "maxFiles": {
+        "type": "number"
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["files", "tokenEstimate"],
+    "properties": {
+      "files": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["path", "relevanceScore", "summary"],
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "relevanceScore": {
+              "type": "number"
+            },
+            "summary": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "tokenEstimate": {
+        "type": "number"
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": ["context-gathering", "repository-analysis"]
+}

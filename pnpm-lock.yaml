@@ -51,6 +51,15 @@ importers:
 
   services/agent-runtime: {}
 
+  services/agents/context-gather:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../../agent-runtime
+      '@acme/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
+
   services/agents/esm-smoke:
     dependencies:
       '@acme/agent-runtime':

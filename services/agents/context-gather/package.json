@@ -1,0 +1,14 @@
+{
+  "name": "@acme/agent-context-gather",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "@acme/agent-runtime": "workspace:*",
+    "@acme/contracts": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

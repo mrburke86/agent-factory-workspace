@@ -137,28 +137,28 @@ A new `context-gather` agent exists at `services/agents/context-gather/` with a 
 
 **Tasks:**
 
-- [ ] Scaffold `services/agents/context-gather/` with `agent.json`, `package.json`, `tsconfig.json`, `src/index.ts`, `README.md`
-- [ ] Define input schema: `{ repoRoot: string, taskDescription: string, maxFiles?: number }`
-- [ ] Define output schema: `{ files: [{ path: string, relevanceScore: number, summary: string }], tokenEstimate: number }`
-- [ ] Add contract types to `packages/contracts`: `ContextGatherInput`, `ContextGatherOutput`, `RankedFile`
-- [ ] Implement file discovery: recursive directory traversal, respect `.gitignore`, skip `node_modules`, `dist`, `.factory`, `.git`
-- [ ] Implement relevance scoring heuristic: filename keyword match (weight: 0.4) + directory proximity to task keywords (weight: 0.3) + import graph edges (weight: 0.3)
-- [ ] Implement token estimation: approximate token count based on file sizes
-- [ ] Create eval fixture: `packages/evals/fixtures/context-gather/` — a minimal fixture repo structure with known relevant files for a test task
-- [ ] Create eval script: `packages/evals/scripts/eval_context_gather.js` — runs agent against fixture, asserts top-5 files include ≥4 of 5 known relevant files (80% accuracy)
-- [ ] Add eval to `pnpm factory:health` pipeline
-- [ ] Write README documenting purpose, scoring heuristic, skip patterns, usage examples
+- [x] Scaffold `services/agents/context-gather/` with `agent.json`, `package.json`, `tsconfig.json`, `src/index.ts`, `README.md`
+- [x] Define input schema: `{ repoRoot: string, taskDescription: string, maxFiles?: number }`
+- [x] Define output schema: `{ files: [{ path: string, relevanceScore: number, summary: string }], tokenEstimate: number }`
+- [x] Add contract types to `packages/contracts`: `ContextGatherInput`, `ContextGatherOutput`, `RankedFile`
+- [x] Implement file discovery: recursive directory traversal, respect `.gitignore`, skip `node_modules`, `dist`, `.factory`, `.git`
+- [x] Implement relevance scoring heuristic: filename keyword match (weight: 0.4) + directory proximity to task keywords (weight: 0.3) + import graph edges (weight: 0.3)
+- [x] Implement token estimation: approximate token count based on file sizes
+- [x] Create eval fixture: `packages/evals/fixtures/context-gather/` — a minimal fixture repo structure with known relevant files for a test task
+- [x] Create eval script: `packages/evals/scripts/eval_context_gather.js` — runs agent against fixture, asserts top-5 files include ≥4 of 5 known relevant files (80% accuracy)
+- [x] Add eval to `pnpm factory:health` pipeline
+- [x] Write README documenting purpose, scoring heuristic, skip patterns, usage examples
 
 **Acceptance Criteria:**
 
-- [ ] `services/agents/context-gather/agent.json` exists with valid schemas
-- [ ] `pnpm af agent:run context-gather --input '{"repoRoot":"packages/evals/fixtures/context-gather/repo","taskDescription":"add health endpoint"}' --validate-input` exits 0 with ranked file list
-- [ ] Output contains `files[]` array sorted by `relevanceScore` descending
-- [ ] Agent does NOT list files in `node_modules`, `dist`, `.factory`, or `.git`
-- [ ] No network calls in scoring heuristic (deterministic CI)
-- [ ] Context gather eval passes in `pnpm factory:health`
-- [ ] `pnpm af agent:validate:all` exits 0
-- [ ] `packages/contracts` `check:breaking` passes
+- [x] `services/agents/context-gather/agent.json` exists with valid schemas
+- [x] `pnpm af agent:run context-gather --input '{"repoRoot":"packages/evals/fixtures/context-gather/repo","taskDescription":"add health endpoint"}' --validate-input` exits 0 with ranked file list
+- [x] Output contains `files[]` array sorted by `relevanceScore` descending
+- [x] Agent does NOT list files in `node_modules`, `dist`, `.factory`, or `.git`
+- [x] No network calls in scoring heuristic (deterministic CI)
+- [x] Context gather eval passes in `pnpm factory:health`
+- [x] `pnpm af agent:validate:all` exits 0
+- [x] `packages/contracts` `check:breaking` passes
 
 **Acceptance Commands:**
 
@@ -598,7 +598,7 @@ echo "=== PHASE 3 VALIDATION COMPLETE ==="
 | Sprint | Milestone | Description                                  | Gate |
 | ------ | --------- | -------------------------------------------- | ---- |
 | 9      | S9        | Machine-Readable Layer 2 Configs             | PASS |
-| 10     | S10       | Context Gathering Agent                      |      |
+| 10     | S10       | Context Gathering Agent                      | PASS |
 | 11     | S11       | Task Decomposition Agent                     |      |
 | 12     | S12       | Brief Intake & Clarification Agent           |      |
 | 13     | S13       | Error Recovery Agent                         |      |
