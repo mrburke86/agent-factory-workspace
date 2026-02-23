@@ -28,12 +28,12 @@
 **Estimated Effort:** 1.5 hours
 
 **Milestone Definition:**
-Bootstrap artefacts (`AGENT_FACTORY_MVP.md`, debug config dumps, shared runtime duplicate) are archived into `docs/archive/`. The `docs/` directory structure is created for templates and examples. Root-level noise files are removed or relocated. The workspace compiles and `pnpm factory:health` remains green.
+Bootstrap artefacts (legacy MVP doc, debug config dumps, shared runtime duplicate) are archived into `docs/archive/`. The `docs/` directory structure is created for templates and examples. Root-level noise files are removed or relocated. The workspace compiles and `pnpm factory:health` remains green.
 
 **Tasks:**
 
 - [x] Create directory structure: `docs/archive/`, `docs/templates/`, `docs/examples/`
-- [x] Move `AGENT_FACTORY_MVP.md` to `docs/archive/AGENT_FACTORY_MVP.md`
+- [x] Move legacy MVP doc into `docs/archive/`
 - [x] Delete `_contracts_showConfig.json`, `_contracts_tsc_showConfig.json`, `_evals_tsc_showConfig.json` from repo root
 - [x] Delete `hello.txt` from repo root (bootstrap test artifact)
 - [~] Delete `compat_snapshot.current.json` from repo root (retained; content differs from `packages/contracts/compat_snapshot.current.json`)
@@ -43,8 +43,8 @@ Bootstrap artefacts (`AGENT_FACTORY_MVP.md`, debug config dumps, shared runtime 
 
 **Acceptance Criteria:**
 
-- [x] `docs/archive/AGENT_FACTORY_MVP.md` exists
-- [x] `AGENT_FACTORY_MVP.md` does NOT exist at repo root
+- [x] Archived MVP doc exists under `docs/archive/`
+- [x] Legacy MVP doc does NOT exist at repo root
 - [x] `_contracts_showConfig.json`, `_contracts_tsc_showConfig.json`, `_evals_tsc_showConfig.json` do NOT exist at repo root
 - [x] `hello.txt` does NOT exist at repo root
 - [x] `docs/templates/` and `docs/examples/` directories exist
@@ -54,10 +54,10 @@ Bootstrap artefacts (`AGENT_FACTORY_MVP.md`, debug config dumps, shared runtime 
 
 ```bash
 # Verify archive exists
-test -f docs/archive/AGENT_FACTORY_MVP.md && echo "PASS: archived" || echo "FAIL: not archived"
+test -f docs/archive/AGENT_FACTORY_MVP* && echo "PASS: archived" || echo "FAIL: not archived"
 
 # Verify root cleanup
-test ! -f AGENT_FACTORY_MVP.md && echo "PASS: removed from root" || echo "FAIL: still at root"
+test ! -f AGENT_FACTORY_MVP* && echo "PASS: removed from root" || echo "FAIL: still at root"
 test ! -f _contracts_showConfig.json && echo "PASS: debug config removed" || echo "FAIL: debug config remains"
 test ! -f _contracts_tsc_showConfig.json && echo "PASS: debug config removed" || echo "FAIL: debug config remains"
 test ! -f _evals_tsc_showConfig.json && echo "PASS: debug config removed" || echo "FAIL: debug config remains"
@@ -132,7 +132,7 @@ pnpm factory:health
 **Estimated Effort:** 2 hours
 
 **Milestone Definition:**
-The `docs/templates/` directory contains a Layer 2 config schema document (`layer2-config-schema.md`) that defines the required structure for all Layer 2 project-specific configurations. A Layer 2 example template (`layer2-example-template.md`) provides a fill-in-the-blank starting point. Both files are consistent with the Layer 2 Interface Contract defined in `AGENTS.md`.
+The `docs/templates/` directory contains a Layer 2 config schema document (`docs/templates/layer2-config-schema.md`) that defines the required structure for all Layer 2 project-specific configurations. A Layer 2 example template (`docs/templates/layer2-example-template.md`) provides a fill-in-the-blank starting point. Both files are consistent with the Layer 2 Interface Contract defined in `AGENTS.md`.
 
 **Tasks:**
 
@@ -419,24 +419,24 @@ A comprehensive validation pass confirms: `pnpm factory:health` passes, all CLI 
 
 **Tasks:**
 
-- [ ] Run `pnpm factory:health` and confirm exit 0
-- [ ] Run every CLI command documented in README.md and confirm expected output
-- [ ] Verify directory structure in README matches actual repo layout
-- [ ] Scan all `.md` files for internal file path references and verify each target exists
-- [ ] Verify `docs/examples/nextjs-micro-saas.md` conforms to `docs/templates/layer2-config-schema.md`
-- [ ] Verify `docs/examples/python-cli-tool.md` conforms to `docs/templates/layer2-config-schema.md`
-- [ ] Fix any broken references, incorrect paths, or stale content found during validation
-- [ ] Confirm no file in the repo root references `AGENT_FACTORY_MVP.md` or bootstrap milestone labels (D0–D5)
+- [x] Run `pnpm factory:health` and confirm exit 0
+- [x] Run every CLI command documented in README.md and confirm expected output
+- [x] Verify directory structure in README matches actual repo layout
+- [x] Scan all `.md` files for internal file path references and verify each target exists
+- [x] Verify `docs/examples/nextjs-micro-saas.md` conforms to `docs/templates/layer2-config-schema.md`
+- [x] Verify `docs/examples/python-cli-tool.md` conforms to `docs/templates/layer2-config-schema.md`
+- [x] Fix any broken references, incorrect paths, or stale content found during validation
+- [x] Confirm no file in the repo root references `AGENT_FACTORY_MVP[.]md` or bootstrap milestone labels (D0–D5)
 
 **Acceptance Criteria:**
 
-- [ ] `pnpm factory:health` exits 0
-- [ ] `pnpm af agent:list` exits 0 and lists all agents
-- [ ] `pnpm af agent:validate:all` exits 0
-- [ ] `pnpm -r build` exits 0
-- [ ] No `.md` file at repo root or in `docs/` contains a broken file path reference
-- [ ] No file at repo root references `AGENT_FACTORY_MVP.md` (archived)
-- [ ] No file at repo root references bootstrap milestone labels D0, D1, D2, D3, D4, D5
+- [x] `pnpm factory:health` exits 0
+- [x] `pnpm af agent:list` exits 0 and lists all agents
+- [x] `pnpm af agent:validate:all` exits 0
+- [x] `pnpm -r build` exits 0
+- [x] No `.md` file at repo root or in `docs/` contains a broken file path reference
+- [x] No file at repo root references `AGENT_FACTORY_MVP[.]md` (archived)
+- [x] No file at repo root references bootstrap milestone labels D0, D1, D2, D3, D4, D5
 
 **Acceptance Commands:**
 
@@ -453,8 +453,8 @@ pnpm af agent:run retrieval-smoke --input '{"query":"refund policy","topK":5}' -
 
 # Check for stale bootstrap references in active docs
 for file in README.md AGENTS.md SPRINT_PLAN.md; do
-  if grep -q "AGENT_FACTORY_MVP.md" "$file" 2>/dev/null; then
-    echo "FAIL: $file references AGENT_FACTORY_MVP.md"
+  if grep -q "AGENT_FACTORY_MVP[.]md" "$file" 2>/dev/null; then
+    echo "FAIL: $file references AGENT_FACTORY_MVP[.]md"
   else
     echo "PASS: $file clean of bootstrap refs"
   fi
@@ -484,6 +484,7 @@ echo "=== VALIDATION COMPLETE ==="
 | 5 | S5 | Layer 2 Example — Python CLI Tool | PASS |
 | 6 | S6 | Agent README Refresh | PASS |
 | 7 | S7 | README.md — Comprehensive Onboarding Document | PASS |
+| 8 | S8 | End-to-End Validation | PASS |
 
 ---
 

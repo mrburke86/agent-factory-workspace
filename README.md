@@ -166,7 +166,8 @@ Annotated repository map (generated from current workspace layout):
 ├── package.json
 ├── pnpm-lock.yaml
 ├── pnpm-workspace.yaml
-└── verify-sprint.ps1
+├── verify-sprint.ps1
+└── WORKFLOW_V2.md
 ```
 
 Key path notes:
@@ -220,9 +221,8 @@ gate. The operator pastes outputs between systems and advances only when gates
 pass. Ground truth priority is strict: CI results override local results, and
 local results override Codex claims. Each sprint targets exactly one milestone
 and ends with a single commit when possible. `SPRINT_PLAN.md` is the source of
-truth for tasks, acceptance criteria, and sprint log status. A dedicated
-workflow document (`WORKFLOW_V2.md`) is planned but is not present in this
-repository yet.
+truth for tasks, acceptance criteria, and sprint log status. For detailed loop
+steps and handoff expectations, see `WORKFLOW_V2.md`.
 
 ## Roadmap
 
