@@ -1,0 +1,45 @@
+{
+  "id": "l2-config-validate",
+  "name": "L2 Config Validate",
+  "version": "1.0.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "configPath"
+    ],
+    "properties": {
+      "configPath": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "ok"
+    ],
+    "properties": {
+      "ok": {
+        "type": "boolean"
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "validatedConfig": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": [
+    "validation",
+    "layer2-config"
+  ]
+}

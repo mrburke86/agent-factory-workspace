@@ -13,7 +13,7 @@
   },
   "scripts": {
     "snapshot:current": "node --no-warnings dist/scripts/generate-snapshot.js",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node --no-warnings dist/scripts/generate-layer2-schema.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "check:breaking": "node --no-warnings dist/scripts/generate-snapshot.js && node --no-warnings dist/src/compat/breaking-check.js"
   },

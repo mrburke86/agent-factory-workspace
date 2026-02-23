@@ -1,0 +1,75 @@
+{
+  "projectName": "python-cli-tool",
+  "techStack": {
+    "language": "python",
+    "framework": "click",
+    "database": "sqlite"
+  },
+  "stages": {
+    "plan": {
+      "promptTemplate": "Plan {{taskDescription}} for {{projectName}} with Click command impacts and {{migrationApproach}}.",
+      "constraints": [
+        "Restrict planning to Python, Click, SQLite, and packaging concerns."
+      ],
+      "expectedOutputs": [
+        "plan.json",
+        "Migration strategy"
+      ],
+      "acceptanceCriteria": [
+        "Plan includes deterministic validation commands."
+      ]
+    },
+    "implement": {
+      "promptTemplate": "Implement {{taskDescription}} for {{targetFiles}} using {{cliEntrypoint}} and {{storageModule}}.",
+      "constraints": [
+        "Modify only in-scope files.",
+        "Keep command behavior deterministic."
+      ],
+      "expectedOutputs": [
+        "patches/*.diff",
+        "Updated Click commands and storage modules"
+      ],
+      "acceptanceCriteria": [
+        "Patches apply cleanly and preserve deterministic CLI behavior."
+      ]
+    },
+    "verify": {
+      "promptTemplate": "Run {{buildCommand}}, {{testCommand}}, {{typeCheckCommand}}, and {{healthCommand}} for {{projectName}}.",
+      "constraints": [
+        "Use deterministic local commands only."
+      ],
+      "expectedOutputs": [
+        "validate.json"
+      ],
+      "acceptanceCriteria": [
+        "All required commands exit with code 0."
+      ]
+    },
+    "integrate": {
+      "promptTemplate": "Integrate {{patchSetId}} and emit {{resultArtifact}} plus {{gitPrPath}} for {{projectName}}.",
+      "constraints": [
+        "Apply patches atomically."
+      ],
+      "expectedOutputs": [
+        "result.json",
+        "git-pr.json"
+      ],
+      "acceptanceCriteria": [
+        "Integration fails on partial patch apply."
+      ]
+    },
+    "operate": {
+      "promptTemplate": "Classify {{healthReportPath}} and {{evalReportPath}} into PASS/FAIL for {{projectName}} and list actions.",
+      "constraints": [
+        "Use deterministic reports only."
+      ],
+      "expectedOutputs": [
+        ".reports/*.latest.json",
+        "Operational summary"
+      ],
+      "acceptanceCriteria": [
+        "Health status is binary and evidence-backed."
+      ]
+    }
+  }
+}

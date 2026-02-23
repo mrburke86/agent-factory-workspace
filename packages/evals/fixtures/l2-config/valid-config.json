@@ -1,0 +1,33 @@
+{
+  "projectName": "fixture-l2-valid",
+  "techStack": {
+    "language": "typescript",
+    "framework": "nextjs"
+  },
+  "stages": {
+    "plan": {
+      "promptTemplate": "Plan {{taskDescription}} for {{projectName}}.",
+      "constraints": [
+        "Use deterministic planning."
+      ],
+      "expectedOutputs": [
+        "plan.json"
+      ],
+      "acceptanceCriteria": [
+        "Plan includes touched files."
+      ]
+    },
+    "implement": {
+      "promptTemplate": "Implement {{taskDescription}} for {{targetFiles}}.",
+      "constraints": [
+        "Keep diffs surgical."
+      ],
+      "expectedOutputs": [
+        "patches/*.diff"
+      ],
+      "acceptanceCriteria": [
+        "Diffs apply cleanly."
+      ]
+    }
+  }
+}

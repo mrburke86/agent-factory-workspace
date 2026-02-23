@@ -1,0 +1,78 @@
+{
+  "projectName": "nextjs-micro-saas",
+  "techStack": {
+    "language": "typescript",
+    "framework": "nextjs",
+    "database": "postgres",
+    "auth": "authjs",
+    "payments": "stripe"
+  },
+  "stages": {
+    "plan": {
+      "promptTemplate": "Plan {{taskDescription}} for {{projectName}} with App Router, tenant boundaries, and schema changes.",
+      "constraints": [
+        "Restrict planning to TypeScript, Next.js, Postgres, Auth.js, and Stripe concerns.",
+        "Include deterministic validation commands."
+      ],
+      "expectedOutputs": [
+        "plan.json",
+        "Risk list for auth, billing, and migrations"
+      ],
+      "acceptanceCriteria": [
+        "Plan includes touched files and at least one deterministic command."
+      ]
+    },
+    "implement": {
+      "promptTemplate": "Implement {{taskDescription}} as unified diffs for {{targetFiles}} using {{sessionStrategy}} and {{stripeModule}}.",
+      "constraints": [
+        "Modify only in-scope files.",
+        "Keep changes typed and deterministic."
+      ],
+      "expectedOutputs": [
+        "patches/*.diff",
+        "Route and schema diffs when applicable"
+      ],
+      "acceptanceCriteria": [
+        "Patches apply cleanly without lockfile changes."
+      ]
+    },
+    "verify": {
+      "promptTemplate": "Run {{installCommand}}, {{buildCommand}}, and {{healthCommand}} for {{projectName}} and classify pass/fail.",
+      "constraints": [
+        "Use deterministic local commands only."
+      ],
+      "expectedOutputs": [
+        "validate.json"
+      ],
+      "acceptanceCriteria": [
+        "All required commands exit with code 0."
+      ]
+    },
+    "integrate": {
+      "promptTemplate": "Integrate {{patchSetId}} and produce {{resultArtifact}} with touched-file evidence.",
+      "constraints": [
+        "Patch application must be atomic."
+      ],
+      "expectedOutputs": [
+        "result.json",
+        "git-pr.json"
+      ],
+      "acceptanceCriteria": [
+        "Integration fails fast on patch apply errors."
+      ]
+    },
+    "operate": {
+      "promptTemplate": "Assess {{healthReportPath}} and {{evalReportPath}} for {{projectName}} and return PASS/FAIL with actions.",
+      "constraints": [
+        "Use repository artifacts as source of truth."
+      ],
+      "expectedOutputs": [
+        ".reports/*.latest.json",
+        "Operational status summary"
+      ],
+      "acceptanceCriteria": [
+        "Status is evidence-backed and binary."
+      ]
+    }
+  }
+}

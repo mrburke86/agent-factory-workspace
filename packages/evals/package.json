@@ -11,6 +11,7 @@
     "eval:smoke": "node --no-warnings dist/scripts/eval_smoke.js",
     "check:no-agent-runtime-copies": "node --no-warnings dist/scripts/check_no_agent_runtime_copies.js",
     "check:agent-manifests": "node --no-warnings dist/scripts/check_agent_manifests.js",
+    "eval:l2-config-validate": "node --no-warnings dist/scripts/eval_l2_config_validate.js",
     "eval:agent-retrieval-smoke": "node --no-warnings dist/scripts/agent_retrieval_smoke.js",
     "eval:agent-runner-smoke": "node --no-warnings dist/scripts/agent_runner_smoke.js",
     "eval:full": "node --no-warnings dist/scripts/eval_full.js"
