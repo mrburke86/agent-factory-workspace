@@ -114,6 +114,15 @@ importers:
         specifier: workspace:*
         version: link:../../agent-runtime
 
+  services/agents/task-decompose:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../../agent-runtime
+      '@acme/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
+
   services/agents/validate:
     dependencies:
       '@acme/agent-runtime':

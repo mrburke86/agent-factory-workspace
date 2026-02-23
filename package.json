@@ -9,7 +9,7 @@
     "contracts:check:breaking": "pnpm -C packages/contracts check:breaking",
     "evals:full": "pnpm -C packages/evals eval:full",
     "test": "pnpm -r test",
-    "factory:health": "pnpm -r build && pnpm -C packages/contracts check:breaking && pnpm -C packages/evals eval:smoke && pnpm -C packages/evals check:no-agent-runtime-copies && pnpm -C packages/evals check:agent-manifests && pnpm -C packages/evals eval:l2-config-validate && pnpm -C packages/evals eval:context-gather && pnpm -C packages/evals eval:agent-retrieval-smoke && pnpm -C packages/evals eval:agent-runner-smoke && pnpm -r typecheck",
+    "factory:health": "pnpm -r build && pnpm -C packages/contracts check:breaking && pnpm -C packages/evals eval:smoke && pnpm -C packages/evals check:no-agent-runtime-copies && pnpm -C packages/evals check:agent-manifests && pnpm -C packages/evals eval:l2-config-validate && pnpm -C packages/evals eval:context-gather && pnpm -C packages/evals eval:task-decompose && pnpm -C packages/evals eval:agent-retrieval-smoke && pnpm -C packages/evals eval:agent-runner-smoke && pnpm -r typecheck",
     "factory": "pnpm -C packages/factory build && node packages/factory/dist/cli.js factory",
     "typecheck": "pnpm -r typecheck",
     "build": "pnpm -r build",

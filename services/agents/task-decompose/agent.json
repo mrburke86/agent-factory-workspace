@@ -1,0 +1,64 @@
+{
+  "id": "task-decompose",
+  "name": "Task Decompose",
+  "version": "0.1.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["projectBrief", "techStack"],
+    "properties": {
+      "projectBrief": {
+        "type": "string"
+      },
+      "techStack": {
+        "type": "object",
+        "required": ["language", "framework"],
+        "properties": {
+          "language": { "type": "string" },
+          "framework": { "type": "string" },
+          "database": { "type": "string" },
+          "auth": { "type": "string" },
+          "payments": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "constraints": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["tasks"],
+    "properties": {
+      "tasks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "title", "description", "dependsOn", "fileScope", "estimatedComplexity"],
+          "properties": {
+            "id": { "type": "string" },
+            "title": { "type": "string" },
+            "description": { "type": "string" },
+            "dependsOn": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "fileScope": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "estimatedComplexity": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": ["task-decomposition", "dependency-graph", "topological-sort"]
+}

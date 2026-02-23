@@ -204,31 +204,31 @@ A new `task-decompose` agent exists at `services/agents/task-decompose/`. The ag
 
 **Tasks:**
 
-- [ ] Scaffold `services/agents/task-decompose/` with `agent.json`, `package.json`, `tsconfig.json`, `src/index.ts`, `README.md`
-- [ ] Define input schema: `{ projectBrief: string, techStack: TechStack, constraints?: string[] }`
-- [ ] Define output schema: `{ tasks: DecomposedTask[] }` where `DecomposedTask = { id: string, title: string, description: string, dependsOn: string[], fileScope: string[], estimatedComplexity: "S" | "M" | "L" }`
-- [ ] Add contract types to `packages/contracts`: `TaskDecomposeInput`, `DecomposedTaskList`, `DecomposedTask`
-- [ ] Implement topological sort on dependency edges — reject circular dependencies with structured error
-- [ ] Implement complexity estimation: S = 1 file, M = 2–3 files, L = 4+ files (based on `fileScope` length)
-- [ ] Enforce task count limits: minimum 3, maximum 15 tasks per decomposition
-- [ ] Enforce task granularity: each task targets 1–3 files (aligned with `repo-patch` defaults)
-- [ ] Create eval fixture: `packages/evals/fixtures/task-decompose/` — fixture briefs with known task structures
-- [ ] Create eval script: `packages/evals/scripts/eval_task_decompose.js` — asserts ≥3 ordered tasks, no circular dependencies, valid topological sort
-- [ ] Add eval to `pnpm factory:health` pipeline
-- [ ] Write README documenting decomposition logic, limits, and complexity heuristics
+- [x] Scaffold `services/agents/task-decompose/` with `agent.json`, `package.json`, `tsconfig.json`, `src/index.ts`, `README.md`
+- [x] Define input schema: `{ projectBrief: string, techStack: TechStack, constraints?: string[] }`
+- [x] Define output schema: `{ tasks: DecomposedTask[] }` where `DecomposedTask = { id: string, title: string, description: string, dependsOn: string[], fileScope: string[], estimatedComplexity: "S" | "M" | "L" }`
+- [x] Add contract types to `packages/contracts`: `TaskDecomposeInput`, `DecomposedTaskList`, `DecomposedTask`
+- [x] Implement topological sort on dependency edges — reject circular dependencies with structured error
+- [x] Implement complexity estimation: S = 1 file, M = 2–3 files, L = 4+ files (based on `fileScope` length)
+- [x] Enforce task count limits: minimum 3, maximum 15 tasks per decomposition
+- [x] Enforce task granularity: each task targets 1–3 files (aligned with `repo-patch` defaults)
+- [x] Create eval fixture: `packages/evals/fixtures/task-decompose/` — fixture briefs with known task structures
+- [x] Create eval script: `packages/evals/scripts/eval_task_decompose.js` — asserts ≥3 ordered tasks, no circular dependencies, valid topological sort
+- [x] Add eval to `pnpm factory:health` pipeline
+- [x] Write README documenting decomposition logic, limits, and complexity heuristics
 
 **Acceptance Criteria:**
 
-- [ ] `services/agents/task-decompose/agent.json` exists with valid schemas
-- [ ] `pnpm af agent:run task-decompose --input '{"projectBrief":"Add a /health endpoint that returns server status","techStack":{"language":"typescript","framework":"express"}}' --validate-input` exits 0
-- [ ] Output contains `tasks[]` array with ≥3 tasks
-- [ ] Tasks are in valid topological order (no task appears before its dependencies)
-- [ ] No circular dependencies in output (DAG validation)
-- [ ] Each task has non-empty `id`, `title`, `description`, `fileScope[]`
-- [ ] Task count is between 3 and 15 inclusive
-- [ ] Task decompose eval passes in `pnpm factory:health`
-- [ ] `pnpm af agent:validate:all` exits 0
-- [ ] `packages/contracts` `check:breaking` passes
+- [x] `services/agents/task-decompose/agent.json` exists with valid schemas
+- [x] `pnpm af agent:run task-decompose --input '{"projectBrief":"Add a /health endpoint that returns server status","techStack":{"language":"typescript","framework":"express"}}' --validate-input` exits 0
+- [x] Output contains `tasks[]` array with ≥3 tasks
+- [x] Tasks are in valid topological order (no task appears before its dependencies)
+- [x] No circular dependencies in output (DAG validation)
+- [x] Each task has non-empty `id`, `title`, `description`, `fileScope[]`
+- [x] Task count is between 3 and 15 inclusive
+- [x] Task decompose eval passes in `pnpm factory:health`
+- [x] `pnpm af agent:validate:all` exits 0
+- [x] `packages/contracts` `check:breaking` passes
 
 **Acceptance Commands:**
 
@@ -599,7 +599,7 @@ echo "=== PHASE 3 VALIDATION COMPLETE ==="
 | ------ | --------- | -------------------------------------------- | ---- |
 | 9      | S9        | Machine-Readable Layer 2 Configs             | PASS |
 | 10     | S10       | Context Gathering Agent                      | PASS |
-| 11     | S11       | Task Decomposition Agent                     |      |
+| 11     | S11       | Task Decomposition Agent                     | PASS |
 | 12     | S12       | Brief Intake & Clarification Agent           |      |
 | 13     | S13       | Error Recovery Agent                         |      |
 | 14     | S14       | Orchestrator Agent — Single-Task Pipeline    |      |

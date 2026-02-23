@@ -8,3 +8,9 @@ export type {
   ContextGatherOutput,
   RankedFile,
 } from "./schemas/context-gather.schema.js";
+export type {
+  DecomposedTask,
+  DecomposedTaskList,
+  TaskComplexity,
+  TaskDecomposeInput,
+} from "./schemas/task-decompose.schema.js";

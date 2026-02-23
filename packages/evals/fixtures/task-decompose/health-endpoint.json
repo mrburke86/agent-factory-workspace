@@ -1,0 +1,7 @@
+{
+  "projectBrief": "Add a /health endpoint that returns server status",
+  "techStack": {
+    "language": "typescript",
+    "framework": "express"
+  }
+}
