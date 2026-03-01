@@ -11,6 +11,12 @@ Chains the single-task MVP pipeline in fixed order:
 - Calls `error-recover` when a stage fails and enforces the current retry caps
 - Supports `_stageRunners` injection for deterministic evals and fixture tests
 
+### Multi-Task Mode
+- Accepts `taskList.tasks[]` and executes tasks in topological dependency order
+- Records per-task progress events in `progress.jsonl`
+- Marks downstream dependents as `skipped` when an upstream dependency fails
+- Writes per-task artifacts under `.factory/runs/<correlationId>/tasks/<taskId>/`
+
 ## Artifact Layout
 - `task.json`
 - `l2-config.json`

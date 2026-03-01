@@ -1,0 +1,4 @@
+{
+  "brief": "Add a /health endpoint that returns server status and uptime",
+  "l2ConfigPath": "docs/examples/nextjs-micro-saas.json"
+}

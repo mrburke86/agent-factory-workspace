@@ -1,4 +1,4 @@
-<!-- LAST_UPDATED: 2026-02-23 -->
+<!-- LAST_UPDATED: 2026-03-01 -->
 
 # Agent Factory Phase 3 — Autonomous Pipeline Intelligence — Sprint Plan (Single Source of Truth)
 
@@ -567,29 +567,29 @@ A new CLI command `pnpm af pipeline:run --brief '<text>' --l2-config <path>` acc
 
 **Tasks:**
 
-- [ ] Add `pipeline:run` command to `packages/factory` CLI: `pnpm af pipeline:run --brief '<text>' --l2-config <path> [--answers '<json>']`
-- [ ] Implement pipeline wiring: `brief-intake → task-decompose → orchestrator`
-- [ ] Implement clarification pause: if `brief-intake` produces `clarifyingQuestions.length > 0`, output questions as JSON and exit with code 0 and `{ status: "AWAITING_CLARIFICATION", questions: [...] }`
-- [ ] Implement resume: `--answers '<json>'` flag provides answers to clarifying questions, pipeline resumes from `task-decompose`
-- [ ] Create end-to-end fixture test: brief = "Add a /health endpoint that returns server status", L2 config = `docs/examples/nextjs-micro-saas.json`
-- [ ] Create eval script: `packages/evals/scripts/eval_pipeline_e2e.js` — runs `pipeline:run` with fixture brief, asserts structured plan is produced and at least the plan stage completes
-- [ ] Add eval to `pnpm factory:health` pipeline
-- [ ] Update `AGENTS.md` with Phase 3 invariants (orchestrator caps, pipeline CLI contract, clarification protocol) — version bump to v3
-- [ ] Update `README.md` Pipeline section with `pipeline:run` usage
-- [ ] Verify all cross-references in updated docs resolve
+- [x] Add `pipeline:run` command to `packages/factory` CLI: `pnpm af pipeline:run --brief '<text>' --l2-config <path> [--answers '<json>']`
+- [x] Implement pipeline wiring: `brief-intake → task-decompose → orchestrator`
+- [x] Implement clarification pause: if `brief-intake` produces `clarifyingQuestions.length > 0`, output questions as JSON and exit with code 0 and `{ status: "AWAITING_CLARIFICATION", questions: [...] }`
+- [x] Implement resume: `--answers '<json>'` flag provides answers to clarifying questions, pipeline resumes from `task-decompose`
+- [x] Create end-to-end fixture test: brief = "Add a /health endpoint that returns server status", L2 config = `docs/examples/nextjs-micro-saas.json`
+- [x] Create eval script: `packages/evals/scripts/eval_pipeline_e2e.js` — runs `pipeline:run` with fixture brief, asserts structured plan is produced and at least the plan stage completes
+- [x] Add eval to `pnpm factory:health` pipeline
+- [x] Update `AGENTS.md` with Phase 3 invariants (orchestrator caps, pipeline CLI contract, clarification protocol) — version bump to v3
+- [x] Update `README.md` Pipeline section with `pipeline:run` usage
+- [x] Verify all cross-references in updated docs resolve
 
 **Acceptance Criteria:**
 
-- [ ] `pnpm af pipeline:run --brief 'Add a /health endpoint' --l2-config docs/examples/nextjs-micro-saas.json` exits 0 with structured output
-- [ ] Output includes a structured plan (task list with dependency ordering)
-- [ ] At least the plan stage executes end-to-end
-- [ ] Clarification flow works: ambiguous brief triggers pause, answers resume pipeline
-- [ ] `AGENTS.md` contains `## Orchestrator Invariants (Phase 3)` section
-- [ ] `AGENTS.md` contains `## Autonomy Taxonomy (Phase 3)` section
-- [ ] `AGENTS.md` version header updated to v3
-- [ ] Pipeline e2e eval passes in `pnpm factory:health`
-- [ ] `pnpm af agent:validate:all` exits 0
-- [ ] `pnpm factory:health` passes with Phase 3 evals included
+- [x] `pnpm af pipeline:run --brief 'Add a /health endpoint' --l2-config docs/examples/nextjs-micro-saas.json` exits 0 with structured output
+- [x] Output includes a structured plan (task list with dependency ordering)
+- [x] At least the plan stage executes end-to-end
+- [x] Clarification flow works: ambiguous brief triggers pause, answers resume pipeline
+- [x] `AGENTS.md` contains `## Orchestrator Invariants (Phase 3)` section
+- [x] `AGENTS.md` contains `## Autonomy Taxonomy (Phase 3)` section
+- [x] `AGENTS.md` version header updated to v3
+- [x] Pipeline e2e eval passes in `pnpm factory:health`
+- [x] `pnpm af agent:validate:all` exits 0
+- [x] `pnpm factory:health` passes with Phase 3 evals included
 
 **Acceptance Commands:**
 
@@ -648,7 +648,7 @@ Write-Host "`n=== PHASE 3 VALIDATION COMPLETE ===" -ForegroundColor Cyan
 | 13     | S13       | Error Recovery Agent                         | PASS |
 | 14     | S14       | Orchestrator Agent — Single-Task Pipeline    | PASS |
 | 15     | S15       | Orchestrator Agent — Multi-Task Pipeline     | PASS |
-| 16     | S16       | End-to-End Integration — Brief to Build Plan |      |
+| 16     | S16       | End-to-End Integration — Brief to Build Plan | PASS |
 
 ---
 

@@ -1,4 +1,4 @@
-<!-- VERSION: v3.1 — 2026-02-23 -->
+<!-- VERSION: v3 — 2026-03-01 -->
 
 # Agent Factory Workspace — Core Invariants
 

@@ -18,6 +18,7 @@
     "eval:error-recover": "node --no-warnings dist/scripts/eval_error_recover.js",
     "eval:orchestrator-single": "node --no-warnings dist/scripts/eval_orchestrator_single.js",
     "eval:orchestrator-recovery": "node --no-warnings dist/scripts/eval_orchestrator_recovery.js",
+    "eval:pipeline-e2e": "node --no-warnings dist/scripts/eval_pipeline_e2e.js",
     "eval:agent-retrieval-smoke": "node --no-warnings dist/scripts/agent_retrieval_smoke.js",
     "eval:agent-runner-smoke": "node --no-warnings dist/scripts/agent_runner_smoke.js",
     "eval:full": "node --no-warnings dist/scripts/eval_full.js"
