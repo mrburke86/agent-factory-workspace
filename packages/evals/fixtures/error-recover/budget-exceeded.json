@@ -1,0 +1,15 @@
+{
+  "failedAgentId": "orchestrator",
+  "agentResult": {
+    "ok": false,
+    "errors": [
+      {
+        "code": "BUDGET_EXCEEDED",
+        "message": "token budget exceeded"
+      }
+    ]
+  },
+  "errorOutput": "Pipeline halted because the token budget exceeded the configured limit.",
+  "attemptCount": 0,
+  "totalRetries": 0
+}

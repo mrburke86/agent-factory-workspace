@@ -346,29 +346,29 @@ A new `error-recover` agent exists at `services/agents/error-recover/`. The agen
 
 **Tasks:**
 
-- [ ] Scaffold `services/agents/error-recover/` with `agent.json`, `package.json`, `tsconfig.json`, `src/index.ts`, `README.md`
-- [ ] Define input schema: `{ failedAgentId: string, agentResult: AgentResult, errorOutput: string, attemptCount: number, totalRetries: number }`
-- [ ] Define output schema: `{ diagnosis: string, errorClass: ErrorClass, recoveryAction: "retry_modified" | "rollback" | "skip_and_flag" | "escalate", shouldRetry: boolean, escalate: boolean, modifiedInput?: object, rationale: string }`
-- [ ] Add contract types to `packages/contracts`: `ErrorRecoverInput`, `ErrorRecoverOutput`, `ErrorClass` (enum extending existing taxonomy)
-- [ ] Implement error classification: map error patterns to taxonomy classes (BUILD_ERROR, TEST_FAILURE, SCHEMA_ERROR, MISSING_FILE, PATCH_FAILURE, VALIDATION_FAILURE, BUDGET_EXCEEDED, DEPENDENCY_FAILED, MAX_RETRIES)
-- [ ] Implement recovery strategy selection: recoverable errors → retry; non-recoverable → escalate
-- [ ] Implement retry cap enforcement: `shouldRetry = false` when `attemptCount >= 3` or `totalRetries >= 10`
-- [ ] Create eval fixtures: `packages/evals/fixtures/error-recover/` — at least 5 distinct failure scenarios (build error, test failure, patch failure, budget exceeded, max retries hit)
-- [ ] Create eval script: `packages/evals/scripts/eval_error_recover.js` — validates correct classification, recovery action, and cap enforcement for each fixture
-- [ ] Add eval to `pnpm factory:health` pipeline
-- [ ] Write README documenting error taxonomy, recovery strategies, and retry caps
+- [x] Scaffold `services/agents/error-recover/` with `agent.json`, `package.json`, `tsconfig.json`, `src/index.ts`, `README.md`
+- [x] Define input schema: `{ failedAgentId: string, agentResult: AgentResult, errorOutput: string, attemptCount: number, totalRetries: number }`
+- [x] Define output schema: `{ diagnosis: string, errorClass: ErrorClass, recoveryAction: "retry_modified" | "rollback" | "skip_and_flag" | "escalate", shouldRetry: boolean, escalate: boolean, modifiedInput?: object, rationale: string }`
+- [x] Add contract types to `packages/contracts`: `ErrorRecoverInput`, `ErrorRecoverOutput`, `ErrorClass` (enum extending existing taxonomy)
+- [x] Implement error classification: map error patterns to taxonomy classes (BUILD_ERROR, TEST_FAILURE, SCHEMA_ERROR, MISSING_FILE, PATCH_FAILURE, VALIDATION_FAILURE, BUDGET_EXCEEDED, DEPENDENCY_FAILED, MAX_RETRIES)
+- [x] Implement recovery strategy selection: recoverable errors → retry; non-recoverable → escalate
+- [x] Implement retry cap enforcement: `shouldRetry = false` when `attemptCount >= 3` or `totalRetries >= 10`
+- [x] Create eval fixtures: `packages/evals/fixtures/error-recover/` — at least 5 distinct failure scenarios (build error, test failure, patch failure, budget exceeded, max retries hit)
+- [x] Create eval script: `packages/evals/scripts/eval_error_recover.js` — validates correct classification, recovery action, and cap enforcement for each fixture
+- [x] Add eval to `pnpm factory:health` pipeline
+- [x] Write README documenting error taxonomy, recovery strategies, and retry caps
 
 **Acceptance Criteria:**
 
-- [ ] `services/agents/error-recover/agent.json` exists with valid schemas
-- [ ] Agent correctly classifies ≥5 distinct error types from fixture inputs
-- [ ] Agent proposes `retry_modified` for recoverable errors (BUILD_ERROR, TEST_FAILURE, SCHEMA_ERROR, MISSING_FILE)
-- [ ] Agent proposes `escalate` for non-recoverable errors (BUDGET_EXCEEDED, MAX_RETRIES)
-- [ ] Agent returns `shouldRetry: false` when `attemptCount >= 3`
-- [ ] Agent returns `shouldRetry: false` when `totalRetries >= 10`
-- [ ] Error recover eval passes in `pnpm factory:health`
-- [ ] `pnpm af agent:validate:all` exits 0
-- [ ] `packages/contracts` `check:breaking` passes
+- [x] `services/agents/error-recover/agent.json` exists with valid schemas
+- [x] Agent correctly classifies ≥5 distinct error types from fixture inputs
+- [x] Agent proposes `retry_modified` for recoverable errors (BUILD_ERROR, TEST_FAILURE, SCHEMA_ERROR, MISSING_FILE)
+- [x] Agent proposes `escalate` for non-recoverable errors (BUDGET_EXCEEDED, MAX_RETRIES)
+- [x] Agent returns `shouldRetry: false` when `attemptCount >= 3`
+- [x] Agent returns `shouldRetry: false` when `totalRetries >= 10`
+- [x] Error recover eval passes in `pnpm factory:health`
+- [x] `pnpm af agent:validate:all` exits 0
+- [x] `packages/contracts` `check:breaking` passes
 
 **Acceptance Commands:**
 
@@ -607,7 +607,7 @@ echo "=== PHASE 3 VALIDATION COMPLETE ==="
 | 10     | S10       | Context Gathering Agent                      | PASS |
 | 11     | S11       | Task Decomposition Agent                     | PASS |
 | 12     | S12       | Brief Intake & Clarification Agent           |      |
-| 13     | S13       | Error Recovery Agent                         |      |
+| 13     | S13       | Error Recovery Agent                         | PASS |
 | 14     | S14       | Orchestrator Agent — Single-Task Pipeline    |      |
 | 15     | S15       | Orchestrator Agent — Multi-Task Pipeline     |      |
 | 16     | S16       | End-to-End Integration — Brief to Build Plan |      |

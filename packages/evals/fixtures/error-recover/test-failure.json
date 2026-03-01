@@ -1,0 +1,15 @@
+{
+  "failedAgentId": "validate",
+  "agentResult": {
+    "ok": false,
+    "errors": [
+      {
+        "code": "ASSERTION_FAILED",
+        "message": "acceptance assertion failed"
+      }
+    ]
+  },
+  "errorOutput": "Assertion failed: expected passRate to equal 1, received 0.8. Command exited with code 2.",
+  "attemptCount": 1,
+  "totalRetries": 1
+}

@@ -18,6 +18,12 @@ export type {
   RankedFile,
 } from "./schemas/context-gather.schema.js";
 export type {
+  ErrorClass,
+  ErrorRecoverInput,
+  ErrorRecoverOutput,
+  RecoveryAction,
+} from "./schemas/error-recover.schema.js";
+export type {
   DecomposedTask,
   DecomposedTaskList,
   TaskComplexity,

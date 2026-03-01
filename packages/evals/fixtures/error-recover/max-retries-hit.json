@@ -1,0 +1,15 @@
+{
+  "failedAgentId": "plan",
+  "agentResult": {
+    "ok": false,
+    "errors": [
+      {
+        "code": "BUILD_FAILED",
+        "message": "tsc exited with code 2"
+      }
+    ]
+  },
+  "errorOutput": "src/index.ts(3,1): error TS2304: Cannot find name 'retryLoop'.",
+  "attemptCount": 3,
+  "totalRetries": 5
+}

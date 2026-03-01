@@ -1,0 +1,15 @@
+{
+  "failedAgentId": "repo-patch",
+  "agentResult": {
+    "ok": false,
+    "errors": [
+      {
+        "code": "PATCH_FAILURE",
+        "message": "patch apply failed"
+      }
+    ]
+  },
+  "errorOutput": "patch apply failed: hunk failed while updating src/index.ts",
+  "attemptCount": 0,
+  "totalRetries": 0
+}

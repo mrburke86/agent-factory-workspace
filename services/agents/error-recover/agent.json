@@ -1,0 +1,80 @@
+{
+  "id": "error-recover",
+  "name": "Error Recover",
+  "version": "0.1.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["failedAgentId", "agentResult", "errorOutput", "attemptCount", "totalRetries"],
+    "properties": {
+      "failedAgentId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "agentResult": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "errorOutput": {
+        "type": "string"
+      },
+      "attemptCount": {
+        "type": "number",
+        "minimum": 0
+      },
+      "totalRetries": {
+        "type": "number",
+        "minimum": 0
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["diagnosis", "errorClass", "recoveryAction", "shouldRetry", "escalate", "rationale"],
+    "properties": {
+      "diagnosis": {
+        "type": "string",
+        "minLength": 1
+      },
+      "errorClass": {
+        "type": "string",
+        "enum": [
+          "BUILD_ERROR",
+          "TEST_FAILURE",
+          "SCHEMA_ERROR",
+          "MISSING_FILE",
+          "PATCH_FAILURE",
+          "VALIDATION_FAILURE",
+          "BUDGET_EXCEEDED",
+          "DEPENDENCY_FAILED",
+          "MAX_RETRIES",
+          "RUNTIME_ERROR",
+          "WIRING_ERROR"
+        ]
+      },
+      "recoveryAction": {
+        "type": "string",
+        "enum": ["retry_modified", "rollback", "skip_and_flag", "escalate"]
+      },
+      "shouldRetry": {
+        "type": "boolean"
+      },
+      "escalate": {
+        "type": "boolean"
+      },
+      "modifiedInput": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "rationale": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": ["error-classification", "recovery-planning", "retry-cap-enforcement"]
+}
