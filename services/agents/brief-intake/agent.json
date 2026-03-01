@@ -1,0 +1,105 @@
+{
+  "id": "brief-intake",
+  "name": "Brief Intake",
+  "version": "0.1.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["brief"],
+    "properties": {
+      "brief": {
+        "type": "string",
+        "minLength": 1
+      },
+      "userPreferences": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["structuredBrief", "clarifyingQuestions", "resolvedAssumptions", "scopeEstimate"],
+    "properties": {
+      "structuredBrief": {
+        "type": "object",
+        "required": ["projectName", "techStack", "features", "constraints", "userStories"],
+        "properties": {
+          "projectName": { "type": "string", "minLength": 1 },
+          "techStack": {
+            "type": "object",
+            "required": ["language", "framework"],
+            "properties": {
+              "language": { "type": "string", "minLength": 1 },
+              "framework": { "type": "string", "minLength": 1 },
+              "database": { "type": "string", "minLength": 1 },
+              "auth": { "type": "string", "minLength": 1 },
+              "payments": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          },
+          "features": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "constraints": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "userStories": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        },
+        "additionalProperties": false
+      },
+      "clarifyingQuestions": {
+        "type": "array",
+        "maxItems": 5,
+        "items": {
+          "type": "object",
+          "required": ["id", "question", "category", "impact", "defaultAssumption"],
+          "properties": {
+            "id": { "type": "string", "minLength": 1 },
+            "question": { "type": "string", "minLength": 1 },
+            "category": {
+              "type": "string",
+              "enum": ["security", "architecture", "features", "ux"]
+            },
+            "impact": {
+              "type": "string",
+              "enum": ["high", "medium", "low"]
+            },
+            "defaultAssumption": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "resolvedAssumptions": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 }
+      },
+      "scopeEstimate": {
+        "type": "object",
+        "required": ["sprintCountRange", "complexityRating"],
+        "properties": {
+          "sprintCountRange": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": { "type": "number", "minimum": 0 }
+          },
+          "complexityRating": {
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": ["brief-parsing", "ambiguity-detection", "scope-estimation"]
+}

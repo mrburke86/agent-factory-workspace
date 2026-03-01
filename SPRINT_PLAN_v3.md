@@ -271,32 +271,38 @@ A new `brief-intake` agent exists at `services/agents/brief-intake/`. The agent 
 
 **Tasks:**
 
-- [ ] Scaffold `services/agents/brief-intake/` with `agent.json`, `package.json`, `tsconfig.json`, `src/index.ts`, `README.md`
-- [ ] Define input schema: `{ brief: string, userPreferences?: object }`
-- [ ] Define output schema: `{ structuredBrief: StructuredBrief, clarifyingQuestions: ClarificationRequest[], resolvedAssumptions: string[], scopeEstimate: { sprintCountRange: [number, number], complexityRating: "low" | "medium" | "high" } }`
-- [ ] Define `StructuredBrief`: `{ projectName: string, techStack: TechStack, features: string[], constraints: string[], userStories: string[] }`
-- [ ] Define `ClarificationRequest`: `{ id: string, question: string, category: "security" | "architecture" | "features" | "ux", impact: "high" | "medium" | "low", defaultAssumption: string }`
-- [ ] Add all contract types to `packages/contracts`: `BriefIntakeInput`, `BriefIntakeOutput`, `StructuredBrief`, `ClarificationRequest`
-- [ ] Implement question generation: only for Supervised and Human-required decisions; max 5 questions
-- [ ] Implement question priority sorting: security > architecture > features > UX
-- [ ] Implement scope estimation: sprint count range based on feature count and complexity
-- [ ] Create eval fixtures: `packages/evals/fixtures/brief-intake/ambiguous-brief.json` (expects ≥1 question) and `packages/evals/fixtures/brief-intake/complete-brief.json` (expects 0 questions)
-- [ ] Create eval script: `packages/evals/scripts/eval_brief_intake.js` — validates structured output, question generation rules, and scope estimate presence
-- [ ] Add eval to `pnpm factory:health` pipeline
-- [ ] Write README documenting autonomy taxonomy, question categories, and scope estimation
+- [x] Scaffold `services/agents/brief-intake/` with `agent.json`, `package.json`, `tsconfig.json`, `src/index.ts`, `README.md`
+- [x] Define input schema: `{ brief: string, userPreferences?: object }`
+- [x] Define output schema: `{ structuredBrief: StructuredBrief, clarifyingQuestions: ClarificationRequest[], resolvedAssumptions: string[], scopeEstimate: { sprintCountRange: [number, number], complexityRating: "low" | "medium" | "high" } }`
+- [x] Define `StructuredBrief`: `{ projectName: string, techStack: TechStack, features: string[], constraints: string[], userStories: string[] }`
+- [x] Define `ClarificationRequest`: `{ id: string, question: string, category: "security" | "architecture" | "features" | "ux", impact: "high" | "medium" | "low", defaultAssumption: string }`
+- [x] Add all contract types to `packages/contracts`: `BriefIntakeInput`, `BriefIntakeOutput`, `StructuredBrief`, `ClarificationRequest`
+- [x] Implement question generation: only for Supervised and Human-required decisions; max 5 questions
+- [x] Implement question priority sorting: security > architecture > features > UX
+- [x] Implement scope estimation: sprint count range based on feature count and complexity
+- [x] Create eval fixtures: `packages/evals/fixtures/brief-intake/ambiguous-brief.json` (expects ≥1 question) and `packages/evals/fixtures/brief-intake/complete-brief.json` (expects 0 questions)
+- [x] Create eval script: `packages/evals/scripts/eval_brief_intake.js` — validates structured output, question generation rules, and scope estimate presence
+- [x] Add eval to `pnpm factory:health` pipeline
+- [x] Write README documenting autonomy taxonomy, question categories, and scope estimation
+- [x] Add ## Cross-Cutting Principles (Phase 3+) section to AGENTS.md (6 principles, additive, after Autonomy Taxonomy)
+- [x] Add ## Contract Governance (Phase 3+) section to AGENTS.md (evolution rules, consumer inventory, replay-safety, state transitions, stage-input manifest)
+- [x] Update AGENTS.md version header to v3.1
 
 **Acceptance Criteria:**
 
-- [ ] `services/agents/brief-intake/agent.json` exists with valid schemas
-- [ ] Agent produces `structuredBrief` with all required fields from a natural-language brief
-- [ ] Ambiguous fixture brief produces ≥1 and ≤5 clarifying questions
-- [ ] Complete fixture brief produces exactly 0 clarifying questions
-- [ ] Questions are sorted by priority: security > architecture > features > UX
-- [ ] Each `ClarificationRequest` includes `id`, `question`, `category`, `impact`, `defaultAssumption`
-- [ ] `scopeEstimate` is present with `sprintCountRange` and `complexityRating`
-- [ ] Brief intake eval passes in `pnpm factory:health`
-- [ ] `pnpm af agent:validate:all` exits 0
-- [ ] `packages/contracts` `check:breaking` passes
+- [x] `services/agents/brief-intake/agent.json` exists with valid schemas
+- [x] Agent produces `structuredBrief` with all required fields from a natural-language brief
+- [x] Ambiguous fixture brief produces ≥1 and ≤5 clarifying questions
+- [x] Complete fixture brief produces exactly 0 clarifying questions
+- [x] Questions are sorted by priority: security > architecture > features > UX
+- [x] Each `ClarificationRequest` includes `id`, `question`, `category`, `impact`, `defaultAssumption`
+- [x] `scopeEstimate` is present with `sprintCountRange` and `complexityRating`
+- [x] Brief intake eval passes in `pnpm factory:health`
+- [x] `pnpm af agent:validate:all` exits 0
+- [x] `packages/contracts` `check:breaking` passes
+- [x] `AGENTS.md` contains ## Cross-Cutting Principles (Phase 3+) section
+- [x] `AGENTS.md` contains ## Contract Governance (Phase 3+) section
+- [x] `AGENTS.md` version header is v3.1
 
 **Acceptance Commands:**
 

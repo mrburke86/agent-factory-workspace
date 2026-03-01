@@ -4,6 +4,15 @@ export * from "./events/index.js";
 export * from "./schemas/index.js";
 export * from "./compat/index.js";
 export type {
+  BriefIntakeInput,
+  BriefIntakeOutput,
+  ClarificationCategory,
+  ClarificationImpact,
+  ClarificationRequest,
+  ScopeEstimate,
+  StructuredBrief,
+} from "./schemas/brief-intake.schema.js";
+export type {
   ContextGatherInput,
   ContextGatherOutput,
   RankedFile,

@@ -1,0 +1,3 @@
+{
+  "brief": "Build a Next.js web app with PostgreSQL database and NextAuth authentication where users can create, read, update, and delete todo items. Deploy to Vercel. Use Tailwind CSS for styling. No payment processing needed."
+}
