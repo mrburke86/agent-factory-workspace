@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "correlationId": "repo-patch-fixture",
+  "timings": {
+    "startedAt": "2026-03-01T00:00:00.000Z",
+    "finishedAt": "2026-03-01T00:00:01.000Z",
+    "durationMs": 1000
+  },
+  "outputs": [
+    {
+      "key": "plan",
+      "value": {
+        "steps": ["Add a comment above the health handler"],
+        "touchedFiles": ["src/health.ts"],
+        "commands": ["pnpm -r build"],
+        "risks": ["modifies existing file: src/health.ts"]
+      }
+    },
+    {
+      "key": "patches",
+      "value": [
+        {
+          "path": "src/health.ts",
+          "unifiedDiff": "--- a/src/health.ts\n+++ b/src/health.ts\n@@ -1,1 +1,2 @@\n+// health check\n export function health() { return 'ok'; }\n",
+          "rationale": "Add a deterministic comment for the fixture task."
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "files": [
+    {
+      "path": "src/health.ts",
+      "relevanceScore": 1,
+      "summary": "export function health() { return 'ok'; }"
+    }
+  ],
+  "tokenEstimate": 100
+}

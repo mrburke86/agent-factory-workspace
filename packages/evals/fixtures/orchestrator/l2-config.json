@@ -1,0 +1,21 @@
+{
+  "projectName": "Fixture Health Service",
+  "techStack": {
+    "language": "TypeScript",
+    "framework": "Node"
+  },
+  "stages": {
+    "plan": {
+      "promptTemplate": "Plan the change for {{task}}",
+      "constraints": ["Keep diffs surgical"],
+      "expectedOutputs": ["plan.json"],
+      "acceptanceCriteria": ["Touched files stay in scope"]
+    },
+    "implement": {
+      "promptTemplate": "Implement the change for {{task}}",
+      "constraints": ["Do not use the network"],
+      "expectedOutputs": ["patch.diff"],
+      "acceptanceCriteria": ["Output is deterministic"]
+    }
+  }
+}

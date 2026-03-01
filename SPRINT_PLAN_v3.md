@@ -89,7 +89,7 @@ The Layer 2 config schema is defined as TypeScript types and exported as JSON Sc
 
 **Acceptance Commands:**
 
-```bash
+```powershell
 # Verify schema file exists
 test -f packages/contracts/src/schemas/layer2-config.schema.ts && echo "PASS: schema TS exists" || echo "FAIL: no schema TS"
 
@@ -162,7 +162,7 @@ A new `context-gather` agent exists at `services/agents/context-gather/` with a 
 
 **Acceptance Commands:**
 
-```bash
+```powershell
 # Verify agent structure
 test -f services/agents/context-gather/agent.json && echo "PASS: manifest exists" || echo "FAIL: no manifest"
 test -f services/agents/context-gather/README.md && echo "PASS: README exists" || echo "FAIL: no README"
@@ -232,7 +232,7 @@ A new `task-decompose` agent exists at `services/agents/task-decompose/`. The ag
 
 **Acceptance Commands:**
 
-```bash
+```powershell
 # Verify agent structure
 test -f services/agents/task-decompose/agent.json && echo "PASS: manifest exists" || echo "FAIL: no manifest"
 test -f services/agents/task-decompose/README.md && echo "PASS: README exists" || echo "FAIL: no README"
@@ -306,7 +306,7 @@ A new `brief-intake` agent exists at `services/agents/brief-intake/`. The agent 
 
 **Acceptance Commands:**
 
-```bash
+```powershell
 # Verify agent structure
 test -f services/agents/brief-intake/agent.json && echo "PASS: manifest exists" || echo "FAIL: no manifest"
 test -f services/agents/brief-intake/README.md && echo "PASS: README exists" || echo "FAIL: no README"
@@ -372,18 +372,18 @@ A new `error-recover` agent exists at `services/agents/error-recover/`. The agen
 
 **Acceptance Commands:**
 
-```bash
+```powershell
 # Verify agent structure
-test -f services/agents/error-recover/agent.json && echo "PASS: manifest exists" || echo "FAIL: no manifest"
-test -f services/agents/error-recover/README.md && echo "PASS: README exists" || echo "FAIL: no README"
+if (Test-Path "services/agents/error-recover/agent.json") { Write-Host "PASS: manifest exists" -ForegroundColor Green } else { Write-Host "FAIL: no manifest" -ForegroundColor Red }
+if (Test-Path "services/agents/error-recover/README.md") { Write-Host "PASS: README exists" -ForegroundColor Green } else { Write-Host "FAIL: no README" -ForegroundColor Red }
 
 # Verify contract types
-grep -q "ErrorRecoverInput" packages/contracts/src/index.ts && echo "PASS: input type exported" || echo "FAIL: no input type"
-grep -q "ErrorRecoverOutput" packages/contracts/src/index.ts && echo "PASS: output type exported" || echo "FAIL: no output type"
+if (Select-String -Path "packages/contracts/src/index.ts" -Pattern "ErrorRecoverInput" -Quiet) { Write-Host "PASS: input type exported" -ForegroundColor Green } else { Write-Host "FAIL: no input type" -ForegroundColor Red }
+if (Select-String -Path "packages/contracts/src/index.ts" -Pattern "ErrorRecoverOutput" -Quiet) { Write-Host "PASS: output type exported" -ForegroundColor Green } else { Write-Host "FAIL: no output type" -ForegroundColor Red }
 
 # Verify eval fixtures (at least 5)
-fixture_count=$(ls packages/evals/fixtures/error-recover/*.json 2>/dev/null | wc -l)
-if [ "$fixture_count" -ge 5 ]; then echo "PASS: $fixture_count fixtures"; else echo "FAIL: only $fixture_count fixtures (need ≥5)"; fi
+$fixtureCount = (Get-ChildItem "packages/evals/fixtures/error-recover/*.json" -ErrorAction SilentlyContinue).Count
+if ($fixtureCount -ge 5) { Write-Host "PASS: $fixtureCount fixtures" -ForegroundColor Green } else { Write-Host "FAIL: only $fixtureCount fixtures (need ≥5)" -ForegroundColor Red }
 
 # Verify all agents
 pnpm af agent:validate:all
@@ -412,48 +412,55 @@ A new `orchestrator` agent exists at `services/agents/orchestrator/`. The agent 
 
 **Tasks:**
 
-- [ ] Scaffold `services/agents/orchestrator/` with `agent.json`, `package.json`, `tsconfig.json`, `src/index.ts`, `README.md`
-- [ ] Define input schema: `{ task: DecomposedTask, l2Config: Layer2Config, repoRoot: string, tokenBudget?: number }`
-- [ ] Define output schema: `{ pipelineResult: { ok: boolean, completedStages: string[], failedStage?: string }, stageResults: StageResult[], artifactPaths: string[], tokenUsage: { perStage: Record<string, number>, total: number } }`
-- [ ] Add contract types to `packages/contracts`: `OrchestratorInput`, `OrchestratorOutput`, `StageResult`, `PipelineResult`
-- [ ] Implement stage chain: `context-gather → plan → repo-patch → validate → git-pr`
-- [ ] Implement inter-stage contract validation: validate each stage's output against schema before passing to next stage
-- [ ] Implement error recovery integration: on stage failure, invoke `error-recover` agent, follow its recommendation (retry/rollback/skip/escalate)
-- [ ] Implement artifact logging: write all intermediate results to `.factory/runs/<correlationId>/`
-- [ ] Implement token budget tracking: cumulative count per stage, halt on budget exhaustion
-- [ ] Create eval fixture: `packages/evals/fixtures/orchestrator/` — trivial task (e.g., add a comment to a fixture file) with L2 config
-- [ ] Create eval script: `packages/evals/scripts/eval_orchestrator_single.js` — asserts pipeline completes with all stages logged, artifact directory structure is correct
-- [ ] Create eval for error recovery path: fixture that triggers a validation failure, assert recovery agent is consulted
-- [ ] Add evals to `pnpm factory:health` pipeline
-- [ ] Write README documenting pipeline chain, error recovery integration, artifact structure, and token tracking
+- [x] Scaffold `services/agents/orchestrator/` with `agent.json`, `package.json`, `tsconfig.json`, `src/index.ts`, `README.md`
+- [x] Define input schema: `{ task: DecomposedTask, l2Config: Layer2Config, repoRoot: string, tokenBudget?: number }`
+- [x] Define output schema: `{ pipelineResult: { ok: boolean, completedStages: string[], failedStage?: string }, stageResults: StageResult[], artifactPaths: string[], tokenUsage: { perStage: Record<string, number>, total: number } }`
+- [x] Add contract types to `packages/contracts`: `OrchestratorInput`, `OrchestratorOutput`, `StageResult`, `PipelineResult`
+- [x] Implement stage chain: `context-gather → plan → repo-patch → validate → git-pr`
+- [x] Implement inter-stage contract validation: validate each stage's output against schema before passing to next stage
+- [x] Implement error recovery integration: on stage failure, invoke `error-recover` agent, follow its recommendation (retry/rollback/skip/escalate)
+- [x] Implement artifact logging: write all intermediate results to `.factory/runs/<correlationId>/`
+- [x] Implement token budget tracking: cumulative count per stage, halt on budget exhaustion
+- [x] Create eval fixture: `packages/evals/fixtures/orchestrator/` — trivial task (e.g., add a comment to a fixture file) with L2 config
+- [x] Create eval script: `packages/evals/scripts/eval_orchestrator_single.js` — asserts pipeline completes with all stages logged, artifact directory structure is correct
+- [x] Create eval for error recovery path: fixture that triggers a validation failure, assert recovery agent is consulted
+- [x] Add evals to `pnpm factory:health` pipeline
+- [x] Write README documenting pipeline chain, error recovery integration, artifact structure, and token tracking
 
 **Acceptance Criteria:**
 
-- [ ] `services/agents/orchestrator/agent.json` exists with valid schemas
-- [ ] Orchestrator chains all 5 stages for a fixture task and produces `ok: true`
-- [ ] Artifact directory `.factory/runs/<correlationId>/` contains expected files (task.json, plan.json, result.json)
-- [ ] `stageResults[]` contains entries for each completed stage
-- [ ] `tokenUsage` object is populated with per-stage and total counts
-- [ ] On deliberate validation failure, orchestrator consults `error-recover` agent
-- [ ] Retry caps from `AGENTS.md` are respected (max 3 per agent, max 10 total)
-- [ ] Orchestrator eval passes in `pnpm factory:health`
-- [ ] `pnpm af agent:validate:all` exits 0
-- [ ] `packages/contracts` `check:breaking` passes
+- [x] `services/agents/orchestrator/agent.json` exists with valid schemas
+- [x] Orchestrator chains all 5 stages for a fixture task and produces `ok: true`
+- [x] Artifact directory `.factory/runs/<correlationId>/` contains expected files (task.json, plan.json, result.json)
+- [x] `stageResults[]` contains entries for each completed stage
+- [x] `tokenUsage` object is populated with per-stage and total counts
+- [x] On deliberate validation failure, orchestrator consults `error-recover` agent
+- [x] Retry caps from `AGENTS.md` are respected (max 3 per agent, max 10 total)
+- [x] Orchestrator eval passes in `pnpm factory:health`
+- [x] `pnpm af agent:validate:all` exits 0
+- [x] `packages/contracts` `check:breaking` passes
 
 **Acceptance Commands:**
 
-```bash
+```powershell
 # Verify agent structure
-test -f services/agents/orchestrator/agent.json && echo "PASS: manifest exists" || echo "FAIL: no manifest"
-test -f services/agents/orchestrator/README.md && echo "PASS: README exists" || echo "FAIL: no README"
+if (Test-Path "services/agents/orchestrator/agent.json") { Write-Host "PASS: manifest exists" -ForegroundColor Green } else { Write-Host "FAIL: no manifest" -ForegroundColor Red }
+if (Test-Path "services/agents/orchestrator/README.md") { Write-Host "PASS: README exists" -ForegroundColor Green } else { Write-Host "FAIL: no README" -ForegroundColor Red }
 
 # Verify contract types
-grep -q "OrchestratorInput" packages/contracts/src/index.ts && echo "PASS: input type exported" || echo "FAIL: no input type"
-grep -q "OrchestratorOutput" packages/contracts/src/index.ts && echo "PASS: output type exported" || echo "FAIL: no output type"
-grep -q "StageResult" packages/contracts/src/index.ts && echo "PASS: StageResult exported" || echo "FAIL: no StageResult"
+$contractPath = "packages/contracts/src/index.ts"
+$types = @("OrchestratorInput", "OrchestratorOutput", "StageResult")
+
+foreach ($type in $types) {
+    if (Select-String -Path $contractPath -Pattern $type -Quiet) {
+        Write-Host "PASS: $type exported" -ForegroundColor Green
+    } else {
+        Write-Host "FAIL: no $type" -ForegroundColor Red
+    }
+}
 
 # Verify eval fixtures
-test -d packages/evals/fixtures/orchestrator && echo "PASS: fixture dir exists" || echo "FAIL: no fixture dir"
+if (Test-Path "packages/evals/fixtures/orchestrator" -PathType Container) { Write-Host "PASS: fixture dir exists" -ForegroundColor Green } else { Write-Host "FAIL: no fixture dir" -ForegroundColor Red }
 
 # Verify all agents
 pnpm af agent:validate:all
@@ -510,13 +517,28 @@ The orchestrator agent is extended with a multi-task execution mode. It accepts 
 
 **Acceptance Commands:**
 
-```bash
+```powershell
 # Verify extended contract types
-grep -q "MultiTaskOrchestratorInput" packages/contracts/src/index.ts && echo "PASS: multi-task input exported" || echo "FAIL: no multi-task input"
-grep -q "TaskPipelineResult" packages/contracts/src/index.ts && echo "PASS: TaskPipelineResult exported" || echo "FAIL: no TaskPipelineResult"
+$contractPath = "packages/contracts/src/index.ts"
+$extendedTypes = @(
+    @{ Pattern = "MultiTaskOrchestratorInput"; Msg = "multi-task input exported" },
+    @{ Pattern = "TaskPipelineResult"; Msg = "TaskPipelineResult exported" }
+)
+
+foreach ($type in $extendedTypes) {
+    if (Select-String -Path $contractPath -Pattern $type.Pattern -Quiet) {
+        Write-Host "PASS: $($type.Msg)" -ForegroundColor Green
+    } else {
+        Write-Host "FAIL: no $($type.Pattern)" -ForegroundColor Red
+    }
+}
 
 # Verify eval fixtures
-test -d packages/evals/fixtures/orchestrator-multi && echo "PASS: multi-task fixture dir exists" || echo "FAIL: no fixture dir"
+if (Test-Path "packages/evals/fixtures/orchestrator-multi" -PathType Container) {
+    Write-Host "PASS: multi-task fixture dir exists" -ForegroundColor Green
+} else {
+    Write-Host "FAIL: no fixture dir" -ForegroundColor Red
+}
 
 # Verify all agents
 pnpm af agent:validate:all
@@ -571,30 +593,46 @@ A new CLI command `pnpm af pipeline:run --brief '<text>' --l2-config <path>` acc
 
 **Acceptance Commands:**
 
-```bash
-# Verify pipeline command exists
-pnpm af pipeline:run --help 2>&1 | grep -q "pipeline" && echo "PASS: pipeline command exists" || echo "FAIL: no pipeline command"
+```powershell
+# 1. Verify pipeline command exists
+# We redirect error output (2>&1) and check for the string "pipeline"
+if ((pnpm af pipeline:run --help 2>&1 | Select-String -Pattern "pipeline" -Quiet)) {
+    Write-Host "PASS: pipeline command exists" -ForegroundColor Green
+} else {
+    Write-Host "FAIL: no pipeline command" -ForegroundColor Red
+}
 
-# Run pipeline with fixture brief
+# 2. Run pipeline with fixture brief
 pnpm af pipeline:run --brief 'Add a /health endpoint that returns server status' --l2-config docs/examples/nextjs-micro-saas.json
 
-# Verify AGENTS.md Phase 3 sections
-grep -q "## Orchestrator Invariants" AGENTS.md && echo "PASS: orchestrator invariants" || echo "FAIL: missing orchestrator invariants"
-grep -q "## Autonomy Taxonomy" AGENTS.md && echo "PASS: autonomy taxonomy" || echo "FAIL: missing autonomy taxonomy"
-grep -q "VERSION: v3" AGENTS.md && echo "PASS: v3 header" || echo "FAIL: no v3 header"
+# 3. Verify AGENTS.md Phase 3 sections
+$agentsFile = "AGENTS.md"
+$checks = @(
+    @{ Pattern = "## Orchestrator Invariants"; Label = "orchestrator invariants" },
+    @{ Pattern = "## Autonomy Taxonomy"; Label = "autonomy taxonomy" },
+    @{ Pattern = "VERSION: v3"; Label = "v3 header" }
+)
 
-# Verify all agents
+foreach ($check in $checks) {
+    if (Select-String -Path $agentsFile -Pattern $check.Pattern -Quiet) {
+        Write-Host "PASS: $($check.Label)" -ForegroundColor Green
+    } else {
+        Write-Host "FAIL: missing $($check.Label)" -ForegroundColor Red
+    }
+}
+
+# 4. Verify all agents
 pnpm af agent:validate:all
 
-# Verify contracts
+# 5. Verify contracts
 pnpm -C packages/contracts check:breaking
 
-# Full platform health
+# 6. Full platform health
 pnpm install --frozen-lockfile
 pnpm -r build
 pnpm factory:health
 
-echo "=== PHASE 3 VALIDATION COMPLETE ==="
+Write-Host "`n=== PHASE 3 VALIDATION COMPLETE ===" -ForegroundColor Cyan
 ```
 
 ---
@@ -608,7 +646,7 @@ echo "=== PHASE 3 VALIDATION COMPLETE ==="
 | 11     | S11       | Task Decomposition Agent                     | PASS |
 | 12     | S12       | Brief Intake & Clarification Agent           |      |
 | 13     | S13       | Error Recovery Agent                         | PASS |
-| 14     | S14       | Orchestrator Agent — Single-Task Pipeline    |      |
+| 14     | S14       | Orchestrator Agent — Single-Task Pipeline    | PASS |
 | 15     | S15       | Orchestrator Agent — Multi-Task Pipeline     |      |
 | 16     | S16       | End-to-End Integration — Brief to Build Plan |      |
 

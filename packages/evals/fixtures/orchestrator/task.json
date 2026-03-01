@@ -1,0 +1,8 @@
+{
+  "id": "task-001",
+  "title": "Add health comment",
+  "description": "Add a comment to the health endpoint file",
+  "dependsOn": [],
+  "fileScope": ["src/health.ts"],
+  "estimatedComplexity": "S"
+}

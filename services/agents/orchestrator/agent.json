@@ -1,0 +1,111 @@
+{
+  "id": "orchestrator",
+  "name": "Orchestrator",
+  "version": "0.1.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["task", "l2Config", "repoRoot"],
+    "properties": {
+      "task": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "l2Config": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "repoRoot": {
+        "type": "string"
+      },
+      "tokenBudget": {
+        "type": "number"
+      }
+    },
+    "additionalProperties": true
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["pipelineResult", "stageResults", "artifactPaths", "tokenUsage", "correlationId"],
+    "properties": {
+      "pipelineResult": {
+        "type": "object",
+        "required": ["ok", "completedStages", "retryCount"],
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "completedStages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failedStage": {
+            "type": "string"
+          },
+          "retryCount": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      },
+      "stageResults": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["stageName", "ok", "durationMs", "tokenCount", "outputPath"],
+          "properties": {
+            "stageName": {
+              "type": "string"
+            },
+            "ok": {
+              "type": "boolean"
+            },
+            "durationMs": {
+              "type": "number"
+            },
+            "tokenCount": {
+              "type": "number"
+            },
+            "outputPath": {
+              "type": "string"
+            },
+            "error": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "artifactPaths": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "tokenUsage": {
+        "type": "object",
+        "required": ["perStage", "total"],
+        "properties": {
+          "perStage": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      },
+      "correlationId": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": ["pipeline-orchestration", "error-recovery", "artifact-logging"]
+}

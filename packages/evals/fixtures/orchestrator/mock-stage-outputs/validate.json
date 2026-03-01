@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "command": "pnpm -r build",
+      "exitCode": 0,
+      "stdout": "build ok",
+      "stderr": "",
+      "durationMs": 25
+    }
+  ],
+  "allPassed": true
+}

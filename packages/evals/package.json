@@ -16,6 +16,8 @@
     "eval:task-decompose": "node --no-warnings dist/scripts/eval_task_decompose.js",
     "eval:brief-intake": "node --no-warnings dist/scripts/eval_brief_intake.js",
     "eval:error-recover": "node --no-warnings dist/scripts/eval_error_recover.js",
+    "eval:orchestrator-single": "node --no-warnings dist/scripts/eval_orchestrator_single.js",
+    "eval:orchestrator-recovery": "node --no-warnings dist/scripts/eval_orchestrator_recovery.js",
     "eval:agent-retrieval-smoke": "node --no-warnings dist/scripts/agent_retrieval_smoke.js",
     "eval:agent-runner-smoke": "node --no-warnings dist/scripts/agent_runner_smoke.js",
     "eval:full": "node --no-warnings dist/scripts/eval_full.js"

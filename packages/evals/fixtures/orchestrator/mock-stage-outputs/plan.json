@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "steps": ["Add a comment above the health handler"],
+  "touchedFiles": ["src/health.ts"],
+  "commands": ["pnpm -r build"],
+  "risks": ["modifies existing file: src/health.ts"]
+}
