@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "id": "task-a",
+      "title": "Prepare health file",
+      "description": "Touch the health endpoint implementation",
+      "dependsOn": [],
+      "fileScope": ["src/health.ts"],
+      "estimatedComplexity": "S"
+    },
+    {
+      "id": "task-b",
+      "title": "Prepare status file",
+      "description": "Touch the status endpoint implementation",
+      "dependsOn": [],
+      "fileScope": ["src/status.ts"],
+      "estimatedComplexity": "S"
+    },
+    {
+      "id": "task-c",
+      "title": "Wire routes",
+      "description": "Update the route that depends on task-a",
+      "dependsOn": ["task-a"],
+      "fileScope": ["src/routes.ts"],
+      "estimatedComplexity": "S"
+    }
+  ]
+}

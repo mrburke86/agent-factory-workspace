@@ -489,31 +489,31 @@ The orchestrator agent is extended with a multi-task execution mode. It accepts 
 
 **Tasks:**
 
-- [ ] Extend `services/agents/orchestrator/src/index.ts` with multi-task execution path
-- [ ] Extend input schema to accept: `{ taskList: DecomposedTaskList, l2Config: Layer2Config, repoRoot: string, tokenBudget?: number }` (in addition to existing single-task mode)
-- [ ] Extend output schema: `{ overallResult: { ok: boolean, completedTasks: string[], failedTasks: string[], skippedTasks: string[] }, taskResults: TaskPipelineResult[], artifactPaths: string[] }`
-- [ ] Add contract types to `packages/contracts`: `MultiTaskOrchestratorInput`, `MultiTaskOrchestratorOutput`, `TaskPipelineResult`
-- [ ] Implement topological execution: resolve dependency order, execute tasks sequentially
-- [ ] Implement failure propagation: if a task fails and is a dependency of others, mark downstream tasks as `SKIPPED`
-- [ ] Implement progress reporting: emit one structured progress JSON event per task start/complete/fail/skip to `progress.jsonl`
-- [ ] Implement cumulative artifact directory: `.factory/runs/<pipelineId>/tasks/<taskId>/`
-- [ ] Enforce task cap: max 15 tasks per pipeline run (from `AGENTS.md` invariants)
-- [ ] Create eval fixture: `packages/evals/fixtures/orchestrator-multi/` — 3 tasks (2 independent + 1 dependent on task 1)
-- [ ] Create eval script: `packages/evals/scripts/eval_orchestrator_multi.js` — asserts correct execution order, failure propagation (when task 1 fails, task 3 is skipped, task 2 still executes)
-- [ ] Add eval to `pnpm factory:health` pipeline
+- [x] Extend `services/agents/orchestrator/src/index.ts` with multi-task execution path
+- [x] Extend input schema to accept: `{ taskList: DecomposedTaskList, l2Config: Layer2Config, repoRoot: string, tokenBudget?: number }` (in addition to existing single-task mode)
+- [x] Extend output schema: `{ overallResult: { ok: boolean, completedTasks: string[], failedTasks: string[], skippedTasks: string[] }, taskResults: TaskPipelineResult[], artifactPaths: string[] }`
+- [x] Add contract types to `packages/contracts`: `MultiTaskOrchestratorInput`, `MultiTaskOrchestratorOutput`, `TaskPipelineResult`
+- [x] Implement topological execution: resolve dependency order, execute tasks sequentially
+- [x] Implement failure propagation: if a task fails and is a dependency of others, mark downstream tasks as `SKIPPED`
+- [x] Implement progress reporting: emit one structured progress JSON event per task start/complete/fail/skip to `progress.jsonl`
+- [x] Implement cumulative artifact directory: `.factory/runs/<pipelineId>/tasks/<taskId>/`
+- [x] Enforce task cap: max 15 tasks per pipeline run (from `AGENTS.md` invariants)
+- [x] Create eval fixture: `packages/evals/fixtures/orchestrator-multi/` — 3 tasks (2 independent + 1 dependent on task 1)
+- [x] Create eval script: `packages/evals/scripts/eval_orchestrator_multi.js` — asserts correct execution order, failure propagation (when task 1 fails, task 3 is skipped, task 2 still executes)
+- [x] Add eval to `pnpm factory:health` pipeline
 - [ ] Update orchestrator README with multi-task documentation
 
 **Acceptance Criteria:**
 
-- [ ] Orchestrator accepts a `DecomposedTaskList` input and executes tasks in dependency order
-- [ ] Independent tasks (no dependencies on each other) both execute regardless of each other's status
-- [ ] When a task fails, all dependent downstream tasks are marked `SKIPPED` with reason
-- [ ] `progress.jsonl` contains one event per task state change (started, completed, failed, skipped)
-- [ ] Artifact directory follows structure: `.factory/runs/<pipelineId>/tasks/<taskId>/`
-- [ ] Task cap of 15 is enforced (agent returns `ok: false` if exceeded)
-- [ ] Multi-task orchestrator eval passes in `pnpm factory:health`
-- [ ] `pnpm af agent:validate:all` exits 0
-- [ ] `packages/contracts` `check:breaking` passes
+- [x] Orchestrator accepts a `DecomposedTaskList` input and executes tasks in dependency order
+- [x] Independent tasks (no dependencies on each other) both execute regardless of each other's status
+- [x] When a task fails, all dependent downstream tasks are marked `SKIPPED` with reason
+- [x] `progress.jsonl` contains one event per task state change (started, completed, failed, skipped)
+- [x] Artifact directory follows structure: `.factory/runs/<pipelineId>/tasks/<taskId>/`
+- [x] Task cap of 15 is enforced (agent returns `ok: false` if exceeded)
+- [x] Multi-task orchestrator eval passes in `pnpm factory:health`
+- [x] `pnpm af agent:validate:all` exits 0
+- [x] `packages/contracts` `check:breaking` passes
 
 **Acceptance Commands:**
 
@@ -647,7 +647,7 @@ Write-Host "`n=== PHASE 3 VALIDATION COMPLETE ===" -ForegroundColor Cyan
 | 12     | S12       | Brief Intake & Clarification Agent           |      |
 | 13     | S13       | Error Recovery Agent                         | PASS |
 | 14     | S14       | Orchestrator Agent — Single-Task Pipeline    | PASS |
-| 15     | S15       | Orchestrator Agent — Multi-Task Pipeline     |      |
+| 15     | S15       | Orchestrator Agent — Multi-Task Pipeline     | PASS |
 | 16     | S16       | End-to-End Integration — Brief to Build Plan |      |
 
 ---

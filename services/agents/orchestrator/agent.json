@@ -5,9 +5,22 @@
   "entry": "./dist/index.js",
   "inputSchema": {
     "type": "object",
-    "required": ["task", "l2Config", "repoRoot"],
+    "required": ["l2Config", "repoRoot"],
+    "anyOf": [
+      {
+        "required": ["task"]
+      },
+      {
+        "required": ["taskList"]
+      }
+    ],
     "properties": {
       "task": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      },
+      "taskList": {
         "type": "object",
         "properties": {},
         "additionalProperties": true
@@ -28,7 +41,15 @@
   },
   "outputSchema": {
     "type": "object",
-    "required": ["pipelineResult", "stageResults", "artifactPaths", "tokenUsage", "correlationId"],
+    "required": ["artifactPaths", "tokenUsage", "correlationId"],
+    "anyOf": [
+      {
+        "required": ["pipelineResult", "stageResults"]
+      },
+      {
+        "required": ["overallResult", "taskResults"]
+      }
+    ],
     "properties": {
       "pipelineResult": {
         "type": "object",
@@ -48,6 +69,34 @@
           },
           "retryCount": {
             "type": "number"
+          }
+        },
+        "additionalProperties": false
+      },
+      "overallResult": {
+        "type": "object",
+        "required": ["ok", "completedTasks", "failedTasks", "skippedTasks"],
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "completedTasks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failedTasks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skippedTasks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "additionalProperties": false
@@ -74,6 +123,75 @@
               "type": "string"
             },
             "error": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "taskResults": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["taskId", "ok", "status", "stageResults", "tokenUsage", "artifactPath"],
+          "properties": {
+            "taskId": {
+              "type": "string"
+            },
+            "ok": {
+              "type": "boolean"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["completed", "failed", "skipped"]
+            },
+            "skippedReason": {
+              "type": "string"
+            },
+            "stageResults": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["stageName", "ok", "durationMs", "tokenCount", "outputPath"],
+                "properties": {
+                  "stageName": {
+                    "type": "string"
+                  },
+                  "ok": {
+                    "type": "boolean"
+                  },
+                  "durationMs": {
+                    "type": "number"
+                  },
+                  "tokenCount": {
+                    "type": "number"
+                  },
+                  "outputPath": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "tokenUsage": {
+              "type": "object",
+              "required": ["perStage", "total"],
+              "properties": {
+                "perStage": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                },
+                "total": {
+                  "type": "number"
+                }
+              },
+              "additionalProperties": false
+            },
+            "artifactPath": {
               "type": "string"
             }
           },

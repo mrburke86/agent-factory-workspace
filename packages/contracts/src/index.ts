@@ -24,10 +24,14 @@ export type {
   RecoveryAction,
 } from "./schemas/error-recover.schema.js";
 export type {
+  MultiTaskOrchestratorInput,
+  MultiTaskOrchestratorOutput,
   OrchestratorInput,
   OrchestratorOutput,
+  OrchestratorRunOutput,
   PipelineResult,
   StageResult,
+  TaskPipelineResult,
 } from "./schemas/orchestrator.schema.js";
 export type {
   DecomposedTask,

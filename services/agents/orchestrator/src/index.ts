@@ -1,13 +1,15 @@
 import { randomUUID } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { loadManifest, runAgent, validateInputAgainstSchema } from "@acme/agent-runner";
 import { msBetween, nowIso, type AgentResult } from "@acme/agent-runtime";
 import {
   ContextGatherOutputSchema,
+  DecomposedTaskListSchema,
   DecomposedTaskSchema,
   ErrorRecoverOutputSchema,
   Layer2ConfigSchema,
+  MultiTaskOrchestratorOutputSchema,
   OrchestratorInputSchema,
   OrchestratorOutputSchema,
   PipelineResultSchema,
@@ -15,10 +17,15 @@ import {
   RepoPatchPlanSchema,
   RepoPatchResultSchema,
   StageResultSchema,
+  TaskPipelineResultSchema,
+  type MultiTaskOrchestratorInput,
+  type MultiTaskOrchestratorOutput,
   type OrchestratorInput,
   type OrchestratorOutput,
+  type OrchestratorRunOutput,
   type PipelineResult,
   type StageResult,
+  type TaskPipelineResult,
 } from "@acme/contracts";
 
 const AGENT_NAME = "orchestrator";
@@ -28,6 +35,9 @@ type StageName = (typeof STAGE_ORDER)[number];
 type StageRunner = (input: unknown) => Promise<unknown>;
 type StageRunners = Record<string, StageRunner>;
 type zodInfer<TSchema extends { parse(value: unknown): unknown }> = ReturnType<TSchema["parse"]>;
+type OrchestratorAgentInput = OrchestratorInput | MultiTaskOrchestratorInput;
+type SingleTaskPipelineTask = zodInfer<typeof DecomposedTaskSchema>;
+type Layer2Config = zodInfer<typeof Layer2ConfigSchema>;
 
 type ValidateStageOutput = {
   ok: boolean;
@@ -76,10 +86,22 @@ function writeJson(filePath: string, value: unknown): void {
   writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
+function appendJsonLine(filePath: string, value: unknown): void {
+  appendFileSync(filePath, `${JSON.stringify(value)}\n`, "utf8");
+}
+
 function appendArtifactPath(paths: string[], filePath: string): void {
   if (!paths.includes(filePath)) {
     paths.push(filePath);
   }
+}
+
+function appendTokenUsage(target: OrchestratorOutput["tokenUsage"], source: OrchestratorOutput["tokenUsage"]): void {
+  for (const [stageName, tokenCount] of Object.entries(source.perStage)) {
+    target.perStage[stageName] = (target.perStage[stageName] ?? 0) + tokenCount;
+  }
+
+  target.total += source.total;
 }
 
 function extractAgentError(value: unknown): string {
@@ -260,7 +282,7 @@ function getTokenCount(stageName: StageName, value: unknown): number {
   return 0;
 }
 
-function buildPlanTask(task: zodInfer<typeof DecomposedTaskSchema>) {
+function buildPlanTask(task: SingleTaskPipelineTask) {
   return {
     taskId: task.id,
     goal: `${task.title}: ${task.description}`,
@@ -295,7 +317,7 @@ function buildValidateInput(
 }
 
 function buildGitPrInput(
-  task: zodInfer<typeof DecomposedTaskSchema>,
+  task: SingleTaskPipelineTask,
   state: StageState,
   repoRoot: string,
 ): {
@@ -324,7 +346,7 @@ function buildGitPrInput(
 
 function buildStageInput(
   stageName: StageName,
-  task: zodInfer<typeof DecomposedTaskSchema>,
+  task: SingleTaskPipelineTask,
   repoRoot: string,
   artifactBase: string,
   state: StageState,
@@ -366,6 +388,14 @@ function toStageRunners(value: OrchestratorInput["_stageRunners"]): StageRunners
   }
 
   return stageRunners;
+}
+
+function hasTaskListInput(value: OrchestratorAgentInput): value is MultiTaskOrchestratorInput {
+  return isRecord(value) && value.taskList !== undefined;
+}
+
+function hasTaskInput(value: OrchestratorAgentInput): value is OrchestratorInput {
+  return isRecord(value) && value.task !== undefined;
 }
 
 function buildFailureOutput(
@@ -412,6 +442,29 @@ function buildSuccessOutput(
   });
 }
 
+function buildMultiTaskOutput(
+  correlationId: string,
+  taskResults: TaskPipelineResult[],
+  artifactPaths: string[],
+  tokenUsage: MultiTaskOrchestratorOutput["tokenUsage"],
+  completedTasks: string[],
+  failedTasks: string[],
+  skippedTasks: string[],
+): MultiTaskOrchestratorOutput {
+  return MultiTaskOrchestratorOutputSchema.parse({
+    overallResult: {
+      ok: failedTasks.length === 0 && skippedTasks.length === 0,
+      completedTasks,
+      failedTasks,
+      skippedTasks,
+    },
+    taskResults,
+    artifactPaths,
+    tokenUsage,
+    correlationId,
+  });
+}
+
 function storeStageState(stageName: StageName, state: StageState, value: unknown): void {
   if (stageName === "context-gather") {
     state.contextGather = value as zodInfer<typeof ContextGatherOutputSchema>;
@@ -432,20 +485,151 @@ function storeStageState(stageName: StageName, state: StageState, value: unknown
   state.gitPr = value as GitPrStageOutput;
 }
 
-function failureMessage(pipelineResult: PipelineResult): string {
+function taskFailureMessage(pipelineResult: PipelineResult): string {
   if (pipelineResult.failedStage) {
     return `pipeline failed at stage '${pipelineResult.failedStage}'`;
   }
   return "pipeline failed";
 }
 
-async function runImpl(input: OrchestratorInput): Promise<OrchestratorOutput> {
-  const parsed = OrchestratorInputSchema.parse(input);
-  const task = DecomposedTaskSchema.parse(parsed.task);
-  const l2Config = Layer2ConfigSchema.parse(parsed.l2Config);
-  const repoRoot = resolve(parsed.repoRoot);
-  const correlationId = randomUUID();
-  const artifactBase = join(repoRoot, ".factory", "runs", correlationId);
+function runFailureMessage(output: OrchestratorRunOutput): string {
+  if ("overallResult" in output) {
+    const affectedTasks = output.overallResult.failedTasks.concat(output.overallResult.skippedTasks);
+    if (affectedTasks.length > 0) {
+      return `pipeline failed across tasks: ${affectedTasks.join(", ")}`;
+    }
+    return "pipeline failed";
+  }
+
+  return taskFailureMessage(output.pipelineResult);
+}
+
+function emitTaskProgress(
+  progressPath: string,
+  event: "task.started" | "task.completed" | "task.failed" | "task.skipped",
+  taskId: string,
+  reason?: string,
+): void {
+  appendJsonLine(progressPath, {
+    event,
+    taskId,
+    timestamp: nowIso(),
+    ...(reason ? { reason } : {}),
+  });
+}
+
+function toTaskPipelineResult(
+  task: SingleTaskPipelineTask,
+  taskDir: string,
+  output: OrchestratorOutput,
+): TaskPipelineResult {
+  if (output.pipelineResult.ok) {
+    return TaskPipelineResultSchema.parse({
+      taskId: task.id,
+      ok: true,
+      status: "completed",
+      stageResults: output.stageResults,
+      tokenUsage: output.tokenUsage,
+      artifactPath: taskDir,
+    });
+  }
+
+  return TaskPipelineResultSchema.parse({
+    taskId: task.id,
+    ok: false,
+    status: "failed",
+    stageResults: output.stageResults,
+    tokenUsage: output.tokenUsage,
+    artifactPath: taskDir,
+  });
+}
+
+function buildSkippedTaskResult(
+  task: SingleTaskPipelineTask,
+  taskDir: string,
+  reason: string,
+): TaskPipelineResult {
+  mkdirSync(taskDir, { recursive: true });
+
+  const taskPath = join(taskDir, "task.json");
+  const resultPath = join(taskDir, "result.json");
+  writeJson(taskPath, task);
+
+  const skipped = TaskPipelineResultSchema.parse({
+    taskId: task.id,
+    ok: false,
+    status: "skipped",
+    skippedReason: reason,
+    stageResults: [],
+    tokenUsage: {
+      perStage: {},
+      total: 0,
+    },
+    artifactPath: taskDir,
+  });
+
+  writeJson(resultPath, skipped);
+  return skipped;
+}
+
+function topologicallySortTasks(tasks: SingleTaskPipelineTask[]): SingleTaskPipelineTask[] {
+  const taskOrder = new Map(tasks.map((task, index) => [task.id, index]));
+  const taskById = new Map(tasks.map((task) => [task.id, task]));
+  const inDegree = new Map(tasks.map((task) => [task.id, task.dependsOn.length]));
+  const dependents = new Map<string, string[]>();
+
+  for (const task of tasks) {
+    for (const dependencyId of task.dependsOn) {
+      const current = dependents.get(dependencyId) ?? [];
+      current.push(task.id);
+      dependents.set(dependencyId, current);
+    }
+  }
+
+  const ready = tasks.filter((task) => (inDegree.get(task.id) ?? 0) === 0).map((task) => task.id);
+  const sorted: SingleTaskPipelineTask[] = [];
+
+  while (ready.length > 0) {
+    ready.sort((left, right) => (taskOrder.get(left) ?? 0) - (taskOrder.get(right) ?? 0));
+    const nextId = ready.shift();
+
+    if (!nextId) {
+      continue;
+    }
+
+    const nextTask = taskById.get(nextId);
+    if (!nextTask) {
+      continue;
+    }
+
+    sorted.push(nextTask);
+
+    for (const dependentId of dependents.get(nextId) ?? []) {
+      const remaining = (inDegree.get(dependentId) ?? 0) - 1;
+      inDegree.set(dependentId, remaining);
+      if (remaining === 0) {
+        ready.push(dependentId);
+      }
+    }
+  }
+
+  if (sorted.length !== tasks.length) {
+    throw new Error("task list contains circular dependencies");
+  }
+
+  return sorted;
+}
+
+async function runSingleTaskPipeline(options: {
+  task: SingleTaskPipelineTask;
+  l2Config: Layer2Config;
+  repoRoot: string;
+  correlationId: string;
+  artifactBase: string;
+  tokenBudget?: number;
+  stageRunners: StageRunners;
+}): Promise<OrchestratorOutput> {
+  const { task, l2Config, repoRoot, correlationId, artifactBase, tokenBudget, stageRunners } = options;
   const artifactPaths: string[] = [];
   const stageResults: StageResult[] = [];
   const completedStages: string[] = [];
@@ -453,7 +637,6 @@ async function runImpl(input: OrchestratorInput): Promise<OrchestratorOutput> {
     perStage: {},
     total: 0,
   };
-  const stageRunners = toStageRunners(input._stageRunners);
   const state: StageState = {};
   const attemptsByStage = new Map<string, number>();
   let totalRetries = 0;
@@ -475,11 +658,11 @@ async function runImpl(input: OrchestratorInput): Promise<OrchestratorOutput> {
     while (!stageCompleted) {
       const attempts = attemptsByStage.get(stageName) ?? 0;
 
-      if (typeof parsed.tokenBudget === "number" && tokenUsage.total >= parsed.tokenBudget) {
+      if (typeof tokenBudget === "number" && tokenUsage.total >= tokenBudget) {
         const budgetReport = {
           ok: false,
           error: `token budget exceeded before ${stageName}`,
-          tokenBudget: parsed.tokenBudget,
+          tokenBudget,
           tokenUsage,
         };
         writeJson(stageArtifactPath, budgetReport);
@@ -629,11 +812,157 @@ async function runImpl(input: OrchestratorInput): Promise<OrchestratorOutput> {
   return success;
 }
 
+async function runSingleTaskImpl(input: OrchestratorInput): Promise<OrchestratorOutput> {
+  const parsed = OrchestratorInputSchema.parse(input);
+
+  if (!("task" in parsed) || parsed.task === undefined) {
+    throw new Error("single-task orchestrator input requires task");
+  }
+
+  const task = DecomposedTaskSchema.parse(parsed.task);
+  const l2Config = Layer2ConfigSchema.parse(parsed.l2Config);
+  const repoRoot = resolve(parsed.repoRoot);
+  const correlationId = randomUUID();
+  const artifactBase = join(repoRoot, ".factory", "runs", correlationId);
+
+  return runSingleTaskPipeline({
+    task,
+    l2Config,
+    repoRoot,
+    correlationId,
+    artifactBase,
+    tokenBudget: parsed.tokenBudget,
+    stageRunners: toStageRunners(input._stageRunners),
+  });
+}
+
+async function runMultiTaskImpl(input: MultiTaskOrchestratorInput): Promise<MultiTaskOrchestratorOutput> {
+  const parsed = OrchestratorInputSchema.parse(input);
+
+  if (!("taskList" in parsed) || parsed.taskList === undefined) {
+    throw new Error("multi-task orchestrator input requires taskList");
+  }
+
+  if (!isRecord(parsed.taskList) || !Array.isArray(parsed.taskList.tasks)) {
+    throw new Error("taskList must include tasks[]");
+  }
+
+  if (parsed.taskList.tasks.length > 15) {
+    throw new Error("task list exceeds max of 15 tasks");
+  }
+
+  const taskList = DecomposedTaskListSchema.parse(parsed.taskList);
+  const orderedTasks = topologicallySortTasks(taskList.tasks);
+  const l2Config = Layer2ConfigSchema.parse(parsed.l2Config);
+  const repoRoot = resolve(parsed.repoRoot);
+  const correlationId = randomUUID();
+  const artifactBase = join(repoRoot, ".factory", "runs", correlationId);
+  const tasksBase = join(artifactBase, "tasks");
+  const progressPath = join(artifactBase, "progress.jsonl");
+  const artifactPaths: string[] = [];
+  const taskResults: TaskPipelineResult[] = [];
+  const completedTasks: string[] = [];
+  const failedTasks: string[] = [];
+  const skippedTasks: string[] = [];
+  const tokenUsage: MultiTaskOrchestratorOutput["tokenUsage"] = {
+    perStage: {},
+    total: 0,
+  };
+  const stageRunners = toStageRunners(input._stageRunners);
+  const taskFailureSource = new Map<string, string>();
+
+  mkdirSync(tasksBase, { recursive: true });
+
+  const taskListPath = join(artifactBase, "task-list.json");
+  writeJson(taskListPath, taskList);
+  appendArtifactPath(artifactPaths, taskListPath);
+
+  const l2ConfigPath = join(artifactBase, "l2-config.json");
+  writeJson(l2ConfigPath, l2Config);
+  appendArtifactPath(artifactPaths, l2ConfigPath);
+
+  writeFileSync(progressPath, "", "utf8");
+  appendArtifactPath(artifactPaths, progressPath);
+
+  for (const task of orderedTasks) {
+    const taskDir = join(tasksBase, task.id);
+    const blockedBy = task.dependsOn
+      .map((dependencyId) => taskFailureSource.get(dependencyId))
+      .find((value): value is string => typeof value === "string");
+
+    if (blockedBy) {
+      const skipReason = `blocked by failed dependency ${blockedBy}`;
+      const skipped = buildSkippedTaskResult(task, taskDir, skipReason);
+      emitTaskProgress(progressPath, "task.skipped", task.id, skipReason);
+      appendArtifactPath(artifactPaths, taskDir);
+      taskResults.push(skipped);
+      skippedTasks.push(task.id);
+      taskFailureSource.set(task.id, blockedBy);
+      continue;
+    }
+
+    emitTaskProgress(progressPath, "task.started", task.id);
+
+    const taskOutput = await runSingleTaskPipeline({
+      task,
+      l2Config,
+      repoRoot,
+      correlationId,
+      artifactBase: taskDir,
+      tokenBudget:
+        typeof parsed.tokenBudget === "number" ? Math.max(0, parsed.tokenBudget - tokenUsage.total) : undefined,
+      stageRunners,
+    });
+
+    appendTokenUsage(tokenUsage, taskOutput.tokenUsage);
+    appendArtifactPath(artifactPaths, taskDir);
+
+    const taskResult = toTaskPipelineResult(task, taskDir, taskOutput);
+    taskResults.push(taskResult);
+
+    if (taskResult.status === "completed") {
+      completedTasks.push(task.id);
+      emitTaskProgress(progressPath, "task.completed", task.id);
+      continue;
+    }
+
+    failedTasks.push(task.id);
+    taskFailureSource.set(task.id, task.id);
+    emitTaskProgress(progressPath, "task.failed", task.id, taskFailureMessage(taskOutput.pipelineResult));
+  }
+
+  const pipelinePath = join(artifactBase, "pipeline.json");
+  appendArtifactPath(artifactPaths, pipelinePath);
+  const output = buildMultiTaskOutput(
+    correlationId,
+    taskResults,
+    artifactPaths,
+    tokenUsage,
+    completedTasks,
+    failedTasks,
+    skippedTasks,
+  );
+  writeJson(pipelinePath, output);
+  return output;
+}
+
+async function runImpl(input: OrchestratorAgentInput): Promise<OrchestratorRunOutput> {
+  if (hasTaskListInput(input)) {
+    return runMultiTaskImpl(input);
+  }
+
+  if (hasTaskInput(input)) {
+    return runSingleTaskImpl(input);
+  }
+
+  throw new Error("orchestrator input requires either task or taskList");
+}
+
 function unhandledResult(
   startedAt: string,
   startedMs: number,
   error: unknown,
-): AgentResult<OrchestratorOutput> {
+): AgentResult<OrchestratorRunOutput> {
   return {
     ok: false,
     agent: AGENT_NAME,
@@ -649,15 +978,16 @@ function unhandledResult(
   };
 }
 
-export async function run(input: OrchestratorInput): Promise<AgentResult<OrchestratorOutput>> {
+export async function run(input: OrchestratorAgentInput): Promise<AgentResult<OrchestratorRunOutput>> {
   const startedAt = nowIso();
   const startedMs = Date.now();
 
   try {
     const data = await runImpl(input);
     const finishedAt = nowIso();
+    const ok = "overallResult" in data ? data.overallResult.ok : data.pipelineResult.ok;
 
-    if (data.pipelineResult.ok) {
+    if (ok) {
       return {
         ok: true,
         agent: AGENT_NAME,
@@ -678,7 +1008,7 @@ export async function run(input: OrchestratorInput): Promise<AgentResult<Orchest
       errors: [
         {
           code: "PIPELINE_FAILED",
-          message: failureMessage(data.pipelineResult),
+          message: runFailureMessage(data),
         },
       ],
       data,
