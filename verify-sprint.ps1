@@ -1,6 +1,6 @@
-# Agent Factory — Post-Sprint Verification Script (v3)
+# Agent Factory — Post-Sprint Verification Script (v4)
 # Run this AFTER Codex completes a sprint.
-# Paste the FULL output into Claude for the next turn.
+# Paste the Codex output + this script's FULL output into Claude for the next turn.
 #
 # Usage: .\verify-sprint.ps1
 #        .\verify-sprint.ps1 -SkipCI              # local only, no CI wait
@@ -22,7 +22,7 @@ $separator = "=" * 60
 
 Write-Output ""
 Write-Output $separator
-Write-Output "AGENT FACTORY SPRINT VERIFICATION (v3)"
+Write-Output "AGENT FACTORY SPRINT VERIFICATION (v4)"
 Write-Output "Timestamp: $(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')"
 Write-Output $separator
 Write-Output ""
@@ -48,6 +48,11 @@ Write-Output ""
 
 $workspaceCount = (Get-ChildItem -Path "services/agents" -Directory -ErrorAction SilentlyContinue |
     Where-Object { $_.Name -ne "_shared" } | Measure-Object).Count
+
+# Phase 4 code generation agents
+$codeGenAgents = @("code-gen", "project-scaffold", "db-schema", "api-gen", "ui-gen", "auth-scaffold", "payments-gen")
+$codeGenCount = ($codeGenAgents | Where-Object { Test-Path "services/agents/$_/agent.json" } | Measure-Object).Count
+
 $totalProjects = 0
 try {
     $pnpmList = pnpm ls --depth -1 --json 2>$null | ConvertFrom-Json
@@ -56,9 +61,21 @@ try {
 catch {
     $totalProjects = "unknown"
 }
+
+# Detect current phase from sprint plan
+$currentPhase = "unknown"
+if (Test-Path "SPRINT_PLAN_v4.md") {
+    $currentPhase = "4 (Full-Stack Code Generation)"
+}
+elseif (Test-Path "SPRINT_PLAN_v3.md") {
+    $currentPhase = "3 (Autonomous Pipeline Intelligence)"
+}
+
 Write-Output "WORKSPACE CONTEXT"
-Write-Output "  Agent count (excl _shared): $workspaceCount"
-Write-Output "  Workspace projects: $totalProjects"
+Write-Output "  Phase:          $currentPhase"
+Write-Output "  Agent count:    $workspaceCount (total excl _shared)"
+Write-Output "  Code-gen agents: $codeGenCount / $($codeGenAgents.Count) (Phase 4)"
+Write-Output "  Workspace pkgs: $totalProjects"
 Write-Output ""
 
 # Track exit codes

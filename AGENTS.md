@@ -1,4 +1,4 @@
-<!-- VERSION: v3 — 2026-03-01 -->
+<!-- VERSION: v4 — 2026-03-01 -->
 
 # Agent Factory Workspace — Core Invariants
 
@@ -20,7 +20,7 @@ Core packages and services:
 - `packages/evals` — deterministic CI evals and checks
 - `packages/contracts` — versioned schema contracts with breaking-change detection
 
-`SPRINT_PLAN_v3.md` is the transformation checklist and source of truth.
+`SPRINT_PLAN_v4.md` is the transformation checklist and source of truth.
 
 ---
 
@@ -387,6 +387,113 @@ Recovery action types: `retry_modified`, `rollback`, `skip_and_flag`, `escalate`
 
 ---
 
+## Code Generation Invariants (Phase 4)
+
+> These invariants apply to all code generation agents introduced in Phase 4
+> (S17–S24) and to the full-stack generation pipeline.
+
+### Generation Agent Contract
+
+Code generation agents (`code-gen`, `project-scaffold`, `db-schema`, `api-gen`,
+`ui-gen`, `auth-scaffold`, `payments-gen`) follow the standard agent contract
+(`run(input)` returning `AgentResult`) with these additional constraints:
+
+- **File scope enforcement:** Generated file paths MUST fall within the declared
+  `outputDir` or project root. Agents MUST NOT write outside the target project
+  directory.
+- **Compile validation:** Every generated TypeScript/TSX file MUST pass
+  `tsc --noEmit` as part of the agent's internal verification. Agents return
+  `ok: false` if generated code does not compile.
+- **Language detection:** File language is inferred from extension. Agents MUST
+  set the `language` field on every `GeneratedFile` output entry.
+- **Multi-file atomicity:** If an agent generates multiple files and any single
+  file fails validation, none of the files are emitted. Generation is atomic.
+
+### Task Classification Types
+
+The orchestrator classifies generation tasks using these formal types, extending
+the `TaskClassification` schema from S15:
+
+| Classification   | Description                                      | Agent              |
+| ---------------- | ------------------------------------------------ | ------------------ |
+| `scaffold`       | Initial project skeleton from L2 config          | `project-scaffold` |
+| `schema_gen`     | Database schema and migration generation         | `db-schema`        |
+| `route_gen`      | API route handler generation                     | `api-gen`          |
+| `component_gen`  | Frontend UI component generation                 | `ui-gen`           |
+| `auth_config`    | Authentication configuration and flow generation | `auth-scaffold`    |
+| `payment_config` | Payment integration and webhook generation       | `payments-gen`     |
+
+Task classification feeds Phase 5's task-type-aware quality gates.
+
+### Generation Pipeline Stage Order
+
+The full-stack generation pipeline chains agents in this fixed order:
+
+```
+project-scaffold → db-schema → api-gen → ui-gen → auth-scaffold → payments-gen
+```
+
+- Stage ordering is fixed; the orchestrator enforces sequencing.
+- Each stage's output is validated against `packages/contracts` schemas before
+  the next stage begins.
+- All generation artifacts are written to `.factory/runs/<correlationId>/`.
+- The generation pipeline operates within the Phase 3 orchestrator — it does
+  NOT introduce a second orchestration system.
+
+### Decision Logging for Supervised/Human-Required Decisions
+
+Generation agents that involve supervised or human-required decisions (per the
+Autonomy Taxonomy) MUST log all such decisions via the S14 `DecisionLogEntry`
+interface:
+
+| Agent           | Human-Required Decisions          | Supervised Decisions    |
+| --------------- | --------------------------------- | ----------------------- |
+| `auth-scaffold` | Auth strategy, provider selection | —                       |
+| `payments-gen`  | Payment model architecture        | Webhook event selection |
+
+- Full autonomy decisions (e.g., Stripe API version, implementation details)
+  are NOT logged.
+- Decision log entries feed delivery summaries in Phase 6.
+- Agents MUST NOT invent agent-specific decision systems — use the shared
+  `DecisionLogEntry` interface from S14.
+
+### Cross-Cutting Compliance (Phase 4)
+
+All Phase 4 agents MUST comply with these constraints:
+
+1. **One retry/recovery subsystem:** Failures route through the S13
+   `error-recover` agent and `RecoveryStrategy` contract. No agent may create
+   a parallel retry mechanism.
+2. **One event model:** Runtime events use the S14 `RuntimeEvent` schema.
+   No agent may create a parallel event emission system.
+3. **One decision-log interface:** Supervised and human-required decisions
+   use the S14 `DecisionLogEntry` interface. No agent may create a parallel
+   decision-logging mechanism.
+4. **Context partitioning:** Generation agents receive only the context
+   relevant to their task (e.g., `api-gen` receives route spec and schema
+   references, not the full project narrative). The orchestrator manages
+   context envelopes.
+
+### Contract Consumers (Phase 4)
+
+The following Phase 4 agents consume existing contracts:
+
+| Contract             | Phase 4 Consumers                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------- |
+| `RecoveryStrategy`   | `code-gen`, `project-scaffold`, `db-schema`, `api-gen`, `ui-gen`, `auth-scaffold`, `payments-gen` |
+| `RuntimeEvent`       | `code-gen`, `project-scaffold`, `db-schema`, `api-gen`, `ui-gen`, `auth-scaffold`, `payments-gen` |
+| `DecisionLogEntry`   | `auth-scaffold`, `payments-gen`                                                                   |
+| `TaskClassification` | Orchestrator (extended with Phase 4 types)                                                        |
+
+New contracts introduced in Phase 4:
+
+| Contract        | Defined In | Consumers                      |
+| --------------- | ---------- | ------------------------------ |
+| `FileSpec`      | S17        | `code-gen`, `project-scaffold` |
+| `GeneratedFile` | S17        | All Phase 4 generation agents  |
+
+---
+
 ## Autonomy Taxonomy (Phase 3)
 
 > Defines which decisions can be made autonomously vs. which require human input.
@@ -480,8 +587,8 @@ environment assumptions that must be fixed before advancing.
 - One milestone per sprint (never combine).
 - Milestones are sequential — no skipping.
 - Each sprint produces exactly one commit (or zero if no code changed).
-- `SPRINT_PLAN_v3.md` and `AGENTS.md` are updated by Codex, never manually.
-- Sprint results are logged in the Sprint Log table in `SPRINT_PLAN_v3.md`.
+- `SPRINT_PLAN_v4.md` and `AGENTS.md` are updated by Codex, never manually.
+- Sprint results are logged in the Sprint Log table in `SPRINT_PLAN_v4.md`.
 - A milestone is only marked complete when BOTH local verification AND CI pass.
 - Lockfile drift is treated as a sprint failure, not a CI infrastructure issue.
 

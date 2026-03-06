@@ -5,6 +5,7 @@
 > **Purpose:** Enable the factory to generate complete working applications from structured build plans.
 > **Phase 4 Goal:** Given a Next.js micro-SaaS build plan, the factory produces a compilable, runnable application with React components, API routes, Drizzle ORM schemas, Auth.js config, and Stripe webhook handlers — all driven by the Phase 3 control plane.
 > **Exit Criteria:**
+>
 > - Given a Next.js micro-SaaS build plan, the factory produces a compilable, runnable application
 > - Generated code passes `tsc` type checking and `next build`
 > - All generated files conform to the project's Layer 2 constraints
@@ -29,24 +30,24 @@
 
 ## Phase 3 Completion Summary
 
-| Sprint | Milestone | Description | Gate |
-| --- | --- | --- | --- |
-| 1 | S1 | Contracts package setup | PASS |
-| 2 | S2 | Agent runtime shared helpers | PASS |
-| 3 | S3 | Agent runner manifest-driven loader | PASS |
-| 4 | S4 | Factory CLI scaffolding | PASS |
-| 5 | S5 | Evals package + health checks | PASS |
-| 6 | S6 | Smoke agent (hello-world) | PASS |
-| 7 | S7 | Repo-patch agent | PASS |
-| 8 | S8 | Layer 2 documentation templates | PASS |
-| 9 | S9 | Machine-readable Layer 2 configs + validation agent | PASS |
-| 10 | S10 | Plan agent | PASS |
-| 11 | S11 | Cross-cutting principles + contract governance docs | PASS |
-| 12 | S12 | Context-gather agent | PASS |
-| 13 | S13 | Error-recover agent | PASS |
-| 14 | S14 | Orchestrator agent | PASS |
-| 15 | S15 | Task-decompose agent + brief-intake agent | PASS |
-| 16 | S16 | End-to-end pipeline integration + golden fixtures | PASS |
+| Sprint | Milestone | Description                                         | Gate |
+| ------ | --------- | --------------------------------------------------- | ---- |
+| 1      | S1        | Contracts package setup                             | PASS |
+| 2      | S2        | Agent runtime shared helpers                        | PASS |
+| 3      | S3        | Agent runner manifest-driven loader                 | PASS |
+| 4      | S4        | Factory CLI scaffolding                             | PASS |
+| 5      | S5        | Evals package + health checks                       | PASS |
+| 6      | S6        | Smoke agent (hello-world)                           | PASS |
+| 7      | S7        | Repo-patch agent                                    | PASS |
+| 8      | S8        | Layer 2 documentation templates                     | PASS |
+| 9      | S9        | Machine-readable Layer 2 configs + validation agent | PASS |
+| 10     | S10       | Plan agent                                          | PASS |
+| 11     | S11       | Cross-cutting principles + contract governance docs | PASS |
+| 12     | S12       | Context-gather agent                                | PASS |
+| 13     | S13       | Error-recover agent                                 | PASS |
+| 14     | S14       | Orchestrator agent                                  | PASS |
+| 15     | S15       | Task-decompose agent + brief-intake agent           | PASS |
+| 16     | S16       | End-to-end pipeline integration + golden fixtures   | PASS |
 
 **Phase 3 baseline:** The factory has a fully operational autonomous pipeline: brief intake → task decomposition → context gathering → planning → repo-patch → validation → error recovery → orchestration. All agents communicate via validated contracts. The orchestrator chains agents with retry/recovery caps, event logging, and decision-log support. Golden fixtures provide regression safety. CLI supports `pnpm af pipeline:run`. The governance/runtime control-plane split is documented.
 
@@ -126,28 +127,28 @@ Create a `project-scaffold` agent at `services/agents/project-scaffold/` that ta
 
 **Tasks:**
 
-- [ ] Create `services/agents/project-scaffold/agent.json` with `inputSchema` and `outputSchema`
-- [ ] Create `services/agents/project-scaffold/src/index.ts` implementing `run(input)` → `AgentResult`
-- [ ] Create `services/agents/project-scaffold/package.json` with workspace deps
-- [ ] Create `services/agents/project-scaffold/tsconfig.json` extending workspace base
-- [ ] Create `services/agents/project-scaffold/README.md`
-- [ ] L2 config drives scaffold decisions (language, framework, database, ORM)
-- [ ] Output includes: directory structure, `package.json`, `tsconfig.json`, base config files
-- [ ] Create eval fixture: scaffold from Next.js L2 config → verify `pnpm install` + `tsc --noEmit`
-- [ ] Add eval fixture(s) to `packages/evals/fixtures/`
-- [ ] Verify scaffold artifacts compatible with Phase 3 event/decision logging
-- [ ] Run `pnpm install` to regenerate lockfile
+- [x] Create `services/agents/project-scaffold/agent.json` with `inputSchema` and `outputSchema`
+- [x] Create `services/agents/project-scaffold/src/index.ts` implementing `run(input)` → `AgentResult`
+- [x] Create `services/agents/project-scaffold/package.json` with workspace deps
+- [x] Create `services/agents/project-scaffold/tsconfig.json` extending workspace base
+- [x] Create `services/agents/project-scaffold/README.md`
+- [x] L2 config drives scaffold decisions (language, framework, database, ORM)
+- [x] Output includes: directory structure, `package.json`, `tsconfig.json`, base config files
+- [x] Create eval fixture: scaffold from Next.js L2 config → verify `pnpm install` + `tsc --noEmit`
+- [x] Add eval fixture(s) to `packages/evals/fixtures/`
+- [x] Verify scaffold artifacts compatible with Phase 3 event/decision logging
+- [x] Run `pnpm install` to regenerate lockfile
 
 **Acceptance Criteria:**
 
-- [ ] `pnpm af agent:validate project-scaffold` exits 0
-- [ ] `pnpm af agent:run project-scaffold --input '<fixture>' --validate-input` exits 0 and produces valid `scaffoldedFiles[]`
-- [ ] Scaffold output includes `package.json`, `tsconfig.json`, and at least one config file
-- [ ] L2 config `techStack` fields drive scaffold output (Next.js L2 → Next.js project)
-- [ ] Eval fixture passes: scaffolded project passes `pnpm install` + `tsc --noEmit`
-- [ ] `pnpm -C packages/contracts check:breaking` exits 0
-- [ ] No scaffold-specific state management created
-- [ ] `pnpm factory:health` exits 0
+- [x] `pnpm af agent:validate project-scaffold` exits 0
+- [x] `pnpm af agent:run project-scaffold --input '<fixture>' --validate-input` exits 0 and produces valid `scaffoldedFiles[]`
+- [x] Scaffold output includes `package.json`, `tsconfig.json`, and at least one config file
+- [x] L2 config `techStack` fields drive scaffold output (Next.js L2 → Next.js project)
+- [x] Eval fixture passes: scaffolded project passes `pnpm install` + `tsc --noEmit`
+- [x] `pnpm -C packages/contracts check:breaking` exits 0
+- [x] No scaffold-specific state management created
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -534,16 +535,16 @@ pnpm factory:health
 
 ## Sprint Log
 
-| Sprint | Milestone | Description | Gate |
-| --- | --- | --- | --- |
-| 17 | S17 | Code Generation Agent — Greenfield Files | PASS |
-| 18 | S18 | Project Scaffold Agent | |
-| 19 | S19 | Database Schema & Migration Agent | |
-| 20 | S20 | API Route Generation Agent | |
-| 21 | S21 | Frontend Component Generation Agent | |
-| 22 | S22 | Authentication Scaffold Agent | |
-| 23 | S23 | Payments Integration Agent | |
-| 24 | S24 | Full-Stack Integration Test — Next.js Micro-SaaS | |
+| Sprint | Milestone | Description                                      | Gate |
+| ------ | --------- | ------------------------------------------------ | ---- |
+| 17     | S17       | Code Generation Agent — Greenfield Files         | PASS |
+| 18     | S18       | Project Scaffold Agent                           | PASS |
+| 19     | S19       | Database Schema & Migration Agent                |      |
+| 20     | S20       | API Route Generation Agent                       |      |
+| 21     | S21       | Frontend Component Generation Agent              |      |
+| 22     | S22       | Authentication Scaffold Agent                    |      |
+| 23     | S23       | Payments Integration Agent                       |      |
+| 24     | S24       | Full-Stack Integration Test — Next.js Micro-SaaS |      |
 
 ---
 

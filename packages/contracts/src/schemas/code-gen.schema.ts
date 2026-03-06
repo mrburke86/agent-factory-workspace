@@ -14,6 +14,7 @@ export type FileSpecTechStack = z.infer<typeof FileSpecTechStackSchema>;
 /**
  * Consumed by:
  * - services/agents/code-gen
+ * - services/agents/project-scaffold
  */
 export const FileSpecSchema = z.object({
   path: NON_EMPTY,
@@ -28,6 +29,7 @@ export type FileSpec = z.infer<typeof FileSpecSchema>;
 /**
  * Consumed by:
  * - services/agents/code-gen
+ * - services/agents/project-scaffold
  */
 export const GeneratedFileSchema = z.object({
   path: NON_EMPTY,

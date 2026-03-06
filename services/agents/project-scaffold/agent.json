@@ -1,0 +1,107 @@
+{
+  "id": "project-scaffold",
+  "name": "Project Scaffold Agent",
+  "version": "1.0.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["l2Config", "outputDir"],
+    "properties": {
+      "l2Config": {
+        "type": "object",
+        "required": ["projectName", "techStack", "stages"],
+        "properties": {
+          "projectName": {
+            "type": "string"
+          },
+          "techStack": {
+            "type": "object",
+            "required": ["language", "framework"],
+            "properties": {
+              "language": {
+                "type": "string"
+              },
+              "framework": {
+                "type": "string"
+              },
+              "database": {
+                "type": "string"
+              },
+              "auth": {
+                "type": "string"
+              },
+              "payments": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "stages": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputDir": {
+        "type": "string"
+      },
+      "correlationId": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["scaffoldedFiles", "runtimeEvents"],
+    "properties": {
+      "scaffoldedFiles": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["path", "content", "language"],
+          "properties": {
+            "path": { "type": "string" },
+            "content": { "type": "string" },
+            "language": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "runtimeEvents": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["eventName", "eventVersion", "occurredAt", "correlationId", "payload"],
+          "properties": {
+            "eventName": { "type": "string" },
+            "eventVersion": { "type": "string" },
+            "occurredAt": { "type": "string" },
+            "correlationId": { "type": "string" },
+            "tenantId": { "type": "string" },
+            "payload": { "type": "object", "properties": {}, "additionalProperties": true }
+          },
+          "additionalProperties": false
+        }
+      },
+      "recovery": {
+        "type": "object",
+        "required": ["action", "rationale"],
+        "properties": {
+          "action": { "type": "string" },
+          "rationale": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": [
+    "project-scaffolding",
+    "layer2-driven-generation",
+    "file-scope-enforcement",
+    "compile-validation"
+  ]
+}
