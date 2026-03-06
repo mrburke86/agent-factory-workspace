@@ -1,0 +1,11 @@
+{
+  "outputDir": "src/generated",
+  "fileSpec": {
+    "path": "../outside.ts",
+    "purpose": "this should fail scope validation",
+    "techStack": {
+      "language": "typescript",
+      "framework": "node"
+    }
+  }
+}

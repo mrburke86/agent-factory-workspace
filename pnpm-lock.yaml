@@ -60,6 +60,18 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/contracts
 
+  services/agents/code-gen:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../../agent-runtime
+      '@acme/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
+      typescript:
+        specifier: ^5.5.4
+        version: 5.9.3
+
   services/agents/context-gather:
     dependencies:
       '@acme/agent-runtime':

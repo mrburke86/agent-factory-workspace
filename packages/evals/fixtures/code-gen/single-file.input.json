@@ -1,0 +1,10 @@
+{
+  "fileSpec": {
+    "path": "src/utils/helpers.ts",
+    "purpose": "utility functions",
+    "techStack": {
+      "language": "typescript",
+      "framework": "node"
+    }
+  }
+}

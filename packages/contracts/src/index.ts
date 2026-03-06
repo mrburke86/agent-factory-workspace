@@ -13,6 +13,12 @@ export type {
   StructuredBrief,
 } from "./schemas/brief-intake.schema.js";
 export type {
+  CodeGenInput,
+  CodeGenOutput,
+  FileSpec,
+  GeneratedFile,
+} from "./schemas/code-gen.schema.js";
+export type {
   ContextGatherInput,
   ContextGatherOutput,
   RankedFile,

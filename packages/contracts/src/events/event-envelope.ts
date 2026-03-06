@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+/**
+ * Consumed by:
+ * - services/agents/code-gen
+ */
 export const EventEnvelopeSchema = z.object({
   eventName: z.string(),
   eventVersion: z.string(),

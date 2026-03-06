@@ -18,6 +18,11 @@ export const ErrorClassSchema = z.enum([
 
 export type ErrorClass = z.infer<typeof ErrorClassSchema>;
 
+/**
+ * Consumed by:
+ * - services/agents/error-recover
+ * - services/agents/code-gen
+ */
 export const RecoveryActionSchema = z.enum(["retry_modified", "rollback", "skip_and_flag", "escalate"]);
 
 export type RecoveryAction = z.infer<typeof RecoveryActionSchema>;

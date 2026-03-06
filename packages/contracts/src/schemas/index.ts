@@ -1,5 +1,6 @@
 export * from "./common.schema.js";
 export * from "./brief-intake.schema.js";
+export * from "./code-gen.schema.js";
 export * from "./context-gather.schema.js";
 export * from "./error-recover.schema.js";
 export * from "./ingestion.schema.js";

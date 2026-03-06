@@ -1,0 +1,125 @@
+{
+  "id": "code-gen",
+  "name": "Code Generation Agent",
+  "version": "1.0.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": [],
+    "properties": {
+      "fileSpec": {
+        "type": "object",
+        "required": ["path", "purpose", "techStack"],
+        "properties": {
+          "path": { "type": "string" },
+          "purpose": { "type": "string" },
+          "techStack": {
+            "type": "object",
+            "required": ["language", "framework"],
+            "properties": {
+              "language": { "type": "string" },
+              "framework": { "type": "string" }
+            },
+            "additionalProperties": false
+          },
+          "templateHints": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "dependencies": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": false
+      },
+      "fileSpecs": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["path", "purpose", "techStack"],
+          "properties": {
+            "path": { "type": "string" },
+            "purpose": { "type": "string" },
+            "techStack": {
+              "type": "object",
+              "required": ["language", "framework"],
+              "properties": {
+                "language": { "type": "string" },
+                "framework": { "type": "string" }
+              },
+              "additionalProperties": false
+            },
+            "templateHints": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "dependencies": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "outputDir": {
+        "type": "string"
+      },
+      "correlationId": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["generatedFiles", "runtimeEvents"],
+    "properties": {
+      "generatedFiles": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["path", "content", "language"],
+          "properties": {
+            "path": { "type": "string" },
+            "content": { "type": "string" },
+            "language": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "runtimeEvents": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["eventName", "eventVersion", "occurredAt", "correlationId", "payload"],
+          "properties": {
+            "eventName": { "type": "string" },
+            "eventVersion": { "type": "string" },
+            "occurredAt": { "type": "string" },
+            "correlationId": { "type": "string" },
+            "tenantId": { "type": "string" },
+            "payload": { "type": "object", "properties": {}, "additionalProperties": true }
+          },
+          "additionalProperties": false
+        }
+      },
+      "recovery": {
+        "type": "object",
+        "required": ["action", "rationale"],
+        "properties": {
+          "action": { "type": "string" },
+          "rationale": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": [
+    "code-generation",
+    "multi-file-output",
+    "file-scope-enforcement",
+    "compile-validation"
+  ]
+}

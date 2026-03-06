@@ -1,0 +1,21 @@
+{
+  "outputDir": "src/generated",
+  "fileSpecs": [
+    {
+      "path": "math/add.ts",
+      "purpose": "add helper",
+      "techStack": {
+        "language": "typescript",
+        "framework": "node"
+      }
+    },
+    {
+      "path": "math/subtract.ts",
+      "purpose": "subtract helper",
+      "techStack": {
+        "language": "typescript",
+        "framework": "node"
+      }
+    }
+  ]
+}
