@@ -51,6 +51,18 @@ importers:
 
   services/agent-runtime: {}
 
+  services/agents/api-gen:
+    dependencies:
+      '@acme/agent-runtime':
+        specifier: workspace:*
+        version: link:../../agent-runtime
+      '@acme/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
+      typescript:
+        specifier: ^5.5.4
+        version: 5.9.3
+
   services/agents/brief-intake:
     dependencies:
       '@acme/agent-runtime':

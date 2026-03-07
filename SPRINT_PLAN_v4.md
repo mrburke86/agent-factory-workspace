@@ -239,34 +239,34 @@ Create an `api-gen` agent at `services/agents/api-gen/` that accepts a route spe
 
 **Tasks:**
 
-- [ ] Create `services/agents/api-gen/agent.json` with `inputSchema` and `outputSchema`
-- [ ] Create `services/agents/api-gen/src/index.ts` implementing `run(input)` → `AgentResult`
-- [ ] Create `services/agents/api-gen/package.json` with workspace deps
-- [ ] Create `services/agents/api-gen/tsconfig.json` extending workspace base
-- [ ] Create `services/agents/api-gen/README.md`
-- [ ] Support Next.js App Router route handlers (primary) and Express-style (secondary)
-- [ ] Include Zod input validation in generated routes
-- [ ] Include typed error handling and responses
-- [ ] Auth-aware: `auth: true` routes include session validation scaffolding
-- [ ] Context partitioning: agent receives route spec + schema references + auth requirements only
-- [ ] Verify eval strategy for Next.js types: either include `next` as devDependency in eval tsconfig, or validate generated code structurally without full Next.js type resolution. Document chosen approach in README.
-- [ ] Create eval fixture: fixture route spec → Next.js route handler → validate compiles
-- [ ] Add eval fixture(s) to `packages/evals/fixtures/`
-- [ ] Verify failures use S13 recovery
-- [ ] Run `pnpm install` to regenerate lockfile
+- [x] Create `services/agents/api-gen/agent.json` with `inputSchema` and `outputSchema`
+- [x] Create `services/agents/api-gen/src/index.ts` implementing `run(input)` → `AgentResult`
+- [x] Create `services/agents/api-gen/package.json` with workspace deps
+- [x] Create `services/agents/api-gen/tsconfig.json` extending workspace base
+- [x] Create `services/agents/api-gen/README.md`
+- [x] Support Next.js App Router route handlers (primary) and Express-style (secondary)
+- [x] Include Zod input validation in generated routes
+- [x] Include typed error handling and responses
+- [x] Auth-aware: `auth: true` routes include session validation scaffolding
+- [x] Context partitioning: agent receives route spec + schema references + auth requirements only
+- [x] Verify eval strategy for Next.js types: either include `next` as devDependency in eval tsconfig, or validate generated code structurally without full Next.js type resolution. Document chosen approach in README.
+- [x] Create eval fixture: fixture route spec → Next.js route handler → validate compiles
+- [x] Add eval fixture(s) to `packages/evals/fixtures/`
+- [x] Verify failures use S13 recovery
+- [x] Run `pnpm install` to regenerate lockfile
 
 **Acceptance Criteria:**
 
-- [ ] `pnpm af agent:validate api-gen` exits 0
-- [ ] `pnpm af agent:run api-gen --input '<fixture>' --validate-input` exits 0 and produces valid `routeFiles[]`
-- [ ] Generated Next.js route handler compiles (`tsc --noEmit`)
-- [ ] Auth-aware routes include session validation code
-- [ ] Zod validation present in generated route handlers
-- [ ] Eval fixture passes: route spec → handler → TypeScript compiles
-- [ ] Eval strategy for Next.js types documented in README (full types or structural validation)
-- [ ] `pnpm -C packages/contracts check:breaking` exits 0
-- [ ] No route-specific orchestration created
-- [ ] `pnpm factory:health` exits 0
+- [x] `pnpm af agent:validate api-gen` exits 0
+- [x] `pnpm af agent:run api-gen --input '<fixture>' --validate-input` exits 0 and produces valid `routeFiles[]`
+- [x] Generated Next.js route handler compiles (`tsc --noEmit`)
+- [x] Auth-aware routes include session validation code
+- [x] Zod validation present in generated route handlers
+- [x] Eval fixture passes: route spec → handler → TypeScript compiles
+- [x] Eval strategy for Next.js types documented in README (full types or structural validation)
+- [x] `pnpm -C packages/contracts check:breaking` exits 0
+- [x] No route-specific orchestration created
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -540,7 +540,7 @@ pnpm factory:health
 | 17     | S17       | Code Generation Agent — Greenfield Files         | PASS |
 | 18     | S18       | Project Scaffold Agent                           | PASS |
 | 19     | S19       | Database Schema & Migration Agent                | PASS |
-| 20     | S20       | API Route Generation Agent                       |      |
+| 20     | S20       | API Route Generation Agent                       | PASS |
 | 21     | S21       | Frontend Component Generation Agent              |      |
 | 22     | S22       | Authentication Scaffold Agent                    |      |
 | 23     | S23       | Payments Integration Agent                       |      |

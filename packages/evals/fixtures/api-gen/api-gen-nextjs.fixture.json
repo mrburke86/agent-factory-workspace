@@ -1,0 +1,54 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "purpose": "Return service health",
+      "auth": false,
+      "outputSchema": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": { "type": "string" }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/posts",
+      "purpose": "Create a post",
+      "auth": true,
+      "inputSchema": {
+        "type": "object",
+        "required": ["title", "content"],
+        "properties": {
+          "title": { "type": "string" },
+          "content": { "type": "string" },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    }
+  ],
+  "techStack": {
+    "framework": "nextjs-app-router"
+  },
+  "schemaRefs": [
+    {
+      "name": "posts",
+      "path": "src/db/drizzle/schema.ts"
+    }
+  ],
+  "outputDir": "src/generated-api",
+  "correlationId": "fixture-api-gen-nextjs"
+}
