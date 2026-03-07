@@ -1,0 +1,65 @@
+{
+  "dataModel": {
+    "entities": [
+      {
+        "name": "users",
+        "fields": [
+          { "name": "id", "type": "uuid", "primaryKey": true },
+          { "name": "email", "type": "string", "unique": true },
+          { "name": "name", "type": "string" }
+        ]
+      },
+      {
+        "name": "posts",
+        "fields": [
+          { "name": "id", "type": "uuid", "primaryKey": true },
+          { "name": "title", "type": "string" },
+          { "name": "content", "type": "text" },
+          {
+            "name": "authorId",
+            "type": "uuid",
+            "references": { "entity": "users", "field": "id" }
+          },
+          {
+            "name": "parentId",
+            "type": "uuid",
+            "nullable": true,
+            "references": { "entity": "posts", "field": "id" }
+          }
+        ]
+      },
+      {
+        "name": "tags",
+        "fields": [
+          { "name": "id", "type": "uuid", "primaryKey": true },
+          { "name": "name", "type": "string", "unique": true }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "type": "one-to-many",
+        "from": "users",
+        "to": "posts",
+        "foreignKey": "authorId"
+      },
+      {
+        "type": "many-to-many",
+        "from": "posts",
+        "to": "tags",
+        "junctionTable": "post_tags"
+      },
+      {
+        "type": "self-referential",
+        "entity": "posts",
+        "foreignKey": "parentId"
+      }
+    ]
+  },
+  "techStack": {
+    "database": "postgresql",
+    "orm": "drizzle"
+  },
+  "outputDir": "src/db",
+  "correlationId": "fixture-db-schema-drizzle"
+}

@@ -182,30 +182,30 @@ Create a `db-schema` agent at `services/agents/db-schema/` that accepts a data m
 
 **Tasks:**
 
-- [ ] Create `services/agents/db-schema/agent.json` with `inputSchema` and `outputSchema`
-- [ ] Create `services/agents/db-schema/src/index.ts` implementing `run(input)` → `AgentResult`
-- [ ] Create `services/agents/db-schema/package.json` with workspace deps
-- [ ] Create `services/agents/db-schema/tsconfig.json` extending workspace base
-- [ ] Create `services/agents/db-schema/README.md`
-- [ ] Support Drizzle ORM (primary) and Prisma (secondary) output formats
-- [ ] Support PostgreSQL and SQLite database targets
-- [ ] Handle relationships: one-to-many, many-to-many, self-referential
-- [ ] Output: `schemaFiles[]`, `migrationFiles[]`, `seedFile?`
-- [ ] Create eval fixture: fixture data model → Drizzle schema → validate TypeScript compiles
-- [ ] Add eval fixture(s) to `packages/evals/fixtures/`
-- [ ] Verify failures route through S13 `RecoveryStrategy`
-- [ ] Run `pnpm install` to regenerate lockfile
+- [x] Create `services/agents/db-schema/agent.json` with `inputSchema` and `outputSchema`
+- [x] Create `services/agents/db-schema/src/index.ts` implementing `run(input)` → `AgentResult`
+- [x] Create `services/agents/db-schema/package.json` with workspace deps
+- [x] Create `services/agents/db-schema/tsconfig.json` extending workspace base
+- [x] Create `services/agents/db-schema/README.md`
+- [x] Support Drizzle ORM (primary) and Prisma (secondary) output formats
+- [x] Support PostgreSQL and SQLite database targets
+- [x] Handle relationships: one-to-many, many-to-many, self-referential
+- [x] Output: `schemaFiles[]`, `migrationFiles[]`, `seedFile?`
+- [x] Create eval fixture: fixture data model → Drizzle schema → validate TypeScript compiles
+- [x] Add eval fixture(s) to `packages/evals/fixtures/`
+- [x] Verify failures route through S13 `RecoveryStrategy`
+- [x] Run `pnpm install` to regenerate lockfile
 
 **Acceptance Criteria:**
 
-- [ ] `pnpm af agent:validate db-schema` exits 0
-- [ ] `pnpm af agent:run db-schema --input '<fixture>' --validate-input` exits 0 and produces valid `schemaFiles[]`
-- [ ] Drizzle ORM output: generated schema compiles (`tsc --noEmit`)
-- [ ] Relationship types handled: one-to-many, many-to-many, self-referential
-- [ ] Eval fixture passes: data model → Drizzle schema → TypeScript compiles
-- [ ] `pnpm -C packages/contracts check:breaking` exits 0
-- [ ] No ORM-specific retry logic created
-- [ ] `pnpm factory:health` exits 0
+- [x] `pnpm af agent:validate db-schema` exits 0
+- [x] `pnpm af agent:run db-schema --input '<fixture>' --validate-input` exits 0 and produces valid `schemaFiles[]`
+- [x] Drizzle ORM output: generated schema compiles (`tsc --noEmit`)
+- [x] Relationship types handled: one-to-many, many-to-many, self-referential
+- [x] Eval fixture passes: data model → Drizzle schema → TypeScript compiles
+- [x] `pnpm -C packages/contracts check:breaking` exits 0
+- [x] No ORM-specific retry logic created
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -539,7 +539,7 @@ pnpm factory:health
 | ------ | --------- | ------------------------------------------------ | ---- |
 | 17     | S17       | Code Generation Agent — Greenfield Files         | PASS |
 | 18     | S18       | Project Scaffold Agent                           | PASS |
-| 19     | S19       | Database Schema & Migration Agent                |      |
+| 19     | S19       | Database Schema & Migration Agent                | PASS |
 | 20     | S20       | API Route Generation Agent                       |      |
 | 21     | S21       | Frontend Component Generation Agent              |      |
 | 22     | S22       | Authentication Scaffold Agent                    |      |
