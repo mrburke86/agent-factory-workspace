@@ -1,0 +1,44 @@
+{
+  "componentSpec": {
+    "name": "UserCard",
+    "purpose": "Display user profile summary and quick actions",
+    "props": [
+      {
+        "name": "user",
+        "type": "User",
+        "required": true,
+        "description": "User profile payload"
+      },
+      {
+        "name": "showActions",
+        "type": "boolean",
+        "required": false
+      }
+    ],
+    "dataSources": [
+      {
+        "name": "users-api",
+        "kind": "rest",
+        "description": "Fetches user profile details"
+      }
+    ],
+    "interactions": [
+      {
+        "name": "open-details",
+        "trigger": "keyboard-or-click",
+        "outcome": "Open detailed user panel"
+      }
+    ],
+    "techStack": {
+      "language": "typescript",
+      "framework": "next",
+      "styling": "tailwind"
+    }
+  },
+  "designSystem": {
+    "componentLibrary": "shadcn/ui",
+    "styling": "tailwind"
+  },
+  "outputDir": "src/generated-ui",
+  "correlationId": "fixture-ui-gen-component"
+}

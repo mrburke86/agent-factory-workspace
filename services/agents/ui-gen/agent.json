@@ -1,0 +1,167 @@
+{
+  "id": "ui-gen",
+  "name": "Frontend Component Generation Agent",
+  "version": "1.0.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["componentSpec"],
+    "properties": {
+      "componentSpec": {
+        "type": "object",
+        "required": ["name", "purpose"],
+        "properties": {
+          "name": { "type": "string" },
+          "purpose": { "type": "string" },
+          "props": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "required": { "type": "boolean" },
+                "description": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "dataSources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "type": "string" },
+                "kind": { "type": "string" },
+                "description": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "interactions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "type": "string" },
+                "trigger": { "type": "string" },
+                "outcome": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "techStack": {
+            "type": "object",
+            "properties": {
+              "language": { "type": "string" },
+              "framework": { "type": "string" },
+              "styling": { "type": "string" }
+            },
+            "additionalProperties": false
+          },
+          "designSystem": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "componentLibrary": { "type": "string" },
+              "styling": { "type": "string" }
+            },
+            "additionalProperties": false
+          },
+          "generatePage": { "type": "boolean" },
+          "page": {
+            "type": "object",
+            "properties": {
+              "generate": { "type": "boolean" },
+              "route": { "type": "string" },
+              "title": { "type": "string" },
+              "purpose": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "designSystem": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "componentLibrary": { "type": "string" },
+          "styling": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "outputDir": { "type": "string" },
+      "correlationId": { "type": "string" }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["componentFiles", "runtimeEvents"],
+    "properties": {
+      "componentFiles": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["path", "content", "language"],
+          "properties": {
+            "path": { "type": "string" },
+            "content": { "type": "string" },
+            "language": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "pageFiles": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["path", "content", "language"],
+          "properties": {
+            "path": { "type": "string" },
+            "content": { "type": "string" },
+            "language": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "runtimeEvents": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["eventName", "eventVersion", "occurredAt", "correlationId", "payload"],
+          "properties": {
+            "eventName": { "type": "string" },
+            "eventVersion": { "type": "string" },
+            "occurredAt": { "type": "string" },
+            "correlationId": { "type": "string" },
+            "tenantId": { "type": "string" },
+            "payload": { "type": "object", "properties": {}, "additionalProperties": true }
+          },
+          "additionalProperties": false
+        }
+      },
+      "recovery": {
+        "type": "object",
+        "required": ["action", "rationale"],
+        "properties": {
+          "action": { "type": "string" },
+          "rationale": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": [
+    "code-generation",
+    "ui-gen",
+    "wcag-2.1-aa-output",
+    "file-scope-enforcement",
+    "compile-validation"
+  ]
+}

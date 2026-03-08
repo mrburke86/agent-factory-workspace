@@ -300,29 +300,29 @@ Create a `ui-gen` agent at `services/agents/ui-gen/` that accepts a component sp
 
 **Tasks:**
 
-- [ ] Create `services/agents/ui-gen/agent.json` with `inputSchema` and `outputSchema`
-- [ ] Create `services/agents/ui-gen/src/index.ts` implementing `run(input)` → `AgentResult`
-- [ ] Create `services/agents/ui-gen/package.json` with workspace deps
-- [ ] Create `services/agents/ui-gen/tsconfig.json` extending workspace base
-- [ ] Create `services/agents/ui-gen/README.md`
-- [ ] Default design system: shadcn/ui + Tailwind CSS (overridable via L2 config)
-- [ ] WCAG 2.1 AA compliance: semantic HTML, ARIA labels, keyboard navigation
-- [ ] Responsive: mobile-first with Tailwind breakpoints
-- [ ] Output: `componentFiles[]`, `pageFiles?`
-- [ ] Create eval fixture: fixture spec → `.tsx` → validate compiles + accessibility attributes present
-- [ ] Add eval fixture(s) to `packages/evals/fixtures/`
-- [ ] Run `pnpm install` to regenerate lockfile
+- [x] Create `services/agents/ui-gen/agent.json` with `inputSchema` and `outputSchema`
+- [x] Create `services/agents/ui-gen/src/index.ts` implementing `run(input)` → `AgentResult`
+- [x] Create `services/agents/ui-gen/package.json` with workspace deps
+- [x] Create `services/agents/ui-gen/tsconfig.json` extending workspace base
+- [x] Create `services/agents/ui-gen/README.md`
+- [x] Default design system: shadcn/ui + Tailwind CSS (overridable via L2 config)
+- [x] WCAG 2.1 AA compliance: semantic HTML, ARIA labels, keyboard navigation
+- [x] Responsive: mobile-first with Tailwind breakpoints
+- [x] Output: `componentFiles[]`, `pageFiles?`
+- [x] Create eval fixture: fixture spec → `.tsx` → validate compiles + accessibility attributes present
+- [x] Add eval fixture(s) to `packages/evals/fixtures/`
+- [x] Run `pnpm install` to regenerate lockfile
 
 **Acceptance Criteria:**
 
-- [ ] `pnpm af agent:validate ui-gen` exits 0
-- [ ] `pnpm af agent:run ui-gen --input '<fixture>' --validate-input` exits 0 and produces valid `componentFiles[]`
-- [ ] Generated `.tsx` files compile (`tsc --noEmit`)
-- [ ] Generated components contain ARIA attributes (eval assertion)
-- [ ] Generated components use semantic HTML elements (eval assertion)
-- [ ] Eval fixture passes: component spec → `.tsx` → compiles + a11y attributes present
-- [ ] `pnpm -C packages/contracts check:breaking` exits 0
-- [ ] `pnpm factory:health` exits 0
+- [x] `pnpm af agent:validate ui-gen` exits 0
+- [x] `pnpm af agent:run ui-gen --input '<fixture>' --validate-input` exits 0 and produces valid `componentFiles[]`
+- [x] Generated `.tsx` files compile (`tsc --noEmit`)
+- [x] Generated components contain ARIA attributes (eval assertion)
+- [x] Generated components use semantic HTML elements (eval assertion)
+- [x] Eval fixture passes: component spec → `.tsx` → compiles + a11y attributes present
+- [x] `pnpm -C packages/contracts check:breaking` exits 0
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -541,7 +541,7 @@ pnpm factory:health
 | 18     | S18       | Project Scaffold Agent                           | PASS |
 | 19     | S19       | Database Schema & Migration Agent                | PASS |
 | 20     | S20       | API Route Generation Agent                       | PASS |
-| 21     | S21       | Frontend Component Generation Agent              |      |
+| 21     | S21       | Frontend Component Generation Agent              | PASS |
 | 22     | S22       | Authentication Scaffold Agent                    |      |
 | 23     | S23       | Payments Integration Agent                       |      |
 | 24     | S24       | Full-Stack Integration Test — Next.js Micro-SaaS |      |
