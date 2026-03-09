@@ -356,34 +356,34 @@ Create an `auth-scaffold` agent at `services/agents/auth-scaffold/` that generat
 
 **Tasks:**
 
-- [ ] Create `services/agents/auth-scaffold/agent.json` with `inputSchema` and `outputSchema`
-- [ ] Create `services/agents/auth-scaffold/src/index.ts` implementing `run(input)` → `AgentResult`
-- [ ] Create `services/agents/auth-scaffold/package.json` with workspace deps
-- [ ] Create `services/agents/auth-scaffold/tsconfig.json` extending workspace base
-- [ ] Create `services/agents/auth-scaffold/README.md`
-- [ ] Support Auth.js/NextAuth (primary) and custom JWT (secondary)
-- [ ] Support providers: Google, GitHub, email/password
-- [ ] Generate: auth config, session middleware, login/signup pages, protected route wrapper
-- [ ] Output: `configFiles[]`, `routeFiles[]`, `middlewareFiles[]`, `componentFiles?`
-- [ ] Log Human-required decisions (auth strategy, provider selection) via S14 `DecisionLogEntry`
-- [ ] Verify `DecisionLogEntry` exact type name and level enum values from `packages/contracts` source — use actual enum casing (e.g., `human_required` vs `HUMAN_REQUIRED`). Document verified values in README for S23 to reuse.
-- [ ] Create eval fixture: fixture spec → Auth.js config → validate TypeScript compiles
-- [ ] Add eval fixture(s) to `packages/evals/fixtures/`
-- [ ] Verify decision-log entries emit correctly
-- [ ] Run `pnpm install` to regenerate lockfile
+- [x] Create `services/agents/auth-scaffold/agent.json` with `inputSchema` and `outputSchema`
+- [x] Create `services/agents/auth-scaffold/src/index.ts` implementing `run(input)` → `AgentResult`
+- [x] Create `services/agents/auth-scaffold/package.json` with workspace deps
+- [x] Create `services/agents/auth-scaffold/tsconfig.json` extending workspace base
+- [x] Create `services/agents/auth-scaffold/README.md`
+- [x] Support Auth.js/NextAuth (primary) and custom JWT (secondary)
+- [x] Support providers: Google, GitHub, email/password
+- [x] Generate: auth config, session middleware, login/signup pages, protected route wrapper
+- [x] Output: `configFiles[]`, `routeFiles[]`, `middlewareFiles[]`, `componentFiles?`
+- [x] Log Human-required decisions (auth strategy, provider selection) via S14 `DecisionLogEntry`
+- [x] Verify `DecisionLogEntry` exact type name and level enum values from `packages/contracts` source — use actual enum casing (e.g., `human_required` vs `HUMAN_REQUIRED`). Document verified values in README for S23 to reuse.
+- [x] Create eval fixture: fixture spec → Auth.js config → validate TypeScript compiles
+- [x] Add eval fixture(s) to `packages/evals/fixtures/`
+- [x] Verify decision-log entries emit correctly
+- [x] Run `pnpm install` to regenerate lockfile
 
 **Acceptance Criteria:**
 
-- [ ] `pnpm af agent:validate auth-scaffold` exits 0
-- [ ] `pnpm af agent:run auth-scaffold --input '<fixture>' --validate-input` exits 0 and produces valid output
-- [ ] Generated Auth.js config compiles (`tsc --noEmit`)
-- [ ] Auth strategy logged as `DecisionLogEntry` with level matching S14 enum for human-required decisions
-- [ ] Provider selection logged as `DecisionLogEntry` with level matching S14 enum for human-required decisions
-- [ ] `DecisionLogEntry` level enum values verified from `packages/contracts` source and documented in README
-- [ ] Eval fixture passes: auth spec → Auth.js config → TypeScript compiles
-- [ ] `pnpm -C packages/contracts check:breaking` exits 0
-- [ ] No auth-specific decision system created (uses S14 shared interface)
-- [ ] `pnpm factory:health` exits 0
+- [x] `pnpm af agent:validate auth-scaffold` exits 0
+- [x] `pnpm af agent:run auth-scaffold --input '<fixture>' --validate-input` exits 0 and produces valid output
+- [x] Generated Auth.js config compiles (`tsc --noEmit`)
+- [x] Auth strategy logged as `DecisionLogEntry` with level matching S14 enum for human-required decisions
+- [x] Provider selection logged as `DecisionLogEntry` with level matching S14 enum for human-required decisions
+- [x] `DecisionLogEntry` level enum values verified from `packages/contracts` source and documented in README
+- [x] Eval fixture passes: auth spec → Auth.js config → TypeScript compiles
+- [x] `pnpm -C packages/contracts check:breaking` exits 0
+- [x] No auth-specific decision system created (uses S14 shared interface)
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -542,7 +542,7 @@ pnpm factory:health
 | 19     | S19       | Database Schema & Migration Agent                | PASS |
 | 20     | S20       | API Route Generation Agent                       | PASS |
 | 21     | S21       | Frontend Component Generation Agent              | PASS |
-| 22     | S22       | Authentication Scaffold Agent                    |      |
+| 22     | S22       | Authentication Scaffold Agent                    | PASS |
 | 23     | S23       | Payments Integration Agent                       |      |
 | 24     | S24       | Full-Stack Integration Test — Next.js Micro-SaaS |      |
 

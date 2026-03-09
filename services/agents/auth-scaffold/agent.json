@@ -1,0 +1,155 @@
+{
+  "id": "auth-scaffold",
+  "name": "Authentication Scaffold Agent",
+  "version": "1.0.0",
+  "entry": "./dist/index.js",
+  "inputSchema": {
+    "type": "object",
+    "required": ["authSpec", "outputDir"],
+    "properties": {
+      "authSpec": {
+        "type": "object",
+        "required": ["strategy", "providers", "techStack"],
+        "properties": {
+          "strategy": { "type": "string" },
+          "providers": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "techStack": {
+            "type": "object",
+            "required": ["language", "framework"],
+            "properties": {
+              "language": { "type": "string" },
+              "framework": { "type": "string" }
+            },
+            "additionalProperties": false
+          },
+          "ui": {
+            "type": "object",
+            "properties": {
+              "loginPage": { "type": "boolean" },
+              "signupPage": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputDir": { "type": "string" },
+      "correlationId": { "type": "string" }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": ["configFiles", "routeFiles", "middlewareFiles", "decisionLog", "runtimeEvents"],
+    "properties": {
+      "configFiles": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["path", "content", "language"],
+          "properties": {
+            "path": { "type": "string" },
+            "content": { "type": "string" },
+            "language": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "routeFiles": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["path", "content", "language"],
+          "properties": {
+            "path": { "type": "string" },
+            "content": { "type": "string" },
+            "language": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "middlewareFiles": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["path", "content", "language"],
+          "properties": {
+            "path": { "type": "string" },
+            "content": { "type": "string" },
+            "language": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "componentFiles": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["path", "content", "language"],
+          "properties": {
+            "path": { "type": "string" },
+            "content": { "type": "string" },
+            "language": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "decisionLog": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["key", "level", "summary", "rationale", "selectedOption"],
+          "properties": {
+            "key": { "type": "string" },
+            "level": { "type": "string" },
+            "summary": { "type": "string" },
+            "rationale": { "type": "string" },
+            "selectedOption": { "type": "string" },
+            "alternatives": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "runtimeEvents": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["eventName", "eventVersion", "occurredAt", "correlationId", "payload"],
+          "properties": {
+            "eventName": { "type": "string" },
+            "eventVersion": { "type": "string" },
+            "occurredAt": { "type": "string" },
+            "correlationId": { "type": "string" },
+            "tenantId": { "type": "string" },
+            "payload": { "type": "object", "properties": {}, "additionalProperties": true }
+          },
+          "additionalProperties": false
+        }
+      },
+      "recovery": {
+        "type": "object",
+        "required": ["action", "rationale"],
+        "properties": {
+          "action": { "type": "string" },
+          "rationale": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+  },
+  "capabilities": [
+    "auth-scaffold",
+    "authjs-nextauth-generation",
+    "jwt-scaffold-generation",
+    "decision-log-entry",
+    "file-scope-enforcement",
+    "compile-validation"
+  ]
+}

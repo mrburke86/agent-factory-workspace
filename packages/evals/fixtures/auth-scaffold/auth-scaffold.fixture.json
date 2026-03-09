@@ -1,0 +1,16 @@
+{
+  "authSpec": {
+    "strategy": "authjs",
+    "providers": ["google", "github"],
+    "techStack": {
+      "language": "typescript",
+      "framework": "nextjs-app-router"
+    },
+    "ui": {
+      "loginPage": true,
+      "signupPage": true
+    }
+  },
+  "outputDir": "src/generated-auth",
+  "correlationId": "auth-scaffold-fixture"
+}

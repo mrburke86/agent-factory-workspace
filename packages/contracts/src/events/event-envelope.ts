@@ -3,6 +3,7 @@ import { z } from "zod";
 /**
  * Consumed by:
  * - services/agents/code-gen
+ * - services/agents/auth-scaffold
  */
 export const EventEnvelopeSchema = z.object({
   eventName: z.string(),
