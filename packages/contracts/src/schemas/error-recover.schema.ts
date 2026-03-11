@@ -23,6 +23,7 @@ export type ErrorClass = z.infer<typeof ErrorClassSchema>;
  * - services/agents/error-recover
  * - services/agents/code-gen
  * - services/agents/auth-scaffold
+ * - services/agents/payments-gen
  */
 export const RecoveryActionSchema = z.enum(["retry_modified", "rollback", "skip_and_flag", "escalate"]);
 

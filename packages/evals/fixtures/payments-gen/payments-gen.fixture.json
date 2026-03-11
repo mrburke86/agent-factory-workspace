@@ -1,0 +1,23 @@
+{
+  "paymentSpec": {
+    "provider": "stripe",
+    "paymentModel": "subscription",
+    "webhookEvents": [
+      "checkout.session.completed",
+      "invoice.payment_succeeded"
+    ],
+    "techStack": {
+      "language": "typescript",
+      "framework": "nextjs-app-router"
+    },
+    "checkout": {
+      "successUrl": "https://example.test/billing/success",
+      "cancelUrl": "https://example.test/billing/cancel"
+    },
+    "ui": {
+      "billingDashboard": true
+    }
+  },
+  "outputDir": "src/generated-payments",
+  "correlationId": "payments-gen-fixture"
+}

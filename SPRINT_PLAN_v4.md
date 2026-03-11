@@ -417,33 +417,33 @@ Create a `payments-gen` agent at `services/agents/payments-gen/` that generates 
 
 **Tasks:**
 
-- [ ] Create `services/agents/payments-gen/agent.json` with `inputSchema` and `outputSchema`
-- [ ] Create `services/agents/payments-gen/src/index.ts` implementing `run(input)` → `AgentResult`
-- [ ] Create `services/agents/payments-gen/package.json` with workspace deps
-- [ ] Create `services/agents/payments-gen/tsconfig.json` extending workspace base
-- [ ] Create `services/agents/payments-gen/README.md`
-- [ ] Support payment models: one-time, subscriptions, usage-based billing
-- [ ] Stripe-specific: webhook signature verification, idempotency keys, error handling
-- [ ] Output: `webhookHandlers[]`, `checkoutFiles[]`, `billingComponents?`, `configFiles[]`
-- [ ] Log Human-required decisions (payment model architecture) via S14 `DecisionLogEntry`
-- [ ] Log Supervised decisions (webhook event selection) via S14 `DecisionLogEntry`
-- [ ] Create eval fixture: fixture spec → webhook handler → validate compiles + includes signature verification
-- [ ] Add eval fixture(s) to `packages/evals/fixtures/`
-- [ ] Verify decision-log entries emit correctly
-- [ ] Run `pnpm install` to regenerate lockfile
+- [x] Create `services/agents/payments-gen/agent.json` with `inputSchema` and `outputSchema`
+- [x] Create `services/agents/payments-gen/src/index.ts` implementing `run(input)` → `AgentResult`
+- [x] Create `services/agents/payments-gen/package.json` with workspace deps
+- [x] Create `services/agents/payments-gen/tsconfig.json` extending workspace base
+- [x] Create `services/agents/payments-gen/README.md`
+- [x] Support payment models: one-time, subscriptions, usage-based billing
+- [x] Stripe-specific: webhook signature verification, idempotency keys, error handling
+- [x] Output: `webhookHandlers[]`, `checkoutFiles[]`, `billingComponents?`, `configFiles[]`
+- [x] Log Human-required decisions (payment model architecture) via S14 `DecisionLogEntry`
+- [x] Log Supervised decisions (webhook event selection) via S14 `DecisionLogEntry`
+- [x] Create eval fixture: fixture spec → webhook handler → validate compiles + includes signature verification
+- [x] Add eval fixture(s) to `packages/evals/fixtures/`
+- [x] Verify decision-log entries emit correctly
+- [x] Run `pnpm install` to regenerate lockfile
 
 **Acceptance Criteria:**
 
-- [ ] `pnpm af agent:validate payments-gen` exits 0
-- [ ] `pnpm af agent:run payments-gen --input '<fixture>' --validate-input` exits 0 and produces valid output
-- [ ] Generated webhook handler compiles (`tsc --noEmit`)
-- [ ] Generated webhook handler includes Stripe signature verification (eval assertion)
-- [ ] Payment model architecture logged as `DecisionLogEntry` with level `human_required`
-- [ ] Webhook event selection logged as `DecisionLogEntry` with level `supervised`
-- [ ] Eval fixture passes: payment spec → webhook handler → compiles + signature verification present
-- [ ] `pnpm -C packages/contracts check:breaking` exits 0
-- [ ] No payment-specific decision or retry system created
-- [ ] `pnpm factory:health` exits 0
+- [x] `pnpm af agent:validate payments-gen` exits 0
+- [x] `pnpm af agent:run payments-gen --input '<fixture>' --validate-input` exits 0 and produces valid output
+- [x] Generated webhook handler compiles (`tsc --noEmit`)
+- [x] Generated webhook handler includes Stripe signature verification (eval assertion)
+- [x] Payment model architecture logged as `DecisionLogEntry` with level `human_required`
+- [x] Webhook event selection logged as `DecisionLogEntry` with level `supervised`
+- [x] Eval fixture passes: payment spec → webhook handler → compiles + signature verification present
+- [x] `pnpm -C packages/contracts check:breaking` exits 0
+- [x] No payment-specific decision or retry system created
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -543,7 +543,7 @@ pnpm factory:health
 | 20     | S20       | API Route Generation Agent                       | PASS |
 | 21     | S21       | Frontend Component Generation Agent              | PASS |
 | 22     | S22       | Authentication Scaffold Agent                    | PASS |
-| 23     | S23       | Payments Integration Agent                       |      |
+| 23     | S23       | Payments Integration Agent                       | PASS |
 | 24     | S24       | Full-Stack Integration Test — Next.js Micro-SaaS |      |
 
 ---
