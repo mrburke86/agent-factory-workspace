@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TaskClassificationSchema } from "./common.schema.js";
 import { TechStackSchema } from "./layer2-config.schema.js";
 
 export const TaskComplexitySchema = z.enum(["S", "M", "L"]);
@@ -11,6 +12,7 @@ export const DecomposedTaskSchema = z.object({
   description: z.string().min(1),
   dependsOn: z.array(z.string().min(1)),
   fileScope: z.array(z.string().min(1)).min(1).max(3),
+  classification: TaskClassificationSchema.optional(),
   estimatedComplexity: TaskComplexitySchema,
 });
 

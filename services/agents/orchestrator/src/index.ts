@@ -30,6 +30,14 @@ import {
 
 const AGENT_NAME = "orchestrator";
 const STAGE_ORDER = ["context-gather", "plan", "repo-patch", "validate", "git-pr"] as const;
+const GENERATION_STAGE_ORDER = [
+  "scaffold",
+  "schema_gen",
+  "route_gen",
+  "component_gen",
+  "auth_config",
+  "payment_config",
+] as const;
 
 type StageName = (typeof STAGE_ORDER)[number];
 type StageRunner = (input: unknown) => Promise<unknown>;
@@ -38,6 +46,7 @@ type zodInfer<TSchema extends { parse(value: unknown): unknown }> = ReturnType<T
 type OrchestratorAgentInput = OrchestratorInput | MultiTaskOrchestratorInput;
 type SingleTaskPipelineTask = zodInfer<typeof DecomposedTaskSchema>;
 type Layer2Config = zodInfer<typeof Layer2ConfigSchema>;
+type GenerationStageClassification = (typeof GENERATION_STAGE_ORDER)[number];
 
 type ValidateStageOutput = {
   ok: boolean;
@@ -292,6 +301,52 @@ function buildPlanTask(task: SingleTaskPipelineTask) {
   };
 }
 
+function buildRepoPatchTask(task: SingleTaskPipelineTask) {
+  return {
+    ...buildPlanTask(task),
+    ...(typeof task.classification === "string" ? { classification: task.classification } : {}),
+  };
+}
+
+function isGenerationClassification(value: unknown): value is GenerationStageClassification {
+  return typeof value === "string" && GENERATION_STAGE_ORDER.includes(value as GenerationStageClassification);
+}
+
+function validateGenerationTaskSequence(tasks: SingleTaskPipelineTask[]): void {
+  const generationTasks = tasks.filter((task) => isGenerationClassification(task.classification));
+  if (generationTasks.length === 0) {
+    return;
+  }
+
+  if (generationTasks.length !== GENERATION_STAGE_ORDER.length) {
+    throw new Error(
+      `generation pipeline requires ${GENERATION_STAGE_ORDER.length} classified tasks; received ${generationTasks.length}`,
+    );
+  }
+
+  for (let index = 0; index < GENERATION_STAGE_ORDER.length; index += 1) {
+    const expectedClassification = GENERATION_STAGE_ORDER[index];
+    const task = generationTasks[index];
+
+    if (task.classification !== expectedClassification) {
+      throw new Error(
+        `generation task ${index + 1} must be '${expectedClassification}', received '${String(task.classification)}'`,
+      );
+    }
+
+    if (index === 0) {
+      continue;
+    }
+
+    const previousTask = generationTasks[index - 1];
+    if (!task.dependsOn.includes(previousTask.id)) {
+      throw new Error(
+        `generation task '${task.id}' must depend on immediate predecessor '${previousTask.id}'`,
+      );
+    }
+  }
+}
+
 function extractRepoPatchOutputValue(repoPatch: zodInfer<typeof RepoPatchResultSchema>, key: string): unknown {
   const match = repoPatch.outputs.find((entry) => entry.key === key);
   return match?.value;
@@ -361,7 +416,7 @@ function buildStageInput(
     case "plan":
       return buildPlanTask(task);
     case "repo-patch":
-      return buildPlanTask(task);
+      return buildRepoPatchTask(task);
     case "validate":
       return buildValidateInput(state, repoRoot, artifactBase);
     case "git-pr":
@@ -853,6 +908,7 @@ async function runMultiTaskImpl(input: MultiTaskOrchestratorInput): Promise<Mult
 
   const taskList = DecomposedTaskListSchema.parse(parsed.taskList);
   const orderedTasks = topologicallySortTasks(taskList.tasks);
+  validateGenerationTaskSequence(orderedTasks);
   const l2Config = Layer2ConfigSchema.parse(parsed.l2Config);
   const repoRoot = resolve(parsed.repoRoot);
   const correlationId = randomUUID();

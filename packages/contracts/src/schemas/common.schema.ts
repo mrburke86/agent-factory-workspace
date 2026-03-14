@@ -35,3 +35,25 @@ export const DecisionLogEntrySchema = z.object({
 });
 
 export type DecisionLogEntry = z.infer<typeof DecisionLogEntrySchema>;
+
+export const KNOWN_TASK_CLASSIFICATIONS = [
+  "scaffold",
+  "schema_gen",
+  "route_gen",
+  "component_gen",
+  "auth_config",
+  "payment_config",
+] as const;
+
+export const KnownTaskClassificationSchema = z.enum(KNOWN_TASK_CLASSIFICATIONS);
+
+export type KnownTaskClassification = z.infer<typeof KnownTaskClassificationSchema>;
+export type TaskClassification = KnownTaskClassification | (string & {});
+
+/**
+ * Consumed by:
+ * - services/agents/orchestrator
+ * - packages/evals/scripts/eval_golden_fixtures.ts
+ * - packages/evals/scripts/eval_phase4_integration.ts
+ */
+export const TaskClassificationSchema = z.union([KnownTaskClassificationSchema, NON_EMPTY]);

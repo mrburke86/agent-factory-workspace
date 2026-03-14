@@ -477,39 +477,39 @@ Wire the full-stack generation pipeline through the Phase 3 orchestrator: `proje
 
 **Tasks:**
 
-- [ ] **Prerequisite check:** Verify `run:golden-fixtures` script exists in `packages/evals/package.json` — if missing, create it as part of this sprint
-- [ ] **Prerequisite check:** Verify S15 `TaskClassification` schema supports extension (open discriminated union) — if closed enum, convert to open union as an additive change before adding Phase 4 types
-- [ ] Wire orchestrator to chain: `project-scaffold → db-schema → api-gen → ui-gen → auth-scaffold → payments-gen`
-- [ ] Create end-to-end integration test with Next.js micro-SaaS L2 config (`docs/examples/nextjs-micro-saas.json`)
-- [ ] Generated project passes: `pnpm install && tsc --noEmit && next build`
-- [ ] Minimum generation output: 1 API route, 1 DB schema, 1 UI component, auth config, Stripe webhook
-- [ ] Operationalize `TaskClassification` schema with types: `scaffold`, `schema_gen`, `route_gen`, `component_gen`, `auth_config`, `payment_config`
-- [ ] Extend S16 golden fixture set with task classification entries
-- [ ] Extend S16 golden fixture set with decision-log samples
-- [ ] Run regression against ALL S16 golden fixtures — verify no contract drift
-- [ ] Add `## Code Generation Invariants (Phase 4)` section to `AGENTS.md`
-- [ ] Update `AGENTS.md` contract consumer inventory with S17–S23 consumers
-- [ ] Update `AGENTS.md` version header to `<!-- VERSION: v4 — {DATE} -->`
-- [ ] Create Phase 4 eval suite
-- [ ] Run `pnpm install` to regenerate lockfile (if any `package.json` changed)
+- [x] **Prerequisite check:** Verify `run:golden-fixtures` script exists in `packages/evals/package.json` — if missing, create it as part of this sprint
+- [x] **Prerequisite check:** Verify S15 `TaskClassification` schema supports extension (open discriminated union) — if closed enum, convert to open union as an additive change before adding Phase 4 types
+- [x] Wire orchestrator to chain: `project-scaffold → db-schema → api-gen → ui-gen → auth-scaffold → payments-gen`
+- [x] Create end-to-end integration test with Next.js micro-SaaS L2 config (`docs/examples/nextjs-micro-saas.json`)
+- [x] Generated project passes: `pnpm install && tsc --noEmit && next build`
+- [x] Minimum generation output: 1 API route, 1 DB schema, 1 UI component, auth config, Stripe webhook
+- [x] Operationalize `TaskClassification` schema with types: `scaffold`, `schema_gen`, `route_gen`, `component_gen`, `auth_config`, `payment_config`
+- [x] Extend S16 golden fixture set with task classification entries
+- [x] Extend S16 golden fixture set with decision-log samples
+- [x] Run regression against ALL S16 golden fixtures — verify no contract drift
+- [x] Add `## Code Generation Invariants (Phase 4)` section to `AGENTS.md`
+- [x] Update `AGENTS.md` contract consumer inventory with S17–S23 consumers
+- [x] Update `AGENTS.md` version header to `<!-- VERSION: v4 — {DATE} -->`
+- [x] Create Phase 4 eval suite
+- [x] Run `pnpm install` to regenerate lockfile (if any `package.json` changed)
 
 **Acceptance Criteria:**
 
-- [ ] Orchestrator chains all 6 Phase 4 agents in correct order
-- [ ] `run:golden-fixtures` script verified (or created) in `packages/evals/package.json`
-- [ ] `TaskClassification` schema verified as extensible before adding Phase 4 types
-- [ ] End-to-end test: Next.js L2 config (`docs/examples/nextjs-micro-saas.json`) → complete project → `tsc --noEmit` exits 0
-- [ ] End-to-end test: generated project passes `next build` (or equivalent compile check)
-- [ ] Generated output includes ≥1 API route, ≥1 DB schema, ≥1 UI component, auth config, Stripe webhook
-- [ ] `TaskClassification` schema includes all 6 Phase 4 types
-- [ ] S16 golden fixture regression passes (no contract drift)
-- [ ] New golden fixtures added for task classification and decision-log entries
-- [ ] `AGENTS.md` contains `## Code Generation Invariants (Phase 4)` section
-- [ ] `AGENTS.md` contract consumer inventory includes all Phase 4 agents
-- [ ] `AGENTS.md` version header updated to v4
-- [ ] Phase 4 eval suite passes
-- [ ] `pnpm -C packages/contracts check:breaking` exits 0
-- [ ] `pnpm factory:health` exits 0
+- [x] Orchestrator chains all 6 Phase 4 agents in correct order
+- [x] `run:golden-fixtures` script verified (or created) in `packages/evals/package.json`
+- [x] `TaskClassification` schema verified as extensible before adding Phase 4 types
+- [x] End-to-end test: Next.js L2 config (`docs/examples/nextjs-micro-saas.json`) → complete project → `tsc --noEmit` exits 0
+- [x] End-to-end test: generated project passes `next build` (or equivalent compile check)
+- [x] Generated output includes ≥1 API route, ≥1 DB schema, ≥1 UI component, auth config, Stripe webhook
+- [x] `TaskClassification` schema includes all 6 Phase 4 types
+- [x] S16 golden fixture regression passes (no contract drift)
+- [x] New golden fixtures added for task classification and decision-log entries
+- [x] `AGENTS.md` contains `## Code Generation Invariants (Phase 4)` section
+- [x] `AGENTS.md` contract consumer inventory includes all Phase 4 agents
+- [x] `AGENTS.md` version header updated to v4
+- [x] Phase 4 eval suite passes
+- [x] `pnpm -C packages/contracts check:breaking` exits 0
+- [x] `pnpm factory:health` exits 0
 
 **Acceptance Commands:**
 
@@ -544,7 +544,7 @@ pnpm factory:health
 | 21     | S21       | Frontend Component Generation Agent              | PASS |
 | 22     | S22       | Authentication Scaffold Agent                    | PASS |
 | 23     | S23       | Payments Integration Agent                       | PASS |
-| 24     | S24       | Full-Stack Integration Test — Next.js Micro-SaaS |      |
+| 24     | S24       | Full-Stack Integration Test — Next.js Micro-SaaS | PASS |
 
 ---
 

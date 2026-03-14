@@ -1,0 +1,36 @@
+{
+  "taskClassifications": [
+    "scaffold",
+    "schema_gen",
+    "route_gen",
+    "component_gen",
+    "auth_config",
+    "payment_config"
+  ],
+  "decisionLogEntries": [
+    {
+      "key": "auth-strategy",
+      "level": "human_required",
+      "summary": "Select the authentication strategy for the Next.js SaaS project.",
+      "rationale": "Authentication strategy affects provider setup, session handling, and downstream route protection.",
+      "selectedOption": "authjs",
+      "alternatives": ["jwt"]
+    },
+    {
+      "key": "payment-model-architecture",
+      "level": "human_required",
+      "summary": "Select the Stripe billing model for the micro-SaaS application.",
+      "rationale": "Billing architecture impacts checkout routes, webhook handling, and dashboard messaging.",
+      "selectedOption": "subscription",
+      "alternatives": ["one_time", "usage_based"]
+    },
+    {
+      "key": "webhook-event-selection",
+      "level": "supervised",
+      "summary": "Confirm the Stripe webhook events required by the billing workflow.",
+      "rationale": "Webhook selection controls which Stripe lifecycle events update application state.",
+      "selectedOption": "checkout.session.completed,invoice.payment_succeeded",
+      "alternatives": ["customer.subscription.updated", "invoice.upcoming"]
+    }
+  ]
+}
